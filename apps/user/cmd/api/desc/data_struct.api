@@ -1,0 +1,50 @@
+syntax = "v1"
+
+info(
+    title: "用户实体信息"
+    desc: "用户数据相关结构体"
+    author: "cengdong"
+    email: "happy_game_dong@163.com"
+    version: "v0.1"
+)
+
+type User {
+    UserId int64 `json:"userId"`
+    Username string `json:"username"`
+}
+
+type (
+    // 注册请求
+    RegisterReq {
+        // 用户名
+        Username string `json:"username" validate:"required"`
+        // 密码
+        Password string `json:"password" validate:"required,password"`
+    }
+        // 注册响应
+    RegisterResp {
+        AccessToken string `json:"accessToken"`
+        RefreshToken string `json:"refreshToken"`
+        ExpireTime string `json:"expireTime"`
+    }
+)
+
+type (
+    LoginReq {
+        Username   string `json:"username"`
+        Password string `json:"password"`
+    }
+    LoginResp {
+        AccessToken string `json:"accessToken"`
+        RefreshToken string `json:"refreshToken"`
+        ExpireTime string `json:"expireTime"`
+    }
+)
+
+type (
+    UserInfoReq {
+    }
+    UserInfoResp {
+        UserInfo User `json:"userInfo"`
+    }
+)

@@ -1,0 +1,35 @@
+syntax = "v1"
+
+info(
+	title: "用户中心"
+	desc: "用户基本数据与接口定义"
+	author: "cengdong"
+	email: "happy_game_dong@163.com"
+	version: "v0.1"
+)
+
+import (
+	"data_struct.api"
+)
+
+@server(
+	group: user
+	prefix: user/v1
+)
+service user {
+	@doc "用户注册接口"
+	@handler register
+	post /register (RegisterReq) returns (RegisterResp)
+}
+
+//@server(
+//	group: user
+//	prefix: user/v1
+//	jwt: JwtAuth
+//)
+//
+//service user {
+//	@doc "get user info"
+//	@handler detail
+//	post /detail (UserInfoReq) returns (UserInfoResp)
+//}

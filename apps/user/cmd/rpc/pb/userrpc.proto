@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+package pb;
+
+
+message RegisterUserReq {
+    string username = 1; //用户名称
+    string password = 2; //用户密码
+}
+
+message RegisterUserResp {
+    string access_token = 1;
+    int64  refresh_after = 2;
+    int64  expire_time = 3;
+}
+
+message GenerateTokenReq {
+    int64 user_id = 1;
+}
+message GenerateTokenResp {
+    string access_token = 1;
+    int64  refresh_after = 2;
+    int64  expire_time = 3;
+}
+
+
+service userrpc {
+    rpc RegisterUser(RegisterUserReq) returns (RegisterUserResp);
+    rpc GenerateToken(GenerateTokenReq) returns (GenerateTokenResp);
+}
