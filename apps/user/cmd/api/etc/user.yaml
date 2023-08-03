@@ -13,6 +13,7 @@ Log:
   StackCooldownMillis: 100
 
 UserRpcConf:
-  Endpoints:
-    - 127.0.0.1:8080
-  NonBlock: true
+  Etcd:
+    Hosts:
+      - 47.99.140.12:2379
+    Key: user.rpc

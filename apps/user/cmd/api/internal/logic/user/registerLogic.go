@@ -35,6 +35,7 @@ func (l *RegisterLogic) Register(req *types.RegisterReq) (resp *types.RegisterRe
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %+v", req)
 	}
-	_ = copier.Copy(resp, registerResp)
+	resp = new(types.RegisterResp)
+	_ = copier.Copy(&resp, registerResp)
 	return resp, nil
 }
