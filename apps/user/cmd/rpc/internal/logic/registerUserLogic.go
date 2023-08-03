@@ -15,7 +15,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-var ErrUserAlreadyRegisterError = xerr.NewErrMsg("user has been registered")
+var ErrUserAlreadyRegister = xerr.NewErrMsg("user has been registered")
 
 type RegisterUserLogic struct {
 	ctx    context.Context
@@ -42,12 +42,12 @@ func (l *RegisterUserLogic) RegisterUser(in *pb.RegisterUserReq) (*pb.RegisterUs
 	}
 	user, err := l.svcCtx.Query.User.WithContext(l.ctx).Where(l.svcCtx.Query.User.Username.Eq(in.GetUsername())).First()
 	// 查询数据库时出现错误
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "find user by username failed, username: %s, err: %v", in.GetUsername(), err)
 	}
 	// 用户已存在
 	if user != nil {
-		return nil, errors.Wrapf(ErrUserAlreadyRegisterError, "register user exists username: %s", in.GetUsername())
+		return nil, errors.Wrapf(ErrUserAlreadyRegister, "register user exists username: %s", in.GetUsername())
 	}
 	// 插入用户
 	u := &model.User{}

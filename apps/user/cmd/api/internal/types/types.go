@@ -12,9 +12,9 @@ type RegisterReq struct {
 }
 
 type RegisterResp struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
-	ExpireTime   string `json:"expireTime"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken int64  `json:"refresh_after"`
+	ExpireTime   int64  `json:"expire_time"`
 }
 
 type LoginReq struct {
@@ -23,9 +23,9 @@ type LoginReq struct {
 }
 
 type LoginResp struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
-	ExpireTime   string `json:"expireTime"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_after"`
+	ExpireTime   string `json:"expire_time"`
 }
 
 type UserInfoReq struct {
