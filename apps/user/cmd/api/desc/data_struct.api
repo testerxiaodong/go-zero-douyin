@@ -9,7 +9,7 @@ info(
 )
 
 type User {
-    UserId int64 `json:"userId"`
+    Id int64 `json:"id"`
     Username string `json:"username"`
 }
 
@@ -43,8 +43,9 @@ type (
 
 type (
     UserInfoReq {
+        Id int64 `json:"id"`
     }
     UserInfoResp {
-        UserInfo User `json:"userInfo"`
+        User User `json:"user"`
     }
 )

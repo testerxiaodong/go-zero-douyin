@@ -15,12 +15,16 @@ import (
 type (
 	GenerateTokenReq  = pb.GenerateTokenReq
 	GenerateTokenResp = pb.GenerateTokenResp
+	GetUserInfoReq    = pb.GetUserInfoReq
+	GetUserInfoResp   = pb.GetUserInfoResp
 	RegisterUserReq   = pb.RegisterUserReq
 	RegisterUserResp  = pb.RegisterUserResp
+	User              = pb.User
 
 	Userrpc interface {
 		RegisterUser(ctx context.Context, in *RegisterUserReq, opts ...grpc.CallOption) (*RegisterUserResp, error)
 		GenerateToken(ctx context.Context, in *GenerateTokenReq, opts ...grpc.CallOption) (*GenerateTokenResp, error)
+		GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserInfoResp, error)
 	}
 
 	defaultUserrpc struct {
@@ -42,4 +46,9 @@ func (m *defaultUserrpc) RegisterUser(ctx context.Context, in *RegisterUserReq, 
 func (m *defaultUserrpc) GenerateToken(ctx context.Context, in *GenerateTokenReq, opts ...grpc.CallOption) (*GenerateTokenResp, error) {
 	client := pb.NewUserrpcClient(m.cli.Conn())
 	return client.GenerateToken(ctx, in, opts...)
+}
+
+func (m *defaultUserrpc) GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserInfoResp, error) {
+	client := pb.NewUserrpcClient(m.cli.Conn())
+	return client.GetUserInfo(ctx, in, opts...)
 }

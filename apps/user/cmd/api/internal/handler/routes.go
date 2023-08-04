@@ -18,6 +18,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/register",
 				Handler: user.RegisterHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/detail",
+				Handler: user.DetailHandler(serverCtx),
+			},
 		},
 		rest.WithPrefix("/user/v1"),
 	)

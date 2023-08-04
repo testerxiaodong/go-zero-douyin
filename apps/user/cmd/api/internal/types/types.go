@@ -2,7 +2,7 @@
 package types
 
 type User struct {
-	UserId   int64  `json:"userId"`
+	Id       int64  `json:"id"`
 	Username string `json:"username"`
 }
 
@@ -29,8 +29,9 @@ type LoginResp struct {
 }
 
 type UserInfoReq struct {
+	Id int64 `json:"id"`
 }
 
 type UserInfoResp struct {
-	UserInfo User `json:"userInfo"`
+	User User `json:"user"`
 }

@@ -1,8 +1,8 @@
 api:
-	goctl api go --api ./api/desc/user.api --dir ./api/ --style=goZero
+	goctl api go --api ./api/desc/user.api --dir ./api/ --style=goZero --home=../../../deploy/goctl
 
 rpc:
-	goctl rpc protoc ./rpc/pb/userrpc.proto --go_out=./rpc --go-grpc_out=./rpc --zrpc_out=./rpc --style=goZero
+	goctl rpc protoc ./rpc/pb/userrpc.proto --go_out=./rpc --go-grpc_out=./rpc --zrpc_out=./rpc --style=goZero --home=../../../deploy/goctl
 
 gen:
 	go run ../gen/generate.go

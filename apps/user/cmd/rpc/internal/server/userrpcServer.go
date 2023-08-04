@@ -31,3 +31,8 @@ func (s *UserrpcServer) GenerateToken(ctx context.Context, in *pb.GenerateTokenR
 	l := logic.NewGenerateTokenLogic(ctx, s.svcCtx)
 	return l.GenerateToken(in)
 }
+
+func (s *UserrpcServer) GetUserInfo(ctx context.Context, in *pb.GetUserInfoReq) (*pb.GetUserInfoResp, error) {
+	l := logic.NewGetUserInfoLogic(ctx, s.svcCtx)
+	return l.GetUserInfo(in)
+}

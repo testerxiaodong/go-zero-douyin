@@ -10,16 +10,16 @@ import (
 	"go-zero-douyin/apps/user/cmd/api/internal/types"
 )
 
-func RegisterHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func DetailHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.RegisterReq
+		var req types.UserInfoReq
 		if err := httpx.Parse(r, &req); err != nil {
 			httpResponse.ParamErrorResult(r, w, err)
 			return
 		}
 
-		l := user.NewRegisterLogic(r.Context(), svcCtx)
-		resp, err := l.Register(&req)
+		l := user.NewDetailLogic(r.Context(), svcCtx)
+		resp, err := l.Detail(&req)
 		httpResponse.ApiResult(r, w, resp, err)
 	}
 }

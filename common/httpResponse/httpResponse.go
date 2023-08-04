@@ -120,8 +120,8 @@ func AuthApiResult(r *http.Request, w http.ResponseWriter, resp interface{}, err
 	}
 }
 
-// ParamApiResult http 参数错误返回
-func ParamApiResult(r *http.Request, w http.ResponseWriter, err error) {
+// ParamErrorResult http 参数校验错误返回
+func ParamErrorResult(r *http.Request, w http.ResponseWriter, err error) {
 	errMsg := fmt.Sprintf("%s ,%s", xerr.GetErrMsg(xerr.REQUEST_PARAM_ERROR), err.Error())
 	httpx.WriteJson(w, http.StatusBadRequest, Error(xerr.REQUEST_PARAM_ERROR, errMsg))
 }
