@@ -20,6 +20,10 @@ service user {
 	@doc "用户注册接口"
 	@handler register
 	post /register (RegisterReq) returns (RegisterResp)
+
+	@doc "获取用户信息"
+	@handler detail
+	get /detail (UserInfoReq) returns (UserInfoResp)
 }
 
 //@server(

@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Userrpc_RegisterUser_FullMethodName  = "/pb.userrpc/RegisterUser"
 	Userrpc_GenerateToken_FullMethodName = "/pb.userrpc/GenerateToken"
+	Userrpc_GetUserInfo_FullMethodName   = "/pb.userrpc/GetUserInfo"
 )
 
 // UserrpcClient is the client API for Userrpc service.
@@ -29,6 +30,7 @@ const (
 type UserrpcClient interface {
 	RegisterUser(ctx context.Context, in *RegisterUserReq, opts ...grpc.CallOption) (*RegisterUserResp, error)
 	GenerateToken(ctx context.Context, in *GenerateTokenReq, opts ...grpc.CallOption) (*GenerateTokenResp, error)
+	GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserInfoResp, error)
 }
 
 type userrpcClient struct {
@@ -57,12 +59,22 @@ func (c *userrpcClient) GenerateToken(ctx context.Context, in *GenerateTokenReq,
 	return out, nil
 }
 
+func (c *userrpcClient) GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserInfoResp, error) {
+	out := new(GetUserInfoResp)
+	err := c.cc.Invoke(ctx, Userrpc_GetUserInfo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserrpcServer is the server API for Userrpc service.
 // All implementations must embed UnimplementedUserrpcServer
 // for forward compatibility
 type UserrpcServer interface {
 	RegisterUser(context.Context, *RegisterUserReq) (*RegisterUserResp, error)
 	GenerateToken(context.Context, *GenerateTokenReq) (*GenerateTokenResp, error)
+	GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoResp, error)
 	mustEmbedUnimplementedUserrpcServer()
 }
 
@@ -75,6 +87,9 @@ func (UnimplementedUserrpcServer) RegisterUser(context.Context, *RegisterUserReq
 }
 func (UnimplementedUserrpcServer) GenerateToken(context.Context, *GenerateTokenReq) (*GenerateTokenResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateToken not implemented")
+}
+func (UnimplementedUserrpcServer) GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
 }
 func (UnimplementedUserrpcServer) mustEmbedUnimplementedUserrpcServer() {}
 
@@ -125,6 +140,24 @@ func _Userrpc_GenerateToken_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Userrpc_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserrpcServer).GetUserInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Userrpc_GetUserInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserrpcServer).GetUserInfo(ctx, req.(*GetUserInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Userrpc_ServiceDesc is the grpc.ServiceDesc for Userrpc service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +172,10 @@ var Userrpc_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GenerateToken",
 			Handler:    _Userrpc_GenerateToken_Handler,
+		},
+		{
+			MethodName: "GetUserInfo",
+			Handler:    _Userrpc_GetUserInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,10 +1,10 @@
 package {{.PkgName}}
 
 import (
+    "go-zero-douyin/common/httpResponse"
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"go-zero-douyin/common/httpResponse"
 	{{.ImportPackages}}
 )
 
@@ -12,7 +12,7 @@ func {{.HandlerName}}(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		{{if .HasRequest}}var req types.{{.RequestType}}
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			httpResponse.ParamErrorResult(r,w,err)
 			return
 		}
 

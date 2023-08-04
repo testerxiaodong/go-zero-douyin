@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"go-zero-douyin/common/interceptor/rpcServer"
 
 	{{.imports}}
 
@@ -30,6 +31,9 @@ func main() {
 		}
 	})
 	defer s.Stop()
+
+	//rpc log
+    s.AddUnaryInterceptors(rpcserver.LoggerInterceptor)
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()
