@@ -30,6 +30,17 @@ message GenerateTokenResp {
     int64  expire_time = 3;
 }
 
+message LoginReq {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginResp {
+    string access_token = 1;
+    int64  refresh_after = 2;
+    int64  expire_time = 3;
+}
+
 message GetUserInfoReq {
     int64 id = 1;
 }
@@ -38,9 +49,21 @@ message GetUserInfoResp {
     User user = 1;
 }
 
+message UpdateUserReq {
+    int64 id = 1;
+    string username = 2;
+    string password = 3;
+}
+
+message UpdateUserResp {
+}
+
+
 
 service userrpc {
     rpc RegisterUser(RegisterUserReq) returns (RegisterUserResp);
     rpc GenerateToken(GenerateTokenReq) returns (GenerateTokenResp);
+    rpc Login(LoginReq) returns (LoginResp);
     rpc GetUserInfo(GetUserInfoReq) returns (GetUserInfoResp);
+    rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp);
 }

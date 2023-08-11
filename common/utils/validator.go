@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"regexp"
@@ -71,7 +72,8 @@ func (v *Validator) ValidateZh(data interface{}) string {
 		return ""
 	}
 
-	errs, ok := err.(validator.ValidationErrors)
+	var errs validator.ValidationErrors
+	ok := errors.As(err, &errs)
 	if ok {
 		transData := errs.Translate(v.Trans["zh"])
 		s := strings.Builder{}
@@ -82,7 +84,8 @@ func (v *Validator) ValidateZh(data interface{}) string {
 		return s.String()
 	}
 
-	invalid, ok := err.(*validator.InvalidValidationError)
+	var invalid *validator.InvalidValidationError
+	ok = errors.As(err, &invalid)
 	if ok {
 		return invalid.Error()
 	}

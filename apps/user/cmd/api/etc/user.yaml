@@ -2,6 +2,9 @@ Name: user
 Host: 0.0.0.0
 Port: 8888
 
+JwtAuth:
+  AccessSecret: go-zero-douyin
+
 Log:
   ServiceName: api.user
   Mode: console

@@ -10,5 +10,5 @@ Etcd:
 DataSource: root:my-secret-pw@tcp(47.99.140.12:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local
 
 JwtAuth:
-  AccessSecret: douyin
-  AccessExpire: 1200
+  AccessSecret: go-zero-douyin
+  AccessExpire: 31536000

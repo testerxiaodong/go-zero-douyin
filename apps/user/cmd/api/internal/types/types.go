@@ -18,20 +18,25 @@ type RegisterResp struct {
 }
 
 type LoginReq struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 type LoginResp struct {
 	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_after"`
-	ExpireTime   string `json:"expire_time"`
+	RefreshToken int64  `json:"refresh_after"`
+	ExpireTime   int64  `json:"expire_time"`
 }
 
 type UserInfoReq struct {
-	Id int64 `json:"id"`
+	Id int64 `json:"id" validate:"required"`
 }
 
 type UserInfoResp struct {
 	User User `json:"user"`
+}
+
+type UpdateUserReq struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required,password"`
 }

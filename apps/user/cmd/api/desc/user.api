@@ -21,19 +21,23 @@ service user {
 	@handler register
 	post /register (RegisterReq) returns (RegisterResp)
 
+	@doc "用户登陆接口"
+	@handler login
+	post /login (LoginReq) returns (LoginResp)
+
 	@doc "获取用户信息"
 	@handler detail
 	get /detail (UserInfoReq) returns (UserInfoResp)
 }
 
-//@server(
-//	group: user
-//	prefix: user/v1
-//	jwt: JwtAuth
-//)
-//
-//service user {
-//	@doc "get user info"
-//	@handler detail
-//	post /detail (UserInfoReq) returns (UserInfoResp)
-//}
+@server(
+	group: user
+	prefix: user/v1
+	jwt: JwtAuth
+)
+
+service user {
+	@doc "update user info"
+	@handler update
+	post /update (UpdateUserReq)
+}

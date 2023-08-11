@@ -1,0 +1,25 @@
+syntax = "v1"
+
+info(
+	title: "视频中心"
+	desc: "视频基本数据与接口定义"
+	author: "cengdong"
+	email: "happy_game_dong@163.com"
+	version: "v0.1"
+)
+
+import (
+	"data_struct.api"
+)
+
+@server(
+	jwt: JwtAuth
+	group: video
+	prefix: video/v1
+)
+
+service video {
+	@doc "发布视频"
+	@handler publish
+	post /publish (PublishVideoReq) returns (PublishVideoResp)
+}
