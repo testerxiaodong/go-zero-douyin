@@ -1,0 +1,21 @@
+syntax = "v1"
+
+info(
+    title: "视频实体信息"
+    desc: "视频数据相关结构体"
+    author: "cengdong"
+    email: "happy_game_dong@163.com"
+    version: "v0.1"
+)
+
+type (
+    PublishVideoReq {
+        Title string `form:"title" validate:"required"`
+    }
+    PublishVideoResp {
+        Id int64 `json:"id"`
+        OwnerId int64 `json:"owner_id"`
+        VideoUrl string `json:"video_url"`
+        CoverUrl string `json:"cover_url"`
+    }
+)

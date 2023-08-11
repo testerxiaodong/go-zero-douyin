@@ -31,21 +31,28 @@ type (
 
 type (
     LoginReq {
-        Username   string `json:"username"`
-        Password string `json:"password"`
+        Username   string `json:"username" validate:"required"`
+        Password string `json:"password" validate:"required"`
     }
     LoginResp {
         AccessToken string `json:"access_token"`
-        RefreshToken string `json:"refresh_after"`
-        ExpireTime string `json:"expire_time"`
+        RefreshToken int64 `json:"refresh_after"`
+        ExpireTime int64 `json:"expire_time"`
     }
 )
 
 type (
     UserInfoReq {
-        Id int64 `json:"id"`
+        Id int64 `json:"id" validate:"required"`
     }
     UserInfoResp {
         User User `json:"user"`
+    }
+)
+
+type (
+    UpdateUserReq {
+        Username string `json:"username" validate:"required"`
+        Password string `json:"password" validate:"required,password"`
     }
 )

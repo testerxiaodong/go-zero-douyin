@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	const MysqlConfig = "root:123456@tcp(192.168.2.4:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local"
+	const MysqlConfig = "root:my-secret-pw@tcp(47.99.140.12:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local"
 
 	// 连接数据库
 	db, err := gorm.Open(mysql.Open(MysqlConfig))

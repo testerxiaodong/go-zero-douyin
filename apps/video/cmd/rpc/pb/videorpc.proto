@@ -1,0 +1,26 @@
+syntax = "proto3";
+option go_package = "./pb";
+package pb;
+
+message Video {
+  int64 id = 1;
+  string title = 2;
+  int64 owner_id =3;
+  string play_url = 4;
+  string cover_url = 5;
+}
+
+message PublishVideoReq {
+  string title = 1;
+  int64 owner_id = 2;
+  string play_url = 3;
+  string cover_url = 4;
+}
+
+message PublishVideoResp {
+  Video video = 1;
+}
+
+service videorpc {
+    rpc PublishVideo (PublishVideoReq) returns (PublishVideoResp);
+}
