@@ -16,9 +16,12 @@ type (
 	PublishVideoReq  = pb.PublishVideoReq
 	PublishVideoResp = pb.PublishVideoResp
 	Video            = pb.Video
+	VideoFeedReq     = pb.VideoFeedReq
+	VideoFeedResp    = pb.VideoFeedResp
 
 	Videorpc interface {
 		PublishVideo(ctx context.Context, in *PublishVideoReq, opts ...grpc.CallOption) (*PublishVideoResp, error)
+		VideoFeed(ctx context.Context, in *VideoFeedReq, opts ...grpc.CallOption) (*VideoFeedResp, error)
 	}
 
 	defaultVideorpc struct {
@@ -35,4 +38,9 @@ func NewVideorpc(cli zrpc.Client) Videorpc {
 func (m *defaultVideorpc) PublishVideo(ctx context.Context, in *PublishVideoReq, opts ...grpc.CallOption) (*PublishVideoResp, error) {
 	client := pb.NewVideorpcClient(m.cli.Conn())
 	return client.PublishVideo(ctx, in, opts...)
+}
+
+func (m *defaultVideorpc) VideoFeed(ctx context.Context, in *VideoFeedReq, opts ...grpc.CallOption) (*VideoFeedResp, error) {
+	client := pb.NewVideorpcClient(m.cli.Conn())
+	return client.VideoFeed(ctx, in, opts...)
 }

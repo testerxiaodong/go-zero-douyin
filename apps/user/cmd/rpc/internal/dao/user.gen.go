@@ -30,8 +30,8 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.ID = field.NewInt64(tableName, "id")
 	_user.Username = field.NewString(tableName, "username")
 	_user.Password = field.NewString(tableName, "password")
-	_user.CreateTime = field.NewTime(tableName, "create_time")
-	_user.UpdateTime = field.NewTime(tableName, "update_time")
+	_user.CreateTime = field.NewInt64(tableName, "create_time")
+	_user.UpdateTime = field.NewInt64(tableName, "update_time")
 	_user.DeleteTime = field.NewField(tableName, "delete_time")
 
 	_user.fillFieldMap()
@@ -46,8 +46,8 @@ type user struct {
 	ID         field.Int64  // 自增id
 	Username   field.String // 用户名
 	Password   field.String // 密码
-	CreateTime field.Time   // 创建时间
-	UpdateTime field.Time   // 更新时间
+	CreateTime field.Int64  // 创建时间
+	UpdateTime field.Int64  // 更新时间
 	DeleteTime field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
@@ -68,8 +68,8 @@ func (u *user) updateTableName(table string) *user {
 	u.ID = field.NewInt64(table, "id")
 	u.Username = field.NewString(table, "username")
 	u.Password = field.NewString(table, "password")
-	u.CreateTime = field.NewTime(table, "create_time")
-	u.UpdateTime = field.NewTime(table, "update_time")
+	u.CreateTime = field.NewInt64(table, "create_time")
+	u.UpdateTime = field.NewInt64(table, "update_time")
 	u.DeleteTime = field.NewField(table, "delete_time")
 
 	u.fillFieldMap()

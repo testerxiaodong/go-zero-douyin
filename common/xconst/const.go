@@ -1,6 +1,9 @@
 package xconst
 
-// 业务常量
+// 视频业务常量
+const (
+	VideoFeedCount = 10
+)
 
 // 文件资源类型
 const (

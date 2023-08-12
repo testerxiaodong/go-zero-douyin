@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/model"
 	"go-zero-douyin/common/xerr"
@@ -34,13 +33,14 @@ func (l *PublishVideoLogic) PublishVideo(in *pb.PublishVideoReq) (*pb.PublishVid
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_CHECK_ERR), "Publish video empty param")
 	}
 	// 插入数据
-	video := &model.Video{}
-	videoQuery := l.svcCtx.Query.Video
-	err := copier.Copy(video, in)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "复制pb 到 db失败，err: %v", err)
+	video := &model.Video{
+		Title:    in.GetTitle(),
+		OwnerID:  in.GetOwnerId(),
+		PlayURL:  in.GetPlayUrl(),
+		CoverURL: in.GetCoverUrl(),
 	}
-	err = videoQuery.WithContext(l.ctx).Create(video)
+	videoQuery := l.svcCtx.Query.Video
+	err := videoQuery.WithContext(l.ctx).Create(video)
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "insert video failed, err: %v", err)
 	}

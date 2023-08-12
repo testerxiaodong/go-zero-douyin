@@ -14,6 +14,17 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				Method:  http.MethodGet,
+				Path:    "/feed",
+				Handler: video.FeedHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/video/v1"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
 				Method:  http.MethodPost,
 				Path:    "/publish",
 				Handler: video.PublishHandler(serverCtx),

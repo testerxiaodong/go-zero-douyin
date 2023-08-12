@@ -13,6 +13,17 @@ import (
 )
 
 @server(
+	group: video
+	prefix: video/v1
+)
+
+service video {
+	@doc "获取视频流"
+	@handler feed
+	get /feed (VideoFeedReq) returns (VideoFeedResp)
+}
+
+@server(
 	jwt: JwtAuth
 	group: video
 	prefix: video/v1

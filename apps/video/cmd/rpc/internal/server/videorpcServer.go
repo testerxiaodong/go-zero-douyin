@@ -26,3 +26,8 @@ func (s *VideorpcServer) PublishVideo(ctx context.Context, in *pb.PublishVideoRe
 	l := logic.NewPublishVideoLogic(ctx, s.svcCtx)
 	return l.PublishVideo(in)
 }
+
+func (s *VideorpcServer) VideoFeed(ctx context.Context, in *pb.VideoFeedReq) (*pb.VideoFeedResp, error) {
+	l := logic.NewVideoFeedLogic(ctx, s.svcCtx)
+	return l.VideoFeed(in)
+}

@@ -2,6 +2,8 @@ syntax = "proto3";
 option go_package = "./pb";
 package pb;
 
+import "google/protobuf/timestamp.proto";
+
 message Video {
   int64 id = 1;
   string title = 2;
@@ -21,6 +23,15 @@ message PublishVideoResp {
   Video video = 1;
 }
 
+message VideoFeedReq {
+  google.protobuf.Timestamp last_time_stamp = 1;
+}
+
+message VideoFeedResp {
+  repeated Video videos = 1;
+}
+
 service videorpc {
     rpc PublishVideo (PublishVideoReq) returns (PublishVideoResp);
+    rpc VideoFeed (VideoFeedReq) returns (VideoFeedResp);
 }
