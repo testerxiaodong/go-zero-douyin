@@ -21,6 +21,10 @@ service video {
 	@doc "获取视频流"
 	@handler feed
 	get /feed (VideoFeedReq) returns (VideoFeedResp)
+
+	@doc "获取用户发布视频列表"
+	@handler list
+	get /list (UserVideoListReq) returns (UserVideoListResp)
 }
 
 @server(
@@ -33,4 +37,8 @@ service video {
 	@doc "发布视频"
 	@handler publish
 	post /publish (PublishVideoReq) returns (PublishVideoResp)
+
+	@doc "删除视频"
+	@handler deleteVideo
+	post  /delete (DeleteVideoReq)
 }

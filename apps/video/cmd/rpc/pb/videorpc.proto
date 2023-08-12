@@ -31,7 +31,16 @@ message VideoFeedResp {
   repeated Video videos = 1;
 }
 
+message UserVideoListReq {
+  int64 user_id = 1;
+}
+
+message UserVideoListResp {
+  repeated Video videos = 1;
+}
+
 service videorpc {
     rpc PublishVideo (PublishVideoReq) returns (PublishVideoResp);
     rpc VideoFeed (VideoFeedReq) returns (VideoFeedResp);
+    rpc UserVideoList (UserVideoListReq) returns (UserVideoListResp);
 }

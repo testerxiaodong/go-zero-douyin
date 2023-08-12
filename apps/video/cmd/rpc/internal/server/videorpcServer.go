@@ -31,3 +31,8 @@ func (s *VideorpcServer) VideoFeed(ctx context.Context, in *pb.VideoFeedReq) (*p
 	l := logic.NewVideoFeedLogic(ctx, s.svcCtx)
 	return l.VideoFeed(in)
 }
+
+func (s *VideorpcServer) UserVideoList(ctx context.Context, in *pb.UserVideoListReq) (*pb.UserVideoListResp, error) {
+	l := logic.NewUserVideoListLogic(ctx, s.svcCtx)
+	return l.UserVideoList(in)
+}
