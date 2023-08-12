@@ -8,6 +8,14 @@ info(
     version: "v0.1"
 )
 
+type Video {
+    Id int64 `json:"id"`
+    OwnerId int64 `json:"owner_id"`
+    Title string `json:"title"`
+    PlayUrl string `json:"play_url"`
+    CoverUrl string `json:"cover_url"`
+}
+
 type (
     PublishVideoReq {
         Title string `form:"title" validate:"required"`
@@ -15,7 +23,16 @@ type (
     PublishVideoResp {
         Id int64 `json:"id"`
         OwnerId int64 `json:"owner_id"`
-        VideoUrl string `json:"video_url"`
+        PlayUrl string `json:"play_url"`
         CoverUrl string `json:"cover_url"`
+    }
+)
+
+type (
+    VideoFeedReq {
+        LastTimeStamp int64 `json:"last_time_stamp" validate:"required"`
+    }
+    VideoFeedResp {
+        Videos []*Video `json:"videos"`
     }
 )

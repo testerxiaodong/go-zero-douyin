@@ -32,8 +32,8 @@ func newVideo(db *gorm.DB, opts ...gen.DOOption) video {
 	_video.OwnerID = field.NewInt64(tableName, "owner_id")
 	_video.PlayURL = field.NewString(tableName, "play_url")
 	_video.CoverURL = field.NewString(tableName, "cover_url")
-	_video.CreateTime = field.NewTime(tableName, "create_time")
-	_video.UpdateTime = field.NewTime(tableName, "update_time")
+	_video.CreateTime = field.NewInt64(tableName, "create_time")
+	_video.UpdateTime = field.NewInt64(tableName, "update_time")
 	_video.DeleteTime = field.NewField(tableName, "delete_time")
 
 	_video.fillFieldMap()
@@ -50,8 +50,8 @@ type video struct {
 	OwnerID    field.Int64  // 视频发布者的用户id
 	PlayURL    field.String // 视频下载地址
 	CoverURL   field.String // 视频封面地址
-	CreateTime field.Time   // 创建时间
-	UpdateTime field.Time   // 更新时间
+	CreateTime field.Int64  // 创建时间
+	UpdateTime field.Int64  // 更新时间
 	DeleteTime field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
@@ -74,8 +74,8 @@ func (v *video) updateTableName(table string) *video {
 	v.OwnerID = field.NewInt64(table, "owner_id")
 	v.PlayURL = field.NewString(table, "play_url")
 	v.CoverURL = field.NewString(table, "cover_url")
-	v.CreateTime = field.NewTime(table, "create_time")
-	v.UpdateTime = field.NewTime(table, "update_time")
+	v.CreateTime = field.NewInt64(table, "create_time")
+	v.UpdateTime = field.NewInt64(table, "update_time")
 	v.DeleteTime = field.NewField(table, "delete_time")
 
 	v.fillFieldMap()

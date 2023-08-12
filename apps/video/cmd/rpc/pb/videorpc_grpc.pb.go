@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Videorpc_PublishVideo_FullMethodName = "/pb.videorpc/PublishVideo"
+	Videorpc_VideoFeed_FullMethodName    = "/pb.videorpc/VideoFeed"
 )
 
 // VideorpcClient is the client API for Videorpc service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type VideorpcClient interface {
 	PublishVideo(ctx context.Context, in *PublishVideoReq, opts ...grpc.CallOption) (*PublishVideoResp, error)
+	VideoFeed(ctx context.Context, in *VideoFeedReq, opts ...grpc.CallOption) (*VideoFeedResp, error)
 }
 
 type videorpcClient struct {
@@ -46,11 +48,21 @@ func (c *videorpcClient) PublishVideo(ctx context.Context, in *PublishVideoReq, 
 	return out, nil
 }
 
+func (c *videorpcClient) VideoFeed(ctx context.Context, in *VideoFeedReq, opts ...grpc.CallOption) (*VideoFeedResp, error) {
+	out := new(VideoFeedResp)
+	err := c.cc.Invoke(ctx, Videorpc_VideoFeed_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VideorpcServer is the server API for Videorpc service.
 // All implementations must embed UnimplementedVideorpcServer
 // for forward compatibility
 type VideorpcServer interface {
 	PublishVideo(context.Context, *PublishVideoReq) (*PublishVideoResp, error)
+	VideoFeed(context.Context, *VideoFeedReq) (*VideoFeedResp, error)
 	mustEmbedUnimplementedVideorpcServer()
 }
 
@@ -60,6 +72,9 @@ type UnimplementedVideorpcServer struct {
 
 func (UnimplementedVideorpcServer) PublishVideo(context.Context, *PublishVideoReq) (*PublishVideoResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PublishVideo not implemented")
+}
+func (UnimplementedVideorpcServer) VideoFeed(context.Context, *VideoFeedReq) (*VideoFeedResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VideoFeed not implemented")
 }
 func (UnimplementedVideorpcServer) mustEmbedUnimplementedVideorpcServer() {}
 
@@ -92,6 +107,24 @@ func _Videorpc_PublishVideo_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Videorpc_VideoFeed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VideoFeedReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideorpcServer).VideoFeed(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Videorpc_VideoFeed_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideorpcServer).VideoFeed(ctx, req.(*VideoFeedReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Videorpc_ServiceDesc is the grpc.ServiceDesc for Videorpc service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var Videorpc_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PublishVideo",
 			Handler:    _Videorpc_PublishVideo_Handler,
+		},
+		{
+			MethodName: "VideoFeed",
+			Handler:    _Videorpc_VideoFeed_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

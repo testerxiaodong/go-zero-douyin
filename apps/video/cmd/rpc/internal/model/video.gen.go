@@ -5,8 +5,6 @@
 package model
 
 import (
-	"time"
-
 	"gorm.io/gorm"
 )
 
@@ -19,8 +17,8 @@ type Video struct {
 	OwnerID    int64          `gorm:"column:owner_id;not null;comment:视频发布者的用户id" json:"owner_id"`                 // 视频发布者的用户id
 	PlayURL    string         `gorm:"column:play_url;not null;comment:视频下载地址" json:"play_url"`                     // 视频下载地址
 	CoverURL   string         `gorm:"column:cover_url;not null;comment:视频封面地址" json:"cover_url"`                   // 视频封面地址
-	CreateTime *time.Time     `gorm:"column:create_time;type:int;type:unsigned;autoCreateTime" json:"create_time"` // 创建时间
-	UpdateTime *time.Time     `gorm:"column:update_time;type:int;type:unsigned;autoUpdateTime" json:"update_time"` // 更新时间
+	CreateTime int64          `gorm:"column:create_time;type:int;type:unsigned;autoCreateTime" json:"create_time"` // 创建时间
+	UpdateTime int64          `gorm:"column:update_time;type:int;type:unsigned;autoUpdateTime" json:"update_time"` // 更新时间
 	DeleteTime gorm.DeletedAt `gorm:"column:delete_time;comment:删除时间" json:"delete_time"`                          // 删除时间
 }
 

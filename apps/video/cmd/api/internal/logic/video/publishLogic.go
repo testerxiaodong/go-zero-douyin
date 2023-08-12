@@ -122,7 +122,7 @@ func (l *PublishLogic) Publish(req *types.PublishVideoReq) (resp *types.PublishV
 	resp = new(types.PublishVideoResp)
 	resp.Id = video.Video.Id
 	resp.OwnerId = video.Video.OwnerId
-	resp.VideoUrl = video.Video.PlayUrl
+	resp.PlayUrl = video.Video.PlayUrl
 	resp.CoverUrl = video.Video.CoverUrl
 	return resp, nil
 }
