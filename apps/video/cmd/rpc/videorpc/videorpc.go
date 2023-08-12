@@ -13,15 +13,18 @@ import (
 )
 
 type (
-	PublishVideoReq  = pb.PublishVideoReq
-	PublishVideoResp = pb.PublishVideoResp
-	Video            = pb.Video
-	VideoFeedReq     = pb.VideoFeedReq
-	VideoFeedResp    = pb.VideoFeedResp
+	PublishVideoReq   = pb.PublishVideoReq
+	PublishVideoResp  = pb.PublishVideoResp
+	UserVideoListReq  = pb.UserVideoListReq
+	UserVideoListResp = pb.UserVideoListResp
+	Video             = pb.Video
+	VideoFeedReq      = pb.VideoFeedReq
+	VideoFeedResp     = pb.VideoFeedResp
 
 	Videorpc interface {
 		PublishVideo(ctx context.Context, in *PublishVideoReq, opts ...grpc.CallOption) (*PublishVideoResp, error)
 		VideoFeed(ctx context.Context, in *VideoFeedReq, opts ...grpc.CallOption) (*VideoFeedResp, error)
+		UserVideoList(ctx context.Context, in *UserVideoListReq, opts ...grpc.CallOption) (*UserVideoListResp, error)
 	}
 
 	defaultVideorpc struct {
@@ -43,4 +46,9 @@ func (m *defaultVideorpc) PublishVideo(ctx context.Context, in *PublishVideoReq,
 func (m *defaultVideorpc) VideoFeed(ctx context.Context, in *VideoFeedReq, opts ...grpc.CallOption) (*VideoFeedResp, error) {
 	client := pb.NewVideorpcClient(m.cli.Conn())
 	return client.VideoFeed(ctx, in, opts...)
+}
+
+func (m *defaultVideorpc) UserVideoList(ctx context.Context, in *UserVideoListReq, opts ...grpc.CallOption) (*UserVideoListResp, error) {
+	client := pb.NewVideorpcClient(m.cli.Conn())
+	return client.UserVideoList(ctx, in, opts...)
 }

@@ -18,6 +18,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/feed",
 				Handler: video.FeedHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/list",
+				Handler: video.ListHandler(serverCtx),
+			},
 		},
 		rest.WithPrefix("/video/v1"),
 	)
@@ -28,6 +33,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/publish",
 				Handler: video.PublishHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/delete",
+				Handler: video.DeleteVideoHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.JwtAuth.AccessSecret),

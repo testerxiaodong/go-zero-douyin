@@ -36,3 +36,19 @@ type (
         Videos []*Video `json:"videos"`
     }
 )
+
+type (
+    UserVideoListReq {
+        UserId int64 `json:"user_id" validate:"required"`
+    }
+    UserVideoListResp {
+        Total int64 `json:"total"`
+        Videos []*Video `json:"videos"`
+    }
+)
+
+type (
+    DeleteVideoReq {
+        VideoId int64 `json:"video_id"`
+    }
+)

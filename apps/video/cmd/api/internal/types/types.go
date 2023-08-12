@@ -27,3 +27,16 @@ type VideoFeedReq struct {
 type VideoFeedResp struct {
 	Videos []*Video `json:"videos"`
 }
+
+type UserVideoListReq struct {
+	UserId int64 `json:"user_id" validate:"required"`
+}
+
+type UserVideoListResp struct {
+	Total  int64    `json:"total"`
+	Videos []*Video `json:"videos"`
+}
+
+type DeleteVideoReq struct {
+	VideoId int64 `json:"video_id"`
+}
