@@ -1,9 +1,6 @@
 package {{.pkgName}}
 
 import (
-    "go-zero-douyin/common/utils"
-    "go-zero-douyin/common/xerr"
-
 	{{.imports}}
 )
 
