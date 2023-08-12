@@ -1,9 +1,0 @@
-Name: video.rpc
-ListenOn: 0.0.0.0:8081
-Etcd:
-  Hosts:
-    - 47.99.140.12:2379
-  Key: video.rpc
-
-# 修改下面数据源
-DataSource: root:my-secret-pw@tcp(47.99.140.12:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local
