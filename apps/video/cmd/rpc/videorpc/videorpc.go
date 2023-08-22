@@ -13,6 +13,10 @@ import (
 )
 
 type (
+	DeleteVideoReq    = pb.DeleteVideoReq
+	DeleteVideoResp   = pb.DeleteVideoResp
+	GetVideoByIdReq   = pb.GetVideoByIdReq
+	GetVideoByIdResp  = pb.GetVideoByIdResp
 	PublishVideoReq   = pb.PublishVideoReq
 	PublishVideoResp  = pb.PublishVideoResp
 	UserVideoListReq  = pb.UserVideoListReq
@@ -25,6 +29,8 @@ type (
 		PublishVideo(ctx context.Context, in *PublishVideoReq, opts ...grpc.CallOption) (*PublishVideoResp, error)
 		VideoFeed(ctx context.Context, in *VideoFeedReq, opts ...grpc.CallOption) (*VideoFeedResp, error)
 		UserVideoList(ctx context.Context, in *UserVideoListReq, opts ...grpc.CallOption) (*UserVideoListResp, error)
+		DeleteVideo(ctx context.Context, in *DeleteVideoReq, opts ...grpc.CallOption) (*DeleteVideoResp, error)
+		GetVideoById(ctx context.Context, in *GetVideoByIdReq, opts ...grpc.CallOption) (*GetVideoByIdResp, error)
 	}
 
 	defaultVideorpc struct {
@@ -51,4 +57,14 @@ func (m *defaultVideorpc) VideoFeed(ctx context.Context, in *VideoFeedReq, opts 
 func (m *defaultVideorpc) UserVideoList(ctx context.Context, in *UserVideoListReq, opts ...grpc.CallOption) (*UserVideoListResp, error) {
 	client := pb.NewVideorpcClient(m.cli.Conn())
 	return client.UserVideoList(ctx, in, opts...)
+}
+
+func (m *defaultVideorpc) DeleteVideo(ctx context.Context, in *DeleteVideoReq, opts ...grpc.CallOption) (*DeleteVideoResp, error) {
+	client := pb.NewVideorpcClient(m.cli.Conn())
+	return client.DeleteVideo(ctx, in, opts...)
+}
+
+func (m *defaultVideorpc) GetVideoById(ctx context.Context, in *GetVideoByIdReq, opts ...grpc.CallOption) (*GetVideoByIdResp, error) {
+	client := pb.NewVideorpcClient(m.cli.Conn())
+	return client.GetVideoById(ctx, in, opts...)
 }

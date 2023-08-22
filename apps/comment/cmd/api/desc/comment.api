@@ -1,0 +1,40 @@
+syntax = "v1"
+
+info(
+	title: "评论中心"
+	desc: "评论基本数据与接口定义"
+	author: "cengdong"
+	email: "happy_game_dong@163.com"
+	version: "v0.1"
+)
+
+import (
+	"data_struct.api"
+)
+
+@server(
+	group: comment
+	prefix: comment/v1
+)
+
+service comment {
+	@doc "get video comment list"
+	@handler videoCommentList
+	get /list (GetVideoCommentListReq) returns (GetVideoCommentListResp)
+}
+
+@server(
+	group: comment
+	prefix: comment/v1
+	jwt: JwtAuth
+)
+
+service comment {
+	@doc "add comment"
+	@handler addComment
+	post /add (AddCommentReq)
+
+	@doc "del comment"
+	@handler delComment
+	post /del (DelCommentReq)
+}

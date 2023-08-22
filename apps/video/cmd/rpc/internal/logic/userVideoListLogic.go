@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"fmt"
 	"github.com/pkg/errors"
 	"go-zero-douyin/common/xerr"
 
@@ -56,6 +55,5 @@ func (l *UserVideoListLogic) UserVideoList(in *pb.UserVideoListReq) (*pb.UserVid
 		single.CoverUrl = video.CoverURL
 		resp.Videos = append(resp.Videos, single)
 	}
-	fmt.Println(resp)
 	return resp, nil
 }

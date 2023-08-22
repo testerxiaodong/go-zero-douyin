@@ -1,6 +1,5 @@
 package xconst
 
-// 视频业务常量
 const (
 	VideoFeedCount = 10
 )
@@ -12,4 +11,15 @@ const (
 	VIDEO   int64 = 2
 	PICTURE int64 = 3
 	UNKONWN int64 = 9999
+)
+
+// RedisKeyPrefix
+const (
+	RedisVideoCommentPrefix     = "video_id:comment_count:"
+	RedisUserLikeVideoPrefix    = "user_id:video_id:"
+	RedisVideoLikedByUserPrefix = "video_id:user_id:"
+)
+
+const (
+	RedisExpireTime = 600
 )

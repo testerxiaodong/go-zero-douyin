@@ -22,6 +22,8 @@ const (
 	Videorpc_PublishVideo_FullMethodName  = "/pb.videorpc/PublishVideo"
 	Videorpc_VideoFeed_FullMethodName     = "/pb.videorpc/VideoFeed"
 	Videorpc_UserVideoList_FullMethodName = "/pb.videorpc/UserVideoList"
+	Videorpc_DeleteVideo_FullMethodName   = "/pb.videorpc/DeleteVideo"
+	Videorpc_GetVideoById_FullMethodName  = "/pb.videorpc/GetVideoById"
 )
 
 // VideorpcClient is the client API for Videorpc service.
@@ -31,6 +33,8 @@ type VideorpcClient interface {
 	PublishVideo(ctx context.Context, in *PublishVideoReq, opts ...grpc.CallOption) (*PublishVideoResp, error)
 	VideoFeed(ctx context.Context, in *VideoFeedReq, opts ...grpc.CallOption) (*VideoFeedResp, error)
 	UserVideoList(ctx context.Context, in *UserVideoListReq, opts ...grpc.CallOption) (*UserVideoListResp, error)
+	DeleteVideo(ctx context.Context, in *DeleteVideoReq, opts ...grpc.CallOption) (*DeleteVideoResp, error)
+	GetVideoById(ctx context.Context, in *GetVideoByIdReq, opts ...grpc.CallOption) (*GetVideoByIdResp, error)
 }
 
 type videorpcClient struct {
@@ -68,6 +72,24 @@ func (c *videorpcClient) UserVideoList(ctx context.Context, in *UserVideoListReq
 	return out, nil
 }
 
+func (c *videorpcClient) DeleteVideo(ctx context.Context, in *DeleteVideoReq, opts ...grpc.CallOption) (*DeleteVideoResp, error) {
+	out := new(DeleteVideoResp)
+	err := c.cc.Invoke(ctx, Videorpc_DeleteVideo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *videorpcClient) GetVideoById(ctx context.Context, in *GetVideoByIdReq, opts ...grpc.CallOption) (*GetVideoByIdResp, error) {
+	out := new(GetVideoByIdResp)
+	err := c.cc.Invoke(ctx, Videorpc_GetVideoById_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VideorpcServer is the server API for Videorpc service.
 // All implementations must embed UnimplementedVideorpcServer
 // for forward compatibility
@@ -75,6 +97,8 @@ type VideorpcServer interface {
 	PublishVideo(context.Context, *PublishVideoReq) (*PublishVideoResp, error)
 	VideoFeed(context.Context, *VideoFeedReq) (*VideoFeedResp, error)
 	UserVideoList(context.Context, *UserVideoListReq) (*UserVideoListResp, error)
+	DeleteVideo(context.Context, *DeleteVideoReq) (*DeleteVideoResp, error)
+	GetVideoById(context.Context, *GetVideoByIdReq) (*GetVideoByIdResp, error)
 	mustEmbedUnimplementedVideorpcServer()
 }
 
@@ -90,6 +114,12 @@ func (UnimplementedVideorpcServer) VideoFeed(context.Context, *VideoFeedReq) (*V
 }
 func (UnimplementedVideorpcServer) UserVideoList(context.Context, *UserVideoListReq) (*UserVideoListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserVideoList not implemented")
+}
+func (UnimplementedVideorpcServer) DeleteVideo(context.Context, *DeleteVideoReq) (*DeleteVideoResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteVideo not implemented")
+}
+func (UnimplementedVideorpcServer) GetVideoById(context.Context, *GetVideoByIdReq) (*GetVideoByIdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetVideoById not implemented")
 }
 func (UnimplementedVideorpcServer) mustEmbedUnimplementedVideorpcServer() {}
 
@@ -158,6 +188,42 @@ func _Videorpc_UserVideoList_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Videorpc_DeleteVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteVideoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideorpcServer).DeleteVideo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Videorpc_DeleteVideo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideorpcServer).DeleteVideo(ctx, req.(*DeleteVideoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Videorpc_GetVideoById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetVideoByIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideorpcServer).GetVideoById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Videorpc_GetVideoById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideorpcServer).GetVideoById(ctx, req.(*GetVideoByIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Videorpc_ServiceDesc is the grpc.ServiceDesc for Videorpc service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -176,6 +242,14 @@ var Videorpc_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UserVideoList",
 			Handler:    _Videorpc_UserVideoList_Handler,
+		},
+		{
+			MethodName: "DeleteVideo",
+			Handler:    _Videorpc_DeleteVideo_Handler,
+		},
+		{
+			MethodName: "GetVideoById",
+			Handler:    _Videorpc_GetVideoById_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

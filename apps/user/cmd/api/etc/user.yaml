@@ -1,0 +1,22 @@
+Name: user
+Host: 0.0.0.0
+Port: 8888
+
+JwtAuth:
+  AccessSecret: go-zero-douyin
+
+Log:
+  ServiceName: api.user
+  Mode: console
+  Encoding: plain
+  Path: logs
+  TimeFormat: 2006-01-02T15:04:05.000Z07:00
+  Level: debug
+  KeepDays: 30
+  StackCooldownMillis: 100
+
+UserRpcConf:
+  Etcd:
+    Hosts:
+      - 47.99.140.12:2379
+    Key: user.rpc

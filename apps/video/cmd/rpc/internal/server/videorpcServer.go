@@ -36,3 +36,13 @@ func (s *VideorpcServer) UserVideoList(ctx context.Context, in *pb.UserVideoList
 	l := logic.NewUserVideoListLogic(ctx, s.svcCtx)
 	return l.UserVideoList(in)
 }
+
+func (s *VideorpcServer) DeleteVideo(ctx context.Context, in *pb.DeleteVideoReq) (*pb.DeleteVideoResp, error) {
+	l := logic.NewDeleteVideoLogic(ctx, s.svcCtx)
+	return l.DeleteVideo(in)
+}
+
+func (s *VideorpcServer) GetVideoById(ctx context.Context, in *pb.GetVideoByIdReq) (*pb.GetVideoByIdResp, error) {
+	l := logic.NewGetVideoByIdLogic(ctx, s.svcCtx)
+	return l.GetVideoById(in)
+}

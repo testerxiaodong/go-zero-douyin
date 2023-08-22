@@ -5,6 +5,8 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
 	"go-zero-douyin/apps/user/cmd/rpc/userrpc"
+	"go-zero-douyin/common/utils"
+	"go-zero-douyin/common/xerr"
 
 	"go-zero-douyin/apps/user/cmd/api/internal/svc"
 	"go-zero-douyin/apps/user/cmd/api/internal/types"
@@ -28,6 +30,10 @@ func NewDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DetailLogi
 
 func (l *DetailLogic) Detail(req *types.UserInfoReq) (resp *types.UserInfoResp, err error) {
 	// todo: add your logic here and delete this line
+	// 参数校验
+	if validateResult := utils.GetValidator().ValidateZh(req); len(validateResult) > 0 {
+		return nil, xerr.NewErrMsg(validateResult)
+	}
 	userInfo, err := l.svcCtx.UserRpc.GetUserInfo(l.ctx, &userrpc.GetUserInfoReq{Id: req.Id})
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %v", req)

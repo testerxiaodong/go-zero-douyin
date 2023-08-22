@@ -2,11 +2,13 @@
 package types
 
 type Video struct {
-	Id       int64  `json:"id"`
-	OwnerId  int64  `json:"owner_id"`
-	Title    string `json:"title"`
-	PlayUrl  string `json:"play_url"`
-	CoverUrl string `json:"cover_url"`
+	Id           int64  `json:"id"`
+	OwnerId      int64  `json:"owner_id"`
+	Title        string `json:"title"`
+	PlayUrl      string `json:"play_url"`
+	CoverUrl     string `json:"cover_url"`
+	CommentCount int64  `json:"comment_count"`
+	LikeCount    int64  `json:"like_count"`
 }
 
 type PublishVideoReq struct {

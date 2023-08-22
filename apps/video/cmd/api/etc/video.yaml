@@ -1,0 +1,42 @@
+Name: video
+Host: 0.0.0.0
+Port: 8889
+MaxBytes: 104857600
+
+Log:
+  ServiceName: api.video
+  Mode: console
+  Encoding: plain
+  Path: logs
+  TimeFormat: 2006-01-02T15:04:05.000Z07:00
+  Level: debug
+  KeepDays: 30
+  StackCooldownMillis: 100
+
+JwtAuth:
+  AccessSecret: go-zero-douyin
+
+AliCloud:
+  AccessKeyId: LTAI5tDLjx2vQ2BAJhHKDGjP
+  AccessKeySecret: 5b0nh186iHrzTfU2LlDt66VyMt1n3o
+  BucketName: go-zero-douyin
+  EndPoint: oss-cn-hangzhou.aliyuncs.com
+  CommonPath: video
+
+VideoRpcConf:
+  Etcd:
+    Hosts:
+      - 47.99.140.12:2379
+    Key: video.rpc
+
+CommentRpcConf:
+  Etcd:
+    Hosts:
+      - 47.99.140.12:2379
+    Key: comment.rpc
+
+LikeRpcConf:
+  Etcd:
+    Hosts:
+      - 47.99.140.12:2379
+    Key: like.rpc

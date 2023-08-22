@@ -1,0 +1,45 @@
+Name: consumer
+Host: 0.0.0.0
+Port: 3001
+
+Log:
+  ServiceName: consumer
+  Mode: console
+  Encoding: plain
+  Path: logs
+  TimeFormat: 2006-01-02T15:04:05.000Z07:00
+  Level: debug
+  KeepDays: 30
+  StackCooldownMillis: 100
+
+Redis:
+  Host: 47.99.140.12:6379
+  Type: node
+
+RabbitListenerConf:
+  Username: guest
+  Password: guest
+  Host: 47.99.140.12
+  Port: 5672
+  ListenerQueues:
+      -
+        Name: VideoCommentMq
+        AutoAck: true
+        Exclusive: false
+        NoLocal: false
+        NoWait: false
+      -
+        Name: UserLikeVideoMq
+        AutoAck: true
+        Exclusive: false
+        NoLocal: false
+        NoWait: false
+      -
+        Name: VideoLikedByUserMq
+        AutoAck: true
+        Exclusive: false
+        NoLocal: false
+        NoWait: false
+
+
+

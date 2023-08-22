@@ -43,7 +43,7 @@ type user struct {
 	userDo userDo
 
 	ALL        field.Asterisk
-	ID         field.Int64  // 自增id
+	ID         field.Int64  // 用户id
 	Username   field.String // 用户名
 	Password   field.String // 密码
 	CreateTime field.Int64  // 创建时间

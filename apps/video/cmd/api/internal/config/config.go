@@ -7,8 +7,10 @@ import (
 
 type Config struct {
 	rest.RestConf
-	VideoRpcConf zrpc.RpcClientConf
-	JwtAuth      struct {
+	VideoRpcConf   zrpc.RpcClientConf
+	CommentRpcConf zrpc.RpcClientConf
+	LikeRpcConf    zrpc.RpcClientConf
+	JwtAuth        struct {
 		AccessSecret string
 	}
 	AliCloud struct {

@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+package pb;
+
+message Comment {
+  int64 id = 1;
+  int64 user_id = 2;
+  int64 video_id = 3;
+  string content = 4;
+}
+
+message AddCommentReq {
+  int64 video_id = 1;
+  int64 user_id = 2;
+  string content = 3;
+}
+
+message AddCommentResp {
+}
+
+message GetCommentListByIdReq {
+  int64 id = 1;
+}
+
+message GetCommentListByIdResp {
+  repeated Comment comments = 1;
+}
+
+message DelCommentReq {
+  int64 comment_id = 1;
+  int64 user_id = 2;
+}
+
+message DelCommentResp {
+
+}
+
+message GetCommentCountByVideoIdReq {
+  int64 video_id = 1;
+}
+
+message GetCommentCountByVideoIdResp {
+  int64 count = 1;
+}
+
+service commentrpc {
+  rpc AddComment(AddCommentReq) returns (AddCommentResp);
+  rpc DelComment(DelCommentReq) returns (DelCommentResp);
+  rpc GetVideoCommentListById(GetCommentListByIdReq) returns (GetCommentListByIdResp);
+  rpc GetCommentCountByVideoId(GetCommentCountByVideoIdReq) returns (GetCommentCountByVideoIdResp);
+}

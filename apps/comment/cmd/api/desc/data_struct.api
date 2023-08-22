@@ -1,0 +1,39 @@
+syntax = "v1"
+
+info(
+    title: "评论实体信息"
+    desc: "评论相关结构体"
+    author: "cengdong"
+    email: "happy_game_dong@163.com"
+    version: "v0.1"
+)
+
+type Comment {
+    Id int64 `json:"id"`
+    UserId int64 `json:"user_id"`
+    VideoId int64 `json:"video_id"`
+    Content string `json:"content"`
+}
+
+type (
+    AddCommentReq {
+        VideoId int64 `json:"video_id" validate:"required"`
+        Content string `json:"content" validate:"required"`
+    }
+)
+
+type (
+    GetVideoCommentListReq {
+        VideoId int64 `json:"video_id"`
+    }
+    GetVideoCommentListResp {
+        Comments []*Comment `json:"comments"`
+    }
+)
+
+type (
+    DelCommentReq {
+        CommentId int64 `json:"comment_id" validate:"required"`
+    }
+)
+
