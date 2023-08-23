@@ -46,7 +46,7 @@ func (l *PublishVideoLogic) PublishVideo(in *pb.PublishVideoReq) (*pb.PublishVid
 	}
 	// 返回信息
 	return &pb.PublishVideoResp{
-		Video: &pb.Video{
+		Video: &pb.VideoInfo{
 			Id:       video.ID,
 			Title:    video.Title,
 			OwnerId:  video.OwnerID,

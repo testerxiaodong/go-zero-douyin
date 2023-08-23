@@ -4,8 +4,7 @@ import (
 	"context"
 	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
-	pb2 "go-zero-douyin/apps/comment/cmd/rpc/pb"
-	pb3 "go-zero-douyin/apps/like/cmd/rpc/pb"
+	pbSocial "go-zero-douyin/apps/social/cmd/rpc/pb"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xerr"
@@ -48,7 +47,7 @@ func (l *FeedLogic) Feed(req *types.VideoFeedReq) (resp *types.VideoFeedResp, er
 
 	// 调用commentrpc获取视频评论数，调用likerpc获取视频点赞数
 	if len(feedResp.Videos) > 0 {
-		resp = &types.VideoFeedResp{Videos: make([]*types.Video, 0)}
+		resp = &types.VideoFeedResp{Videos: make([]*types.VideoInfo, 0)}
 		err = copier.Copy(resp, feedResp)
 		if err != nil {
 			return nil, errors.Wrapf(err, "copier feed resp failed: %v", feedResp)
@@ -56,13 +55,13 @@ func (l *FeedLogic) Feed(req *types.VideoFeedReq) (resp *types.VideoFeedResp, er
 		wg.Add(len(feedResp.Videos))
 		for i, video := range feedResp.Videos {
 			index, currentVideo := i, video
-			go func(index int, video *pb.Video) {
+			go func(index int, video *pb.VideoInfo) {
 				defer wg.Done()
-				commentCountResp, err := l.svcCtx.CommentRpc.GetCommentCountByVideoId(l.ctx, &pb2.GetCommentCountByVideoIdReq{VideoId: video.Id})
+				commentCountResp, err := l.svcCtx.SocialRpc.GetCommentCountByVideoId(l.ctx, &pbSocial.GetCommentCountByVideoIdReq{VideoId: video.Id})
 				if err != nil {
 					logx.WithContext(l.ctx).Errorf("get video comment count by comment rpc failed, err: %v", err)
 				}
-				likeCountResp, err := l.svcCtx.LikeRpc.GetVideoLikeCountByVideoId(l.ctx, &pb3.GetVideoLikeCountByVideoIdReq{VideoId: video.Id})
+				likeCountResp, err := l.svcCtx.SocialRpc.GetVideoLikeCountByVideoId(l.ctx, &pbSocial.GetVideoLikeCountByVideoIdReq{VideoId: video.Id})
 				if err != nil {
 					logx.WithContext(l.ctx).Errorf("get video like count by like rpc failed, err: %v", err)
 				}

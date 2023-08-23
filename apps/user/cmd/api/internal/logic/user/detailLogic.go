@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
-	"go-zero-douyin/apps/user/cmd/rpc/userrpc"
+	"go-zero-douyin/apps/user/cmd/rpc/user"
 	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xerr"
 
@@ -34,7 +34,7 @@ func (l *DetailLogic) Detail(req *types.UserInfoReq) (resp *types.UserInfoResp, 
 	if validateResult := utils.GetValidator().ValidateZh(req); len(validateResult) > 0 {
 		return nil, xerr.NewErrMsg(validateResult)
 	}
-	userInfo, err := l.svcCtx.UserRpc.GetUserInfo(l.ctx, &userrpc.GetUserInfoReq{Id: req.Id})
+	userInfo, err := l.svcCtx.UserRpc.GetUserInfo(l.ctx, &user.GetUserInfoReq{Id: req.Id})
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %v", req)
 	}

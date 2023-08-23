@@ -46,7 +46,7 @@ func (l *GetUserInfoLogic) GetUserInfo(in *pb.GetUserInfoReq) (*pb.GetUserInfoRe
 	}
 	// 返回数据
 	return &pb.GetUserInfoResp{
-		User: &pb.User{
+		User: &pb.UserInfo{
 			Id:       user.ID,
 			Username: user.Username,
 		},

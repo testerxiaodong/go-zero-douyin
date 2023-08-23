@@ -46,9 +46,9 @@ func (l *VideoFeedLogic) VideoFeed(in *pb.VideoFeedReq) (*pb.VideoFeedResp, erro
 	if len(videos) == 0 {
 		return &pb.VideoFeedResp{}, nil
 	}
-	videosResp := &pb.VideoFeedResp{Videos: make([]*pb.Video, 0)}
+	videosResp := &pb.VideoFeedResp{Videos: make([]*pb.VideoInfo, 0)}
 	for _, video := range videos {
-		singleVideoResp := &pb.Video{}
+		singleVideoResp := &pb.VideoInfo{}
 		singleVideoResp.Id = video.ID
 		singleVideoResp.Title = video.Title
 		singleVideoResp.OwnerId = video.OwnerID

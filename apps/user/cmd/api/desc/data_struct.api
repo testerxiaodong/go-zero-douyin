@@ -8,7 +8,7 @@ info(
     version: "v0.1"
 )
 
-type User {
+type UserInfo {
     Id int64 `json:"id"`
     Username string `json:"username"`
 }
@@ -46,7 +46,7 @@ type (
         Id int64 `json:"id" validate:"required"`
     }
     UserInfoResp {
-        User User `json:"user"`
+        User UserInfo `json:"user_info"`
     }
 )
 

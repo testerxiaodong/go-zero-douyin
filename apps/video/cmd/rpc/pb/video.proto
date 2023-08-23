@@ -1,0 +1,65 @@
+syntax = "proto3";
+option go_package = "./pb";
+package pb;
+
+import "google/protobuf/timestamp.proto";
+
+message VideoInfo {
+  int64 id = 1;
+  string title = 2;
+  int64 owner_id =3;
+  string play_url = 4;
+  string cover_url = 5;
+}
+
+message PublishVideoReq {
+  string title = 1;
+  int64 owner_id = 2;
+  string play_url = 3;
+  string cover_url = 4;
+}
+
+message PublishVideoResp {
+  VideoInfo video = 1;
+}
+
+message VideoFeedReq {
+  google.protobuf.Timestamp last_time_stamp = 1;
+}
+
+message VideoFeedResp {
+  repeated VideoInfo videos = 1;
+}
+
+message UserVideoListReq {
+  int64 user_id = 1;
+}
+
+message UserVideoListResp {
+  repeated VideoInfo videos = 1;
+}
+
+message DeleteVideoReq {
+  int64 user_id = 1;
+  int64 video_id = 2;
+}
+
+message DeleteVideoResp {
+}
+
+message GetVideoByIdReq {
+  int64 id = 1;
+}
+
+message GetVideoByIdResp {
+  VideoInfo video = 1;
+}
+
+service video {
+    // 视频相关功能
+    rpc PublishVideo (PublishVideoReq) returns (PublishVideoResp);
+    rpc VideoFeed (VideoFeedReq) returns (VideoFeedResp);
+    rpc UserVideoList (UserVideoListReq) returns (UserVideoListResp);
+    rpc DeleteVideo (DeleteVideoReq) returns (DeleteVideoResp);
+    rpc GetVideoById (GetVideoByIdReq) returns (GetVideoByIdResp);
+}

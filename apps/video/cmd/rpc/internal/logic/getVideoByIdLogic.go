@@ -45,7 +45,7 @@ func (l *GetVideoByIdLogic) GetVideoById(in *pb.GetVideoByIdReq) (*pb.GetVideoBy
 	if video == nil {
 		return nil, errors.Wrapf(xerr.NewErrMsg("video not found"), "video_id: %d", in.GetId())
 	}
-	resp := &pb.GetVideoByIdResp{Video: &pb.Video{}}
+	resp := &pb.GetVideoByIdResp{Video: &pb.VideoInfo{}}
 	resp.Video.Id = video.ID
 	resp.Video.Title = video.Title
 	resp.Video.OwnerId = video.OwnerID

@@ -1,0 +1,67 @@
+syntax = "v1"
+
+info(
+	title: "社交中心"
+	desc: "社交基本数据与接口定义"
+	author: "cengdong"
+	email: "happy_game_dong@163.com"
+	version: "v0.1"
+)
+
+import "data_struct.api"
+
+// 评论
+@server(
+	group: comment
+	prefix: social/v1
+)
+
+service social {
+	@doc "get video comment list"
+	@handler videoCommentList
+	get /comment/list (GetVideoCommentListReq) returns (GetVideoCommentListResp)
+}
+
+@server(
+	group: comment
+	prefix: social/v1
+	jwt: JwtAuth
+)
+
+service social {
+	@doc "add comment"
+	@handler addComment
+	post /comment/add (AddCommentReq)
+
+	@doc "del comment"
+	@handler delComment
+	post /comment/del (DelCommentReq)
+}
+
+// 关注
+@server (
+	group: like
+	prefix: social/v1
+)
+
+service social {
+	@doc "获取用户点赞视频id列表"
+	@handler userLikeVideoIdList
+	get /like/list(GetUserLikeVideoIdListReq) returns (GetUserLikeVideoIdListResp)
+}
+
+@server (
+	group: like
+	prefix: social/v1
+	jwt: JwtAuth
+)
+
+service social {
+	@doc "user like video"
+	@handler addLike
+	post /like/add (VideoLikeReq)
+
+	@doc "user unlike video"
+	@handler delLike
+	post /like/del (VideoUnlikeReq)
+}

@@ -45,14 +45,14 @@ type video struct {
 	videoDo videoDo
 
 	ALL        field.Asterisk
-	ID         field.Int64
-	Title      field.String
-	OwnerID    field.Int64
-	PlayURL    field.String
-	CoverURL   field.String
-	CreateTime field.Int64
-	UpdateTime field.Int64
-	DeleteTime field.Field
+	ID         field.Int64  // 视频id
+	Title      field.String // 视频标题
+	OwnerID    field.Int64  // 视频发布者id
+	PlayURL    field.String // 视频下载地址
+	CoverURL   field.String // 封面下载地址
+	CreateTime field.Int64  // 创建时间
+	UpdateTime field.Int64  // 更新时间
+	DeleteTime field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }

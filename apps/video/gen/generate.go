@@ -80,11 +80,11 @@ func main() {
 	g.UseDB(db)
 
 	// 创建模型的结构体
-	User := g.GenerateModelAs("video", "Video")
+	Video := g.GenerateModelAs("video", "Video")
 
 	// Generate Type Safe API with Dynamic SQL defined on Queries interface for `model.User` and `model.Company`
 	// g.ApplyInterface(func() {}, User, Major, ThirdData, UserAcc)
-	g.ApplyBasic(User)
+	g.ApplyBasic(Video)
 
 	g.Execute()
 

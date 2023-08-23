@@ -1,0 +1,63 @@
+syntax = "v1"
+
+info(
+    title: "社交功能相关实体信息"
+    desc: "社交相关结构体"
+    author: "cengdong"
+    email: "happy_game_dong@163.com"
+    version: "v0.1"
+)
+
+// 评论
+type Comment {
+    Id int64 `json:"id"`
+    UserId int64 `json:"user_id"`
+    VideoId int64 `json:"video_id"`
+    Content string `json:"content"`
+}
+
+type (
+    AddCommentReq {
+        VideoId int64 `json:"video_id" validate:"required"`
+        Content string `json:"content" validate:"required"`
+    }
+)
+
+type (
+    GetVideoCommentListReq {
+        VideoId int64 `json:"video_id"`
+    }
+    GetVideoCommentListResp {
+        Comments []*Comment `json:"comments"`
+    }
+)
+
+type (
+    DelCommentReq {
+        CommentId int64 `json:"comment_id" validate:"required"`
+    }
+)
+
+// 点赞
+type (
+    VideoLikeReq {
+        VideoId int64 `json:"video_id" validate:"required"`
+    }
+)
+
+type (
+    VideoUnlikeReq {
+        VideoId int64 `json:"video_id" validate:"required"`
+    }
+)
+
+type (
+    GetUserLikeVideoIdListReq {
+        UserId int64 `json:"user_id"`
+    }
+    GetUserLikeVideoIdListResp {
+        VideoIdList []int64 `json:"id_list"`
+    }
+)
+
+// 关注

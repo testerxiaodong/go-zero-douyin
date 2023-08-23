@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
-	"go-zero-douyin/apps/user/cmd/rpc/userrpc"
+	"go-zero-douyin/apps/user/cmd/rpc/user"
 	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xerr"
 
@@ -35,7 +35,7 @@ func (l *RegisterLogic) Register(req *types.RegisterReq) (resp *types.RegisterRe
 		return nil, xerr.NewErrMsg(validateResult)
 	}
 	// 调用rpc
-	registerResp, err := l.svcCtx.UserRpc.RegisterUser(l.ctx, &userrpc.RegisterUserReq{
+	registerResp, err := l.svcCtx.UserRpc.RegisterUser(l.ctx, &user.RegisterUserReq{
 		Username: req.Username,
 		Password: req.Password,
 	})

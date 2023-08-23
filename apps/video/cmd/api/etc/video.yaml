@@ -29,14 +29,8 @@ VideoRpcConf:
       - 47.99.140.12:2379
     Key: video.rpc
 
-CommentRpcConf:
+SocialRpcConf:
   Etcd:
     Hosts:
       - 47.99.140.12:2379
-    Key: comment.rpc
-
-LikeRpcConf:
-  Etcd:
-    Hosts:
-      - 47.99.140.12:2379
-    Key: like.rpc
+    Key: social.rpc

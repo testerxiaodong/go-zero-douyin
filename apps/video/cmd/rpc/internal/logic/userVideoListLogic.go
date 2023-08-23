@@ -45,9 +45,9 @@ func (l *UserVideoListLogic) UserVideoList(in *pb.UserVideoListReq) (*pb.UserVid
 		return &pb.UserVideoListResp{}, nil
 	}
 	// 拼接数据
-	resp := &pb.UserVideoListResp{Videos: make([]*pb.Video, 0)}
+	resp := &pb.UserVideoListResp{Videos: make([]*pb.VideoInfo, 0)}
 	for _, video := range videos {
-		single := &pb.Video{}
+		single := &pb.VideoInfo{}
 		single.Id = video.ID
 		single.OwnerId = video.OwnerID
 		single.Title = video.Title
