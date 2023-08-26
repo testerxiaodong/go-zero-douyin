@@ -5,7 +5,6 @@ import (
 	"github.com/pkg/errors"
 	"go-zero-douyin/apps/user/cmd/rpc/pb"
 	"go-zero-douyin/common/ctxdata"
-	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xerr"
 
 	"go-zero-douyin/apps/user/cmd/api/internal/svc"
@@ -31,7 +30,7 @@ func NewUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UpdateLogi
 func (l *UpdateLogic) Update(req *types.UpdateUserReq) error {
 	// todo: add your logic here and delete this line
 	// 校验参数
-	if validateResult := utils.GetValidator().ValidateZh(req); len(validateResult) > 0 {
+	if validateResult := l.svcCtx.Validator.ValidateZh(req); len(validateResult) > 0 {
 		return xerr.NewErrMsg(validateResult)
 	}
 	// 获取用户id

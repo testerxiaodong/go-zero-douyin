@@ -41,7 +41,7 @@ func NewPublishLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PublishLo
 func (l *PublishLogic) Publish(req *types.PublishVideoReq) (resp *types.PublishVideoResp, err error) {
 	// todo: add your logic here and delete this line
 	// 参数校验
-	if validateResult := utils.GetValidator().ValidateZh(req); len(validateResult) > 0 {
+	if validateResult := l.svcCtx.Validator.ValidateZh(req); len(validateResult) > 0 {
 		return nil, xerr.NewErrMsg(validateResult)
 	}
 	// 获取用户id

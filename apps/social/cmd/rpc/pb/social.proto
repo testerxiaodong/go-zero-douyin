@@ -96,6 +96,38 @@ message UnfollowUserReq {
 message UnfollowUserResp{
 }
 
+message GetUserFollowerCountReq {
+  int64 user_id = 1;
+}
+
+message GetUserFollowerCountResp {
+  int64 follower_count = 1;
+}
+
+message GetUserFollowCountReq {
+  int64 user_id = 1;
+}
+
+message GetUserFollowCountResp {
+  int64 follow_count = 1;
+}
+
+message GetUserFollowIdListReq {
+  int64 user_id = 1;
+}
+
+message GetUserFollowIdListResp {
+  repeated int64 user_id_list = 1;
+}
+
+message GetUserFollowedIdListReq {
+  int64 user_id = 1;
+}
+
+message GetUserFollowedIdListResp {
+  repeated int64 user_id_list = 1;
+}
+
 service social {
   //  评论相关功能
   rpc AddComment(AddCommentReq) returns (AddCommentResp);
@@ -110,4 +142,8 @@ service social {
   //  关注功能
   rpc FollowUser(FollowUserReq) returns (FollowUserResp);
   rpc UnfollowUser(UnfollowUserReq) returns (UnfollowUserResp);
+  rpc GetUserFollowerCount(GetUserFollowerCountReq) returns (GetUserFollowerCountResp);
+  rpc GetUserFollowCount(GetUserFollowCountReq) returns (GetUserFollowCountResp);
+  rpc GetUserFollowIdList(GetUserFollowIdListReq) returns (GetUserFollowIdListResp);
+  rpc GetUserFollowedIdList(GetUserFollowedIdListReq) returns (GetUserFollowedIdListResp);
 }

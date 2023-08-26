@@ -28,9 +28,11 @@ VideoRpcConf:
     Hosts:
       - 47.99.140.12:2379
     Key: video.rpc
+  NonBlock: true
 
 SocialRpcConf:
   Etcd:
     Hosts:
       - 47.99.140.12:2379
     Key: social.rpc
+  NonBlock: true

@@ -14,10 +14,8 @@ type VideoLikedByUserMessage struct {
 
 type UserFollowUserMessage struct {
 	FollowerId int64 `json:"follower_id"`
-	UserId     int64 `json:"user_id"`
 }
 
 type UserFollowedByUserMessage struct {
-	UserId     int64 `json:"user_id"`
-	FollowerId int64 `json:"follower_id"`
+	UserId int64 `json:"user_id"`
 }

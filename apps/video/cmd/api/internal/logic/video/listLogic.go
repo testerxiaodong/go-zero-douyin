@@ -6,7 +6,6 @@ import (
 	"github.com/pkg/errors"
 	pbSocial "go-zero-douyin/apps/social/cmd/rpc/pb"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
-	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xerr"
 
 	"go-zero-douyin/apps/video/cmd/api/internal/svc"
@@ -32,7 +31,7 @@ func NewListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListLogic {
 func (l *ListLogic) List(req *types.UserVideoListReq) (resp *types.UserVideoListResp, err error) {
 	// todo: add your logic here and delete this line
 	// 参数校验
-	if validateResult := utils.GetValidator().ValidateZh(req); len(validateResult) > 0 {
+	if validateResult := l.svcCtx.Validator.ValidateZh(req); len(validateResult) > 0 {
 		return nil, xerr.NewErrMsg(validateResult)
 	}
 	// 调用videorpc

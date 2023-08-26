@@ -19,6 +19,10 @@ func RabbitMqs(c config.Config, ctx context.Context, svcContext *svc.ServiceCont
 		rabbitmq.MustNewListener(c.RabbitListenerConf, rmqs.NewUserLikeVideoMq(ctx, svcContext)),
 		// 视频被用户点赞
 		rabbitmq.MustNewListener(c.RabbitListenerConf, rmqs.NewVideoLikedByUserMq(ctx, svcContext)),
+		// 用户关注
+		rabbitmq.MustNewListener(c.RabbitListenerConf, rmqs.NewUserFollowUserMq(ctx, svcContext)),
+		// 用户被关注
+		rabbitmq.MustNewListener(c.RabbitListenerConf, rmqs.NewUserFollowedByUserMq(ctx, svcContext)),
 	}
 
 }

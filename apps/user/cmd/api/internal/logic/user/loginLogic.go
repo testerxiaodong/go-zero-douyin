@@ -5,7 +5,6 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
 	"go-zero-douyin/apps/user/cmd/rpc/pb"
-	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xerr"
 
 	"go-zero-douyin/apps/user/cmd/api/internal/svc"
@@ -31,7 +30,7 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err error) {
 	// todo: add your logic here and delete this line
 	// 参数校验
-	if validateResult := utils.GetValidator().ValidateZh(req); len(validateResult) > 0 {
+	if validateResult := l.svcCtx.Validator.ValidateZh(req); len(validateResult) > 0 {
 		return nil, xerr.NewErrMsg(validateResult)
 	}
 	// 调用rpc

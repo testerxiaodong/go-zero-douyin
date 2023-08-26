@@ -3,6 +3,9 @@ package logic
 import (
 	"context"
 	"github.com/pkg/errors"
+	"github.com/spf13/cast"
+	"github.com/zeromicro/go-zero/core/contextx"
+	"github.com/zeromicro/go-zero/core/stores/redis"
 	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
@@ -43,16 +46,19 @@ func (l *GetCommentCountByVideoIdLogic) GetCommentCountByVideoId(in *pb.GetComme
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "get redis video comment count key exist failed: %v", err)
 	}
+
+	// redis中有数据，直接返回
 	if result == true {
 		val, err := l.svcCtx.Redis.GetCtx(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoCommentPrefix, in.GetVideoId()))
 		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "get redis video comment count failed: %v", err)
+			logx.WithContext(l.ctx).Errorf("get redis video comment count failed: %v, video_id: %d", err, in.GetVideoId())
 		}
-		count, err := strconv.Atoi(val)
+		count := cast.ToInt64(val)
+		err = l.svcCtx.Redis.ExpireCtx(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoCommentPrefix, in.GetVideoId()), xconst.RedisExpireTime)
 		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_INSERT_ERR), "redis value invalid, except int, err: %v", err)
+			logx.WithContext(l.ctx).Errorf("set redis video comment count key expire time failed: %v, video_id: %d", err, in.GetVideoId())
 		}
-		return &pb.GetCommentCountByVideoIdResp{Count: int64(count)}, nil
+		return &pb.GetCommentCountByVideoIdResp{Count: count}, nil
 	}
 
 	// 从mysql中获取数据
@@ -68,8 +74,8 @@ func (l *GetCommentCountByVideoIdLogic) GetCommentCountByVideoId(in *pb.GetComme
 		return &pb.GetCommentCountByVideoIdResp{}, errors.Wrap(xerr.NewErrCode(xerr.PB_CHECK_ERR), "type assert failed")
 	}
 
-	// 重新构建缓存
-	l.BuildVideoCommentCountCache(in.VideoId, countInt64)
+	// 异步构建缓存
+	go l.BuildVideoCommentCountCache(in.VideoId, countInt64)
 
 	return &pb.GetCommentCountByVideoIdResp{Count: countInt64}, nil
 }
@@ -84,10 +90,43 @@ func (l *GetCommentCountByVideoIdLogic) GetVideoCommentFromDb(videoId int64) (in
 }
 
 func (l *GetCommentCountByVideoIdLogic) BuildVideoCommentCountCache(videoId int64, commentCount int64) {
-	commentCountStr := strconv.Itoa(int(commentCount))
-	err := l.svcCtx.Redis.SetCtx(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoCommentPrefix, videoId), commentCountStr)
+	// 获取分布式锁的键
+	lockKey := utils.GetRedisLockKeyWithPrefix(xconst.RedisBuildVideoCommentCountCacheLockPrefix, videoId)
+	lock := redis.NewRedisLock(l.svcCtx.Redis, lockKey)
+	lock.SetExpire(1)
+
+	// 获取分布式锁
+	acquire, err := lock.Acquire()
 	if err != nil {
-		logx.WithContext(l.ctx).Errorf("set video comment cache failed, video_id: %d", videoId)
 		return
+	}
+
+	// 延迟释放分布式锁
+	defer func(lock *redis.RedisLock) {
+		_, err := lock.Release()
+		if err != nil {
+
+		}
+	}(lock)
+
+	// 获取成功，设置缓存以及失效时间
+	if acquire {
+		// 复制logic.ctx，防止异步更新缓存时，父context结束了
+		ctx := contextx.ValueOnlyFrom(l.ctx)
+
+		// 设置缓存
+		commentCountStr := strconv.Itoa(int(commentCount))
+		err = l.svcCtx.Redis.SetCtx(ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoCommentPrefix, videoId), commentCountStr)
+		if err != nil {
+			logx.WithContext(ctx).Errorf("set video comment cache failed, video_id: %d", videoId)
+			return
+		}
+
+		// 设置缓存失效时间
+		err := l.svcCtx.Redis.ExpireCtx(ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoCommentPrefix, videoId), xconst.RedisExpireTime)
+		if err != nil {
+			logx.WithContext(ctx).Errorf("set video comment cache expire time failed, video_id: %d", videoId)
+			return
+		}
 	}
 }

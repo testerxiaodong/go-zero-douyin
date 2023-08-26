@@ -40,6 +40,18 @@ RabbitListenerConf:
         Exclusive: false
         NoLocal: false
         NoWait: false
+      -
+        Name: UserFollowUserMq
+        AutoAck: true
+        Exclusive: false
+        NoLocal: false
+        NoWait: false
+      -
+        Name: UserFollowedByUserMq
+        AutoAck: true
+        Exclusive: false
+        NoLocal: false
+        NoWait: false
 
 
 

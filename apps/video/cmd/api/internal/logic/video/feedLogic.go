@@ -35,7 +35,7 @@ func NewFeedLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FeedLogic {
 func (l *FeedLogic) Feed(req *types.VideoFeedReq) (resp *types.VideoFeedResp, err error) {
 	// todo: add your logic here and delete this line
 	// 参数校验
-	if validateResult := utils.GetValidator().ValidateZh(req); len(validateResult) > 0 {
+	if validateResult := l.svcCtx.Validator.ValidateZh(req); len(validateResult) > 0 {
 		return nil, xerr.NewErrMsg(validateResult)
 	}
 

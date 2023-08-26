@@ -24,6 +24,14 @@ type (
 	GetCommentCountByVideoIdResp   = pb.GetCommentCountByVideoIdResp
 	GetCommentListByIdReq          = pb.GetCommentListByIdReq
 	GetCommentListByIdResp         = pb.GetCommentListByIdResp
+	GetUserFollowCountReq          = pb.GetUserFollowCountReq
+	GetUserFollowCountResp         = pb.GetUserFollowCountResp
+	GetUserFollowIdListReq         = pb.GetUserFollowIdListReq
+	GetUserFollowIdListResp        = pb.GetUserFollowIdListResp
+	GetUserFollowedIdListReq       = pb.GetUserFollowedIdListReq
+	GetUserFollowedIdListResp      = pb.GetUserFollowedIdListResp
+	GetUserFollowerCountReq        = pb.GetUserFollowerCountReq
+	GetUserFollowerCountResp       = pb.GetUserFollowerCountResp
 	GetUserLikeVideoIdListReq      = pb.GetUserLikeVideoIdListReq
 	GetUserLikeVideoIdListResp     = pb.GetUserLikeVideoIdListResp
 	GetVideoLikeCountByVideoIdReq  = pb.GetVideoLikeCountByVideoIdReq
@@ -49,6 +57,10 @@ type (
 		// 关注功能
 		FollowUser(ctx context.Context, in *FollowUserReq, opts ...grpc.CallOption) (*FollowUserResp, error)
 		UnfollowUser(ctx context.Context, in *UnfollowUserReq, opts ...grpc.CallOption) (*UnfollowUserResp, error)
+		GetUserFollowerCount(ctx context.Context, in *GetUserFollowerCountReq, opts ...grpc.CallOption) (*GetUserFollowerCountResp, error)
+		GetUserFollowCount(ctx context.Context, in *GetUserFollowCountReq, opts ...grpc.CallOption) (*GetUserFollowCountResp, error)
+		GetUserFollowIdList(ctx context.Context, in *GetUserFollowIdListReq, opts ...grpc.CallOption) (*GetUserFollowIdListResp, error)
+		GetUserFollowedIdList(ctx context.Context, in *GetUserFollowedIdListReq, opts ...grpc.CallOption) (*GetUserFollowedIdListResp, error)
 	}
 
 	defaultSocial struct {
@@ -113,4 +125,24 @@ func (m *defaultSocial) FollowUser(ctx context.Context, in *FollowUserReq, opts 
 func (m *defaultSocial) UnfollowUser(ctx context.Context, in *UnfollowUserReq, opts ...grpc.CallOption) (*UnfollowUserResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
 	return client.UnfollowUser(ctx, in, opts...)
+}
+
+func (m *defaultSocial) GetUserFollowerCount(ctx context.Context, in *GetUserFollowerCountReq, opts ...grpc.CallOption) (*GetUserFollowerCountResp, error) {
+	client := pb.NewSocialClient(m.cli.Conn())
+	return client.GetUserFollowerCount(ctx, in, opts...)
+}
+
+func (m *defaultSocial) GetUserFollowCount(ctx context.Context, in *GetUserFollowCountReq, opts ...grpc.CallOption) (*GetUserFollowCountResp, error) {
+	client := pb.NewSocialClient(m.cli.Conn())
+	return client.GetUserFollowCount(ctx, in, opts...)
+}
+
+func (m *defaultSocial) GetUserFollowIdList(ctx context.Context, in *GetUserFollowIdListReq, opts ...grpc.CallOption) (*GetUserFollowIdListResp, error) {
+	client := pb.NewSocialClient(m.cli.Conn())
+	return client.GetUserFollowIdList(ctx, in, opts...)
+}
+
+func (m *defaultSocial) GetUserFollowedIdList(ctx context.Context, in *GetUserFollowedIdListReq, opts ...grpc.CallOption) (*GetUserFollowedIdListResp, error) {
+	client := pb.NewSocialClient(m.cli.Conn())
+	return client.GetUserFollowedIdList(ctx, in, opts...)
 }

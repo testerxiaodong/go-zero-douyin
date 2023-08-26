@@ -38,7 +38,7 @@ service social {
 	post /comment/del (DelCommentReq)
 }
 
-// 关注
+// 点赞
 @server (
 	group: like
 	prefix: social/v1
@@ -64,4 +64,44 @@ service social {
 	@doc "user unlike video"
 	@handler delLike
 	post /like/del (VideoUnlikeReq)
+}
+
+// 关注
+@server (
+	group: follow
+	prefix: social/v1
+)
+
+service social {
+	@doc "获取用户关注数"
+	@handler getUserFollowCount
+	get /follow/follow_count(GetUserFollowCountReq) returns (GetUserFollowCountResp)
+
+	@doc "获取用户关注id列表"
+	@handler getUserFollowIdList
+	get /follow/follow_list(GetUserFollowIdListReq) returns (GetUserFollowIdListResp)
+
+	@doc "获取用户粉丝数"
+	@handler getUserFollowerCount
+	get /follow/follower_count(GetUserFollowerCountReq) returns (GetUserFollowerCountResp)
+
+	@doc "获取用户粉丝id列表"
+	@handler getUserFollowerIdList
+	get /follow/follower_list(GetUserFollowerIdListReq) returns (GetUserFollowerIdListResp)
+}
+
+@server (
+	group: follow
+	prefix: social/v1
+	jwt: JwtAuth
+)
+
+service social {
+	@doc "user like video"
+	@handler addFollow
+	post /follow/add (UserFollowReq)
+
+	@doc "user unlike video"
+	@handler delFollow
+	post /follow/del (UserUnfollowReq)
 }

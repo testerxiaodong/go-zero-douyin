@@ -40,3 +40,43 @@ type GetUserLikeVideoIdListReq struct {
 type GetUserLikeVideoIdListResp struct {
 	VideoIdList []int64 `json:"id_list"`
 }
+
+type UserFollowReq struct {
+	UserId int64 `json:"user_id" validate:"required"`
+}
+
+type UserUnfollowReq struct {
+	UserId int64 `json:"user_id" validate:"required"`
+}
+
+type GetUserFollowCountReq struct {
+	UserId int64 `json:"user_id" validate:"required"`
+}
+
+type GetUserFollowCountResp struct {
+	FollowCount int64 `json:"follow_count"`
+}
+
+type GetUserFollowerCountReq struct {
+	UserId int64 `json:"user_id" validate:"required"`
+}
+
+type GetUserFollowerCountResp struct {
+	FollowerCount int64 `json:"follower_count"`
+}
+
+type GetUserFollowIdListReq struct {
+	UserId int64 `json:"user_id"`
+}
+
+type GetUserFollowIdListResp struct {
+	UserIdList []int64 `json:"user_id_list"`
+}
+
+type GetUserFollowerIdListReq struct {
+	UserId int64 `json:"user_id"`
+}
+
+type GetUserFollowerIdListResp struct {
+	UserIdList []int64 `json:"user_id_list"`
+}

@@ -15,9 +15,20 @@ const (
 
 // RedisKeyPrefix
 const (
-	RedisVideoCommentPrefix     = "video_id:comment_count:"
-	RedisUserLikeVideoPrefix    = "user_id:video_id:"
-	RedisVideoLikedByUserPrefix = "video_id:user_id:"
+	RedisVideoCommentPrefix       = "video_id:comment_count:"
+	RedisUserLikeVideoPrefix      = "user_id:video_id:"
+	RedisVideoLikedByUserPrefix   = "video_id:user_id:"
+	RedisUserFollowUserPrefix     = "follower_id:user_id:"
+	RedisUserFollowedByUserPrefix = "user_id:follower_id:"
+)
+
+// RedisLockKeyPrefix
+const (
+	RedisBuildVideoCommentCountCacheLockPrefix = "build_video_comment_count_key_"
+	RedisBuildUserLikeVideoCacheLockPrefix     = "build_user_like_video_id_list_key_"
+	RedisBuildVideoLikedByUserCacheLockPrefix  = "build_video_liked_by_user_key_"
+	RedisBuildUserFollowCountCacheLockPrefix   = "build_user_follow_count_key_"
+	RedisBuildUserFollowerCountCacheLockPrefix = "build_user_follower_count_key_"
 )
 
 const (

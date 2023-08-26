@@ -41,7 +41,7 @@ func (l *DelCommentLogic) DelComment(in *pb.DelCommentReq) (*pb.DelCommentResp, 
 	// 查询数据库
 	commentQuery := l.svcCtx.Query.Comment
 	comment, err := commentQuery.WithContext(l.ctx).Where(commentQuery.ID.Eq(in.GetCommentId())).First()
-	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "find comment by id failed, err: %v", err)
 	}
 	// 评论不存在

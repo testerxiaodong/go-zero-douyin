@@ -29,6 +29,10 @@ const (
 	Social_GetUserLikeVideoIdList_FullMethodName     = "/pb.social/GetUserLikeVideoIdList"
 	Social_FollowUser_FullMethodName                 = "/pb.social/FollowUser"
 	Social_UnfollowUser_FullMethodName               = "/pb.social/UnfollowUser"
+	Social_GetUserFollowerCount_FullMethodName       = "/pb.social/GetUserFollowerCount"
+	Social_GetUserFollowCount_FullMethodName         = "/pb.social/GetUserFollowCount"
+	Social_GetUserFollowIdList_FullMethodName        = "/pb.social/GetUserFollowIdList"
+	Social_GetUserFollowedIdList_FullMethodName      = "/pb.social/GetUserFollowedIdList"
 )
 
 // SocialClient is the client API for Social service.
@@ -48,6 +52,10 @@ type SocialClient interface {
 	// 关注功能
 	FollowUser(ctx context.Context, in *FollowUserReq, opts ...grpc.CallOption) (*FollowUserResp, error)
 	UnfollowUser(ctx context.Context, in *UnfollowUserReq, opts ...grpc.CallOption) (*UnfollowUserResp, error)
+	GetUserFollowerCount(ctx context.Context, in *GetUserFollowerCountReq, opts ...grpc.CallOption) (*GetUserFollowerCountResp, error)
+	GetUserFollowCount(ctx context.Context, in *GetUserFollowCountReq, opts ...grpc.CallOption) (*GetUserFollowCountResp, error)
+	GetUserFollowIdList(ctx context.Context, in *GetUserFollowIdListReq, opts ...grpc.CallOption) (*GetUserFollowIdListResp, error)
+	GetUserFollowedIdList(ctx context.Context, in *GetUserFollowedIdListReq, opts ...grpc.CallOption) (*GetUserFollowedIdListResp, error)
 }
 
 type socialClient struct {
@@ -148,6 +156,42 @@ func (c *socialClient) UnfollowUser(ctx context.Context, in *UnfollowUserReq, op
 	return out, nil
 }
 
+func (c *socialClient) GetUserFollowerCount(ctx context.Context, in *GetUserFollowerCountReq, opts ...grpc.CallOption) (*GetUserFollowerCountResp, error) {
+	out := new(GetUserFollowerCountResp)
+	err := c.cc.Invoke(ctx, Social_GetUserFollowerCount_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socialClient) GetUserFollowCount(ctx context.Context, in *GetUserFollowCountReq, opts ...grpc.CallOption) (*GetUserFollowCountResp, error) {
+	out := new(GetUserFollowCountResp)
+	err := c.cc.Invoke(ctx, Social_GetUserFollowCount_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socialClient) GetUserFollowIdList(ctx context.Context, in *GetUserFollowIdListReq, opts ...grpc.CallOption) (*GetUserFollowIdListResp, error) {
+	out := new(GetUserFollowIdListResp)
+	err := c.cc.Invoke(ctx, Social_GetUserFollowIdList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socialClient) GetUserFollowedIdList(ctx context.Context, in *GetUserFollowedIdListReq, opts ...grpc.CallOption) (*GetUserFollowedIdListResp, error) {
+	out := new(GetUserFollowedIdListResp)
+	err := c.cc.Invoke(ctx, Social_GetUserFollowedIdList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SocialServer is the server API for Social service.
 // All implementations must embed UnimplementedSocialServer
 // for forward compatibility
@@ -165,6 +209,10 @@ type SocialServer interface {
 	// 关注功能
 	FollowUser(context.Context, *FollowUserReq) (*FollowUserResp, error)
 	UnfollowUser(context.Context, *UnfollowUserReq) (*UnfollowUserResp, error)
+	GetUserFollowerCount(context.Context, *GetUserFollowerCountReq) (*GetUserFollowerCountResp, error)
+	GetUserFollowCount(context.Context, *GetUserFollowCountReq) (*GetUserFollowCountResp, error)
+	GetUserFollowIdList(context.Context, *GetUserFollowIdListReq) (*GetUserFollowIdListResp, error)
+	GetUserFollowedIdList(context.Context, *GetUserFollowedIdListReq) (*GetUserFollowedIdListResp, error)
 	mustEmbedUnimplementedSocialServer()
 }
 
@@ -201,6 +249,18 @@ func (UnimplementedSocialServer) FollowUser(context.Context, *FollowUserReq) (*F
 }
 func (UnimplementedSocialServer) UnfollowUser(context.Context, *UnfollowUserReq) (*UnfollowUserResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnfollowUser not implemented")
+}
+func (UnimplementedSocialServer) GetUserFollowerCount(context.Context, *GetUserFollowerCountReq) (*GetUserFollowerCountResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollowerCount not implemented")
+}
+func (UnimplementedSocialServer) GetUserFollowCount(context.Context, *GetUserFollowCountReq) (*GetUserFollowCountResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollowCount not implemented")
+}
+func (UnimplementedSocialServer) GetUserFollowIdList(context.Context, *GetUserFollowIdListReq) (*GetUserFollowIdListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollowIdList not implemented")
+}
+func (UnimplementedSocialServer) GetUserFollowedIdList(context.Context, *GetUserFollowedIdListReq) (*GetUserFollowedIdListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollowedIdList not implemented")
 }
 func (UnimplementedSocialServer) mustEmbedUnimplementedSocialServer() {}
 
@@ -395,6 +455,78 @@ func _Social_UnfollowUser_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Social_GetUserFollowerCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserFollowerCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).GetUserFollowerCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_GetUserFollowerCount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).GetUserFollowerCount(ctx, req.(*GetUserFollowerCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Social_GetUserFollowCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserFollowCountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).GetUserFollowCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_GetUserFollowCount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).GetUserFollowCount(ctx, req.(*GetUserFollowCountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Social_GetUserFollowIdList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserFollowIdListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).GetUserFollowIdList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_GetUserFollowIdList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).GetUserFollowIdList(ctx, req.(*GetUserFollowIdListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Social_GetUserFollowedIdList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserFollowedIdListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).GetUserFollowedIdList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_GetUserFollowedIdList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).GetUserFollowedIdList(ctx, req.(*GetUserFollowedIdListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Social_ServiceDesc is the grpc.ServiceDesc for Social service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -441,6 +573,22 @@ var Social_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UnfollowUser",
 			Handler:    _Social_UnfollowUser_Handler,
+		},
+		{
+			MethodName: "GetUserFollowerCount",
+			Handler:    _Social_GetUserFollowerCount_Handler,
+		},
+		{
+			MethodName: "GetUserFollowCount",
+			Handler:    _Social_GetUserFollowCount_Handler,
+		},
+		{
+			MethodName: "GetUserFollowIdList",
+			Handler:    _Social_GetUserFollowIdList_Handler,
+		},
+		{
+			MethodName: "GetUserFollowedIdList",
+			Handler:    _Social_GetUserFollowedIdList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

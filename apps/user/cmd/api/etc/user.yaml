@@ -20,3 +20,4 @@ UserRpcConf:
     Hosts:
       - 47.99.140.12:2379
     Key: user.rpc
+  NonBlock: true

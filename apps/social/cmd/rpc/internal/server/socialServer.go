@@ -74,3 +74,23 @@ func (s *SocialServer) UnfollowUser(ctx context.Context, in *pb.UnfollowUserReq)
 	l := logic.NewUnfollowUserLogic(ctx, s.svcCtx)
 	return l.UnfollowUser(in)
 }
+
+func (s *SocialServer) GetUserFollowerCount(ctx context.Context, in *pb.GetUserFollowerCountReq) (*pb.GetUserFollowerCountResp, error) {
+	l := logic.NewGetUserFollowerCountLogic(ctx, s.svcCtx)
+	return l.GetUserFollowerCount(in)
+}
+
+func (s *SocialServer) GetUserFollowCount(ctx context.Context, in *pb.GetUserFollowCountReq) (*pb.GetUserFollowCountResp, error) {
+	l := logic.NewGetUserFollowCountLogic(ctx, s.svcCtx)
+	return l.GetUserFollowCount(in)
+}
+
+func (s *SocialServer) GetUserFollowIdList(ctx context.Context, in *pb.GetUserFollowIdListReq) (*pb.GetUserFollowIdListResp, error) {
+	l := logic.NewGetUserFollowIdListLogic(ctx, s.svcCtx)
+	return l.GetUserFollowIdList(in)
+}
+
+func (s *SocialServer) GetUserFollowedIdList(ctx context.Context, in *pb.GetUserFollowedIdListReq) (*pb.GetUserFollowedIdListResp, error) {
+	l := logic.NewGetUserFollowedIdListLogic(ctx, s.svcCtx)
+	return l.GetUserFollowedIdList(in)
+}

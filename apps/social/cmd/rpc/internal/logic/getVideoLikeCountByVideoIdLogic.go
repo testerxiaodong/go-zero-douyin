@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"github.com/pkg/errors"
+	"github.com/zeromicro/go-zero/core/contextx"
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"go-zero-douyin/common/utils"
@@ -69,8 +70,10 @@ func (l *GetVideoLikeCountByVideoIdLogic) GetVideoLikeCountByVideoId(in *pb.GetV
 	if !ok {
 		return &pb.GetVideoLikeCountByVideoIdResp{}, errors.Wrap(xerr.NewErrCode(xerr.PB_CHECK_ERR), "type assert failed")
 	}
-	// 构建缓存
-	l.BuildVideoLikedByUserCache(in.GetVideoId())
+
+	// 异步构建缓存
+	go l.BuildVideoLikedByUserCache(in.GetVideoId())
+
 	return &pb.GetVideoLikeCountByVideoIdResp{LikeCount: countInt64}, nil
 }
 
@@ -86,13 +89,18 @@ func (l *GetVideoLikeCountByVideoIdLogic) GetVideoLikedCountFromDb(videoId int64
 
 // BuildVideoLikedByUserCache 构建视频被点赞缓存
 func (l *GetVideoLikeCountByVideoIdLogic) BuildVideoLikedByUserCache(videoId int64) {
-	lockKey := "build_video_liked_by_user_key"
+	// 获取分布式的键
+	lockKey := utils.GetRedisLockKeyWithPrefix(xconst.RedisBuildVideoLikedByUserCacheLockPrefix, videoId)
 	lock := redis.NewRedisLock(l.svcCtx.Redis, lockKey)
 	lock.SetExpire(1)
+
+	// 获取分布式锁
 	acquire, err := lock.Acquire()
 	if err != nil {
 		return
 	}
+
+	// 延迟释放分布式锁
 	defer func(lock *redis.RedisLock) {
 		_, err := lock.Release()
 		if err != nil {
@@ -100,25 +108,34 @@ func (l *GetVideoLikeCountByVideoIdLogic) BuildVideoLikedByUserCache(videoId int
 		}
 	}(lock)
 
+	// 更新缓存
 	if acquire {
+		// 复制logic.ctx，防止异步调用时父context结束
+		ctx := contextx.ValueOnlyFrom(l.ctx)
+
+		// 查询点赞视频的用户列表
 		likeQuery := l.svcCtx.Query.Like
-		list, err := likeQuery.WithContext(l.ctx).Where(likeQuery.VideoID.Eq(videoId)).Find()
+		list, err := likeQuery.WithContext(ctx).Where(likeQuery.VideoID.Eq(videoId)).Find()
 		if err != nil {
-			logx.WithContext(l.ctx).Errorf("find video liked by user with video_id failed, err: %v", err)
+			logx.WithContext(ctx).Errorf("find video liked by user with video_id failed, err: %v", err)
 		}
 		if len(list) > 0 {
 			idList := make([]interface{}, 0, len(list))
 			for _, video := range list {
 				idList = append(idList, video.UserID)
 			}
-			_, err := l.svcCtx.Redis.SaddCtx(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoLikedByUserPrefix, videoId), idList...)
+
+			// 设置缓存
+			_, err := l.svcCtx.Redis.SaddCtx(ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoLikedByUserPrefix, videoId), idList...)
 			if err != nil {
-				logx.WithContext(l.ctx).Errorf("add redis video liked by user cache  failed, err: %v", err)
+				logx.WithContext(ctx).Errorf("add redis video liked by user cache  failed, err: %v", err)
 				return
 			}
-			err = l.svcCtx.Redis.ExpireCtx(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoLikedByUserPrefix, videoId), xconst.RedisExpireTime)
+
+			// 设置缓存失效时间
+			err = l.svcCtx.Redis.ExpireCtx(ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoLikedByUserPrefix, videoId), xconst.RedisExpireTime)
 			if err != nil {
-				logx.WithContext(l.ctx).Errorf("set video liked by user redis key expire time failed, err: %v", err)
+				logx.WithContext(ctx).Errorf("set video liked by user redis key expire time failed, err: %v", err)
 				return
 			}
 		}

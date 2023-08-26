@@ -61,3 +61,50 @@ type (
 )
 
 // 关注
+type (
+    UserFollowReq {
+        UserId int64 `json:"user_id" validate:"required"`
+    }
+)
+
+type (
+    UserUnfollowReq {
+        UserId int64 `json:"user_id" validate:"required"`
+    }
+)
+
+type (
+    GetUserFollowCountReq {
+        UserId int64 `json:"user_id" validate:"required"`
+    }
+    GetUserFollowCountResp {
+        FollowCount int64  `json:"follow_count"`
+    }
+)
+
+type (
+    GetUserFollowerCountReq {
+        UserId int64 `json:"user_id" validate:"required"`
+    }
+    GetUserFollowerCountResp {
+        FollowerCount int64 `json:"follower_count"`
+    }
+)
+
+type (
+    GetUserFollowIdListReq {
+        UserId int64 `json:"user_id"`
+    }
+    GetUserFollowIdListResp {
+        UserIdList []int64 `json:"user_id_list"`
+    }
+)
+
+type (
+    GetUserFollowerIdListReq {
+        UserId int64  `json:"user_id"`
+    }
+    GetUserFollowerIdListResp {
+        UserIdList []int64 `json:"user_id_list"`
+    }
+)

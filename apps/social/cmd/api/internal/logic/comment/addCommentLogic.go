@@ -5,7 +5,6 @@ import (
 	"go-zero-douyin/apps/social/cmd/rpc/pb"
 	pbVideo "go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/ctxdata"
-	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xerr"
 
 	"go-zero-douyin/apps/social/cmd/api/internal/svc"
@@ -31,7 +30,7 @@ func NewAddCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddCom
 func (l *AddCommentLogic) AddComment(req *types.AddCommentReq) error {
 	// todo: add your logic here and delete this line
 	// 参数校验
-	if validateResult := utils.GetValidator().ValidateZh(req); len(validateResult) > 0 {
+	if validateResult := l.svcCtx.Validator.ValidateZh(req); len(validateResult) > 0 {
 		return xerr.NewErrMsg(validateResult)
 	}
 

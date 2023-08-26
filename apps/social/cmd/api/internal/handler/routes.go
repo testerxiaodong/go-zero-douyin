@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	comment "go-zero-douyin/apps/social/cmd/api/internal/handler/comment"
+	follow "go-zero-douyin/apps/social/cmd/api/internal/handler/follow"
 	like "go-zero-douyin/apps/social/cmd/api/internal/handler/like"
 	"go-zero-douyin/apps/social/cmd/api/internal/svc"
 
@@ -62,6 +63,49 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/like/del",
 				Handler: like.DelLikeHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.JwtAuth.AccessSecret),
+		rest.WithPrefix("/social/v1"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/follow/follow_count",
+				Handler: follow.GetUserFollowCountHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/follow/follow_list",
+				Handler: follow.GetUserFollowIdListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/follow/follower_count",
+				Handler: follow.GetUserFollowerCountHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/follow/follower_list",
+				Handler: follow.GetUserFollowerIdListHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/social/v1"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/follow/add",
+				Handler: follow.AddFollowHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/follow/del",
+				Handler: follow.DelFollowHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.JwtAuth.AccessSecret),
