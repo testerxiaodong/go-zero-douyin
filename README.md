@@ -1,4 +1,4 @@
-## go_zero_douyin
+## go-zero-douyin
 ### 项目介绍
 faker-douyin的go-zero版本，主要是想学习一下go-zero微服务框架。
 
