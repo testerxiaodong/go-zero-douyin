@@ -1,6 +1,6 @@
 Name: video
 Host: 0.0.0.0
-Port: 8889
+Port: 1003
 MaxBytes: 104857600
 
 Log:
@@ -24,15 +24,13 @@ AliCloud:
   CommonPath: video
 
 VideoRpcConf:
-  Etcd:
-    Hosts:
-      - 47.99.140.12:2379
-    Key: video.rpc
+  Endpoints:
+    - 127.0.0.1:1103
+#  Target: k8s://go-zero-douyin/video-rpc-svc:1103
   NonBlock: true
 
 SocialRpcConf:
-  Etcd:
-    Hosts:
-      - 47.99.140.12:2379
-    Key: social.rpc
+  Endpoints:
+    - 127.0.0.1:1104
+#  Target: k8s://go-zero-douyin/social-rpc-svc:1104
   NonBlock: true

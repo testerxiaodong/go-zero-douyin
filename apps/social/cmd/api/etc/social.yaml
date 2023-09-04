@@ -1,6 +1,6 @@
 Name: social
 Host: 0.0.0.0
-Port: 8890
+Port: 1004
 
 Log:
   ServiceName: api.social
@@ -16,15 +16,13 @@ JwtAuth:
   AccessSecret: go-zero-douyin
 
 VideoRpcConf:
-  Etcd:
-    Hosts:
-      - 47.99.140.12:2379
-    Key: video.rpc
+  Endpoints:
+    - 127.0.0.1:1103
+#  Target: k8s://go-zero-douyin/video-rpc-svc:1103
   NonBlock: true
 
 SocialRpcConf:
-  Etcd:
-    Hosts:
-      - 47.99.140.12:2379
-    Key: social.rpc
+  Endpoints:
+    - 127.0.0.1:1104
+#  Target: k8s://go-zero-douyin/social-rpc-svc:1104
   NonBlock: true

@@ -1,0 +1,82 @@
+Name: consumer
+Host: 0.0.0.0
+
+Log:
+  ServiceName: consumer
+  Mode: console
+  Encoding: plain
+  Path: logs
+  TimeFormat: 2006-01-02T15:04:05.000Z07:00
+  Level: debug
+  KeepDays: 30
+  StackCooldownMillis: 100
+
+Redis:
+  Host: 47.99.140.12:6379
+  Type: node
+
+RabbitVideoCommentMqConf:
+  Username: guest
+  Password: guest
+  Host: 47.99.140.12
+  Port: 5672
+  ListenerQueues:
+      -
+        Name: VideoCommentMq
+        AutoAck: true
+        Exclusive: false
+        NoLocal: false
+        NoWait: false
+
+RabbitUserLikeVideoMqConf:
+  Username: guest
+  Password: guest
+  Host: 47.99.140.12
+  Port: 5672
+  ListenerQueues:
+    - Name: UserLikeVideoMq
+      AutoAck: true
+      Exclusive: false
+      NoLocal: false
+      NoWait: false
+
+RabbitVideoLikedByUserMqConf:
+  Username: guest
+  Password: guest
+  Host: 47.99.140.12
+  Port: 5672
+  ListenerQueues:
+    - Name: VideoLikedByUserMq
+      AutoAck: true
+      Exclusive: false
+      NoLocal: false
+      NoWait: false
+
+RabbitUserFollowUserMqConf:
+  Username: guest
+  Password: guest
+  Host: 47.99.140.12
+  Port: 5672
+  ListenerQueues:
+    - Name: UserFollowUserMq
+      AutoAck: true
+      Exclusive: false
+      NoLocal: false
+      NoWait: false
+
+RabbitUserFollowedByUserMqConf:
+  Username: guest
+  Password: guest
+  Host: 47.99.140.12
+  Port: 5672
+  ListenerQueues:
+    - Name: UserFollowedByUserMq
+      AutoAck: true
+      Exclusive: false
+      NoLocal: false
+      NoWait: false
+
+
+
+
+

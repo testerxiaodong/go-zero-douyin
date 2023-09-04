@@ -19,20 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Social_AddComment_FullMethodName                 = "/pb.social/AddComment"
-	Social_DelComment_FullMethodName                 = "/pb.social/DelComment"
-	Social_GetVideoCommentListById_FullMethodName    = "/pb.social/GetVideoCommentListById"
-	Social_GetCommentCountByVideoId_FullMethodName   = "/pb.social/GetCommentCountByVideoId"
-	Social_VideoLike_FullMethodName                  = "/pb.social/VideoLike"
-	Social_VideoUnlike_FullMethodName                = "/pb.social/VideoUnlike"
-	Social_GetVideoLikeCountByVideoId_FullMethodName = "/pb.social/GetVideoLikeCountByVideoId"
-	Social_GetUserLikeVideoIdList_FullMethodName     = "/pb.social/GetUserLikeVideoIdList"
-	Social_FollowUser_FullMethodName                 = "/pb.social/FollowUser"
-	Social_UnfollowUser_FullMethodName               = "/pb.social/UnfollowUser"
-	Social_GetUserFollowerCount_FullMethodName       = "/pb.social/GetUserFollowerCount"
-	Social_GetUserFollowCount_FullMethodName         = "/pb.social/GetUserFollowCount"
-	Social_GetUserFollowIdList_FullMethodName        = "/pb.social/GetUserFollowIdList"
-	Social_GetUserFollowedIdList_FullMethodName      = "/pb.social/GetUserFollowedIdList"
+	Social_AddComment_FullMethodName                  = "/pb.social/AddComment"
+	Social_DelComment_FullMethodName                  = "/pb.social/DelComment"
+	Social_GetVideoCommentListById_FullMethodName     = "/pb.social/GetVideoCommentListById"
+	Social_GetCommentCountByVideoId_FullMethodName    = "/pb.social/GetCommentCountByVideoId"
+	Social_VideoLike_FullMethodName                   = "/pb.social/VideoLike"
+	Social_VideoUnlike_FullMethodName                 = "/pb.social/VideoUnlike"
+	Social_GetVideoLikedCountByVideoId_FullMethodName = "/pb.social/GetVideoLikedCountByVideoId"
+	Social_GetUserLikeVideoIdList_FullMethodName      = "/pb.social/GetUserLikeVideoIdList"
+	Social_FollowUser_FullMethodName                  = "/pb.social/FollowUser"
+	Social_UnfollowUser_FullMethodName                = "/pb.social/UnfollowUser"
+	Social_GetUserFollowerCount_FullMethodName        = "/pb.social/GetUserFollowerCount"
+	Social_GetUserFollowCount_FullMethodName          = "/pb.social/GetUserFollowCount"
+	Social_GetUserFollowIdList_FullMethodName         = "/pb.social/GetUserFollowIdList"
+	Social_GetUserFollowerIdList_FullMethodName       = "/pb.social/GetUserFollowerIdList"
 )
 
 // SocialClient is the client API for Social service.
@@ -47,7 +47,7 @@ type SocialClient interface {
 	// 点赞相关功能
 	VideoLike(ctx context.Context, in *VideoLikeReq, opts ...grpc.CallOption) (*VideoLikeResp, error)
 	VideoUnlike(ctx context.Context, in *VideoUnlikeReq, opts ...grpc.CallOption) (*VideoLikeResp, error)
-	GetVideoLikeCountByVideoId(ctx context.Context, in *GetVideoLikeCountByVideoIdReq, opts ...grpc.CallOption) (*GetVideoLikeCountByVideoIdResp, error)
+	GetVideoLikedCountByVideoId(ctx context.Context, in *GetVideoLikedCountByVideoIdReq, opts ...grpc.CallOption) (*GetVideoLikedCountByVideoIdResp, error)
 	GetUserLikeVideoIdList(ctx context.Context, in *GetUserLikeVideoIdListReq, opts ...grpc.CallOption) (*GetUserLikeVideoIdListResp, error)
 	// 关注功能
 	FollowUser(ctx context.Context, in *FollowUserReq, opts ...grpc.CallOption) (*FollowUserResp, error)
@@ -55,7 +55,7 @@ type SocialClient interface {
 	GetUserFollowerCount(ctx context.Context, in *GetUserFollowerCountReq, opts ...grpc.CallOption) (*GetUserFollowerCountResp, error)
 	GetUserFollowCount(ctx context.Context, in *GetUserFollowCountReq, opts ...grpc.CallOption) (*GetUserFollowCountResp, error)
 	GetUserFollowIdList(ctx context.Context, in *GetUserFollowIdListReq, opts ...grpc.CallOption) (*GetUserFollowIdListResp, error)
-	GetUserFollowedIdList(ctx context.Context, in *GetUserFollowedIdListReq, opts ...grpc.CallOption) (*GetUserFollowedIdListResp, error)
+	GetUserFollowerIdList(ctx context.Context, in *GetUserFollowerIdListReq, opts ...grpc.CallOption) (*GetUserFollowerIdListResp, error)
 }
 
 type socialClient struct {
@@ -120,9 +120,9 @@ func (c *socialClient) VideoUnlike(ctx context.Context, in *VideoUnlikeReq, opts
 	return out, nil
 }
 
-func (c *socialClient) GetVideoLikeCountByVideoId(ctx context.Context, in *GetVideoLikeCountByVideoIdReq, opts ...grpc.CallOption) (*GetVideoLikeCountByVideoIdResp, error) {
-	out := new(GetVideoLikeCountByVideoIdResp)
-	err := c.cc.Invoke(ctx, Social_GetVideoLikeCountByVideoId_FullMethodName, in, out, opts...)
+func (c *socialClient) GetVideoLikedCountByVideoId(ctx context.Context, in *GetVideoLikedCountByVideoIdReq, opts ...grpc.CallOption) (*GetVideoLikedCountByVideoIdResp, error) {
+	out := new(GetVideoLikedCountByVideoIdResp)
+	err := c.cc.Invoke(ctx, Social_GetVideoLikedCountByVideoId_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -183,9 +183,9 @@ func (c *socialClient) GetUserFollowIdList(ctx context.Context, in *GetUserFollo
 	return out, nil
 }
 
-func (c *socialClient) GetUserFollowedIdList(ctx context.Context, in *GetUserFollowedIdListReq, opts ...grpc.CallOption) (*GetUserFollowedIdListResp, error) {
-	out := new(GetUserFollowedIdListResp)
-	err := c.cc.Invoke(ctx, Social_GetUserFollowedIdList_FullMethodName, in, out, opts...)
+func (c *socialClient) GetUserFollowerIdList(ctx context.Context, in *GetUserFollowerIdListReq, opts ...grpc.CallOption) (*GetUserFollowerIdListResp, error) {
+	out := new(GetUserFollowerIdListResp)
+	err := c.cc.Invoke(ctx, Social_GetUserFollowerIdList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +204,7 @@ type SocialServer interface {
 	// 点赞相关功能
 	VideoLike(context.Context, *VideoLikeReq) (*VideoLikeResp, error)
 	VideoUnlike(context.Context, *VideoUnlikeReq) (*VideoLikeResp, error)
-	GetVideoLikeCountByVideoId(context.Context, *GetVideoLikeCountByVideoIdReq) (*GetVideoLikeCountByVideoIdResp, error)
+	GetVideoLikedCountByVideoId(context.Context, *GetVideoLikedCountByVideoIdReq) (*GetVideoLikedCountByVideoIdResp, error)
 	GetUserLikeVideoIdList(context.Context, *GetUserLikeVideoIdListReq) (*GetUserLikeVideoIdListResp, error)
 	// 关注功能
 	FollowUser(context.Context, *FollowUserReq) (*FollowUserResp, error)
@@ -212,7 +212,7 @@ type SocialServer interface {
 	GetUserFollowerCount(context.Context, *GetUserFollowerCountReq) (*GetUserFollowerCountResp, error)
 	GetUserFollowCount(context.Context, *GetUserFollowCountReq) (*GetUserFollowCountResp, error)
 	GetUserFollowIdList(context.Context, *GetUserFollowIdListReq) (*GetUserFollowIdListResp, error)
-	GetUserFollowedIdList(context.Context, *GetUserFollowedIdListReq) (*GetUserFollowedIdListResp, error)
+	GetUserFollowerIdList(context.Context, *GetUserFollowerIdListReq) (*GetUserFollowerIdListResp, error)
 	mustEmbedUnimplementedSocialServer()
 }
 
@@ -238,8 +238,8 @@ func (UnimplementedSocialServer) VideoLike(context.Context, *VideoLikeReq) (*Vid
 func (UnimplementedSocialServer) VideoUnlike(context.Context, *VideoUnlikeReq) (*VideoLikeResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VideoUnlike not implemented")
 }
-func (UnimplementedSocialServer) GetVideoLikeCountByVideoId(context.Context, *GetVideoLikeCountByVideoIdReq) (*GetVideoLikeCountByVideoIdResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetVideoLikeCountByVideoId not implemented")
+func (UnimplementedSocialServer) GetVideoLikedCountByVideoId(context.Context, *GetVideoLikedCountByVideoIdReq) (*GetVideoLikedCountByVideoIdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetVideoLikedCountByVideoId not implemented")
 }
 func (UnimplementedSocialServer) GetUserLikeVideoIdList(context.Context, *GetUserLikeVideoIdListReq) (*GetUserLikeVideoIdListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserLikeVideoIdList not implemented")
@@ -259,8 +259,8 @@ func (UnimplementedSocialServer) GetUserFollowCount(context.Context, *GetUserFol
 func (UnimplementedSocialServer) GetUserFollowIdList(context.Context, *GetUserFollowIdListReq) (*GetUserFollowIdListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollowIdList not implemented")
 }
-func (UnimplementedSocialServer) GetUserFollowedIdList(context.Context, *GetUserFollowedIdListReq) (*GetUserFollowedIdListResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollowedIdList not implemented")
+func (UnimplementedSocialServer) GetUserFollowerIdList(context.Context, *GetUserFollowerIdListReq) (*GetUserFollowerIdListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFollowerIdList not implemented")
 }
 func (UnimplementedSocialServer) mustEmbedUnimplementedSocialServer() {}
 
@@ -383,20 +383,20 @@ func _Social_VideoUnlike_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_GetVideoLikeCountByVideoId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetVideoLikeCountByVideoIdReq)
+func _Social_GetVideoLikedCountByVideoId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetVideoLikedCountByVideoIdReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).GetVideoLikeCountByVideoId(ctx, in)
+		return srv.(SocialServer).GetVideoLikedCountByVideoId(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_GetVideoLikeCountByVideoId_FullMethodName,
+		FullMethod: Social_GetVideoLikedCountByVideoId_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).GetVideoLikeCountByVideoId(ctx, req.(*GetVideoLikeCountByVideoIdReq))
+		return srv.(SocialServer).GetVideoLikedCountByVideoId(ctx, req.(*GetVideoLikedCountByVideoIdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -509,20 +509,20 @@ func _Social_GetUserFollowIdList_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_GetUserFollowedIdList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserFollowedIdListReq)
+func _Social_GetUserFollowerIdList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserFollowerIdListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).GetUserFollowedIdList(ctx, in)
+		return srv.(SocialServer).GetUserFollowerIdList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_GetUserFollowedIdList_FullMethodName,
+		FullMethod: Social_GetUserFollowerIdList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).GetUserFollowedIdList(ctx, req.(*GetUserFollowedIdListReq))
+		return srv.(SocialServer).GetUserFollowerIdList(ctx, req.(*GetUserFollowerIdListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -559,8 +559,8 @@ var Social_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Social_VideoUnlike_Handler,
 		},
 		{
-			MethodName: "GetVideoLikeCountByVideoId",
-			Handler:    _Social_GetVideoLikeCountByVideoId_Handler,
+			MethodName: "GetVideoLikedCountByVideoId",
+			Handler:    _Social_GetVideoLikedCountByVideoId_Handler,
 		},
 		{
 			MethodName: "GetUserLikeVideoIdList",
@@ -587,8 +587,8 @@ var Social_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Social_GetUserFollowIdList_Handler,
 		},
 		{
-			MethodName: "GetUserFollowedIdList",
-			Handler:    _Social_GetUserFollowedIdList_Handler,
+			MethodName: "GetUserFollowerIdList",
+			Handler:    _Social_GetUserFollowerIdList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: social-rpc
+  namespace: go-zero-douyin
+  labels:
+    app: social-rpc
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: social-rpc
+  template:
+    metadata:
+      labels:
+        app: social-rpc
+    spec:
+      serviceAccountName: find-endpoints
+      containers:
+      - name: social-rpc
+        image: 47.99.140.12:8077/go-zero-douyin/social-rpc:v1.0
+        ports:
+        - containerPort: 1104
+        readinessProbe:
+          tcpSocket:
+            port: 1104
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 1104
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: 200m
+            memory: 50Mi
+          limits:
+            cpu: 300m
+            memory: 1024Mi
+        volumeMounts:
+        - name: timezone
+          mountPath: /etc/localtime
+      imagePullSecrets:
+      - name: docker-login
+      volumes:
+        - name: timezone
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Shanghai
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: social-rpc-svc
+  namespace: go-zero-douyin
+spec:
+  ports:
+  - nodePort: 31104
+    port: 1104
+    protocol: TCP
+    targetPort: 1104
+  type: NodePort
+  selector:
+    app: social-rpc
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: social-rpc-hpa-c
+  namespace: go-zero-douyin
+  labels:
+    app: social-rpc-hpa-c
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: social-rpc
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: social-rpc-hpa-m
+  namespace: go-zero-douyin
+  labels:
+    app: social-rpc-hpa-m
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: social-rpc
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

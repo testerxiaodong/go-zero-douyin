@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"go-zero-douyin/common/message"
+	"go-zero-douyin/common/utils"
+	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
 	"gorm.io/gorm"
 
@@ -44,8 +46,7 @@ func (l *UnfollowUserLogic) UnfollowUser(in *pb.UnfollowUserReq) (*pb.UnfollowUs
 	}
 
 	// 查询数据库
-	followQuery := l.svcCtx.Query.Follow
-	follow, err := followQuery.WithContext(l.ctx).Where(followQuery.FollowerID.Eq(in.GetFollowerId())).Where(followQuery.UserID.Eq(in.GetUserId())).First()
+	follow, err := l.svcCtx.FollowDo.GetFollowByFollowerIdAndUserId(l.ctx, in.GetFollowerId(), in.GetUserId())
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "find follow record by follower_id and user_id failed, err: %v, follower_id: %d, user_id: %d", err, in.GetFollowerId(), in.GetUserId())
 	}
@@ -56,30 +57,42 @@ func (l *UnfollowUserLogic) UnfollowUser(in *pb.UnfollowUserReq) (*pb.UnfollowUs
 	}
 
 	// 删除数据库记录，取消关注
-	_, err = followQuery.WithContext(l.ctx).Delete(follow)
+	_, err = l.svcCtx.FollowDo.DeleteFollow(l.ctx, follow)
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_DELETE_ERR), "delete follow record failed, err: %v, follower_id: %d, user_id: %d", err, in.GetFollowerId(), in.GetUserId())
 	}
 
-	// 发布删除缓存信息
-	userFollowUserMessage := message.UserFollowUserMessage{FollowerId: in.GetFollowerId()}
-	userFollowedByUserMessage := message.UserFollowedByUserMessage{UserId: in.GetUserId()}
+	// 删除用户关注id集合缓存
+	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserFollowUserPrefix, in.GetFollowerId())); err != nil {
+		// 删除失败，发布异步处理消息
+		userFollowUserMessage := message.UserFollowUserMessage{FollowerId: in.GetFollowerId()}
 
-	userFollowUserBody, err := json.Marshal(userFollowUserMessage)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrMsg("序列化userFollowUserMessage失败"), "err: %v data: %v", err, userFollowUserMessage)
+		userFollowUserBody, err := json.Marshal(userFollowUserMessage)
+		if err != nil {
+			return nil, errors.Wrapf(xerr.NewErrMsg("序列化userFollowUserMessage失败"), "err: %v data: %v", err, userFollowUserMessage)
+		}
+
+		err = l.svcCtx.Rabbit.Send("", "UserFollowUserMq", userFollowUserBody)
+		if err != nil {
+			return nil, errors.Wrapf(xerr.NewErrMsg("发布userFollowUserMessage失败"), "err: %v", err)
+		}
 	}
-	userFollowedByUserBody, err := json.Marshal(userFollowedByUserMessage)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrMsg("序列化userFollowedByUserMessage失败"), "err: %v data: %v", err, userFollowedByUserMessage)
+
+	// 删除用户粉丝id集合缓存
+	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserFollowedByUserPrefix, in.GetUserId())); err != nil {
+		// 删除失败，发布异步处理消息
+		userFollowedByUserMessage := message.UserFollowedByUserMessage{UserId: in.GetUserId()}
+
+		userFollowedByUserBody, err := json.Marshal(userFollowedByUserMessage)
+		if err != nil {
+			return nil, errors.Wrapf(xerr.NewErrMsg("序列化userFollowedByUserMessage失败"), "err: %v data: %v", err, userFollowedByUserMessage)
+		}
+
+		err = l.svcCtx.Rabbit.Send("", "UserFollowedByUserMq", userFollowedByUserBody)
+		if err != nil {
+			return nil, errors.Wrapf(xerr.NewErrMsg("发布userFollowUserMessage失败"), "err: %v", err)
+		}
 	}
-	err = l.svcCtx.Rabbit.Send("", "UserFollowUserMq", userFollowUserBody)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrMsg("发布userFollowUserMessage失败"), "err: %v", err)
-	}
-	err = l.svcCtx.Rabbit.Send("", "UserFollowedByUserMq", userFollowedByUserBody)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrMsg("发布userFollowUserMessage失败"), "err: %v", err)
-	}
+
 	return &pb.UnfollowUserResp{}, nil
 }

@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: social-api
+  namespace: go-zero-douyin
+  labels:
+    app: social-api
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: social-api
+  template:
+    metadata:
+      labels:
+        app: social-api
+    spec:
+      serviceAccountName: find-endpoints
+      containers:
+      - name: social-api
+        image: 47.99.140.12:8077/go-zero-douyin/social-api:v1.0
+        ports:
+        - containerPort: 1004
+        readinessProbe:
+          tcpSocket:
+            port: 1004
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 1004
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: 200m
+            memory: 50Mi
+          limits:
+            cpu: 300m
+            memory: 1024Mi
+        volumeMounts:
+        - name: timezone
+          mountPath: /etc/localtime
+      imagePullSecrets:
+      - name: docker-login
+      volumes:
+        - name: timezone
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Shanghai
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: social-api-svc
+  namespace: go-zero-douyin
+spec:
+  ports:
+  - nodePort: 31004
+    port: 1004
+    protocol: TCP
+    targetPort: 1004
+  type: NodePort
+  selector:
+    app: social-api
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: social-api-hpa-c
+  namespace: go-zero-douyin
+  labels:
+    app: social-api-hpa-c
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: social-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: social-api-hpa-m
+  namespace: go-zero-douyin
+  labels:
+    app: social-api-hpa-m
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: social-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

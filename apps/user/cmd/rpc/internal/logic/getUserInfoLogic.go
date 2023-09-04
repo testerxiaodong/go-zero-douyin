@@ -34,16 +34,20 @@ func (l *GetUserInfoLogic) GetUserInfo(in *pb.GetUserInfoReq) (*pb.GetUserInfoRe
 	if in == nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "GetUserInfo empty param")
 	}
+
 	// 查询用户
-	user, err := l.svcCtx.Query.User.WithContext(l.ctx).Where(l.svcCtx.Query.User.ID.Eq(in.GetId())).First()
+	user, err := l.svcCtx.UserDo.GetUserById(l.ctx, in.GetId())
+
 	// 数据库查询出错处理
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "Get user by id failed, user_id: %d", in.GetId())
 	}
+
 	// 用户不存在处理
 	if user == nil {
 		return nil, errors.Wrapf(ErrUserNotFound, "user_id: %d", in.GetId())
 	}
+
 	// 返回数据
 	return &pb.GetUserInfoResp{
 		User: &pb.UserInfo{

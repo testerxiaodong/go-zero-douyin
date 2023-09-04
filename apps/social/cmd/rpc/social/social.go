@@ -13,35 +13,35 @@ import (
 )
 
 type (
-	AddCommentReq                  = pb.AddCommentReq
-	AddCommentResp                 = pb.AddCommentResp
-	Comment                        = pb.Comment
-	DelCommentReq                  = pb.DelCommentReq
-	DelCommentResp                 = pb.DelCommentResp
-	FollowUserReq                  = pb.FollowUserReq
-	FollowUserResp                 = pb.FollowUserResp
-	GetCommentCountByVideoIdReq    = pb.GetCommentCountByVideoIdReq
-	GetCommentCountByVideoIdResp   = pb.GetCommentCountByVideoIdResp
-	GetCommentListByIdReq          = pb.GetCommentListByIdReq
-	GetCommentListByIdResp         = pb.GetCommentListByIdResp
-	GetUserFollowCountReq          = pb.GetUserFollowCountReq
-	GetUserFollowCountResp         = pb.GetUserFollowCountResp
-	GetUserFollowIdListReq         = pb.GetUserFollowIdListReq
-	GetUserFollowIdListResp        = pb.GetUserFollowIdListResp
-	GetUserFollowedIdListReq       = pb.GetUserFollowedIdListReq
-	GetUserFollowedIdListResp      = pb.GetUserFollowedIdListResp
-	GetUserFollowerCountReq        = pb.GetUserFollowerCountReq
-	GetUserFollowerCountResp       = pb.GetUserFollowerCountResp
-	GetUserLikeVideoIdListReq      = pb.GetUserLikeVideoIdListReq
-	GetUserLikeVideoIdListResp     = pb.GetUserLikeVideoIdListResp
-	GetVideoLikeCountByVideoIdReq  = pb.GetVideoLikeCountByVideoIdReq
-	GetVideoLikeCountByVideoIdResp = pb.GetVideoLikeCountByVideoIdResp
-	UnfollowUserReq                = pb.UnfollowUserReq
-	UnfollowUserResp               = pb.UnfollowUserResp
-	VideoLikeReq                   = pb.VideoLikeReq
-	VideoLikeResp                  = pb.VideoLikeResp
-	VideoUnlikeReq                 = pb.VideoUnlikeReq
-	VideoUnlikeResp                = pb.VideoUnlikeResp
+	AddCommentReq                   = pb.AddCommentReq
+	AddCommentResp                  = pb.AddCommentResp
+	Comment                         = pb.Comment
+	DelCommentReq                   = pb.DelCommentReq
+	DelCommentResp                  = pb.DelCommentResp
+	FollowUserReq                   = pb.FollowUserReq
+	FollowUserResp                  = pb.FollowUserResp
+	GetCommentCountByVideoIdReq     = pb.GetCommentCountByVideoIdReq
+	GetCommentCountByVideoIdResp    = pb.GetCommentCountByVideoIdResp
+	GetCommentListByIdReq           = pb.GetCommentListByIdReq
+	GetCommentListByIdResp          = pb.GetCommentListByIdResp
+	GetUserFollowCountReq           = pb.GetUserFollowCountReq
+	GetUserFollowCountResp          = pb.GetUserFollowCountResp
+	GetUserFollowIdListReq          = pb.GetUserFollowIdListReq
+	GetUserFollowIdListResp         = pb.GetUserFollowIdListResp
+	GetUserFollowerCountReq         = pb.GetUserFollowerCountReq
+	GetUserFollowerCountResp        = pb.GetUserFollowerCountResp
+	GetUserFollowerIdListReq        = pb.GetUserFollowerIdListReq
+	GetUserFollowerIdListResp       = pb.GetUserFollowerIdListResp
+	GetUserLikeVideoIdListReq       = pb.GetUserLikeVideoIdListReq
+	GetUserLikeVideoIdListResp      = pb.GetUserLikeVideoIdListResp
+	GetVideoLikedCountByVideoIdReq  = pb.GetVideoLikedCountByVideoIdReq
+	GetVideoLikedCountByVideoIdResp = pb.GetVideoLikedCountByVideoIdResp
+	UnfollowUserReq                 = pb.UnfollowUserReq
+	UnfollowUserResp                = pb.UnfollowUserResp
+	VideoLikeReq                    = pb.VideoLikeReq
+	VideoLikeResp                   = pb.VideoLikeResp
+	VideoUnlikeReq                  = pb.VideoUnlikeReq
+	VideoUnlikeResp                 = pb.VideoUnlikeResp
 
 	Social interface {
 		// 评论相关功能
@@ -52,7 +52,7 @@ type (
 		// 点赞相关功能
 		VideoLike(ctx context.Context, in *VideoLikeReq, opts ...grpc.CallOption) (*VideoLikeResp, error)
 		VideoUnlike(ctx context.Context, in *VideoUnlikeReq, opts ...grpc.CallOption) (*VideoLikeResp, error)
-		GetVideoLikeCountByVideoId(ctx context.Context, in *GetVideoLikeCountByVideoIdReq, opts ...grpc.CallOption) (*GetVideoLikeCountByVideoIdResp, error)
+		GetVideoLikedCountByVideoId(ctx context.Context, in *GetVideoLikedCountByVideoIdReq, opts ...grpc.CallOption) (*GetVideoLikedCountByVideoIdResp, error)
 		GetUserLikeVideoIdList(ctx context.Context, in *GetUserLikeVideoIdListReq, opts ...grpc.CallOption) (*GetUserLikeVideoIdListResp, error)
 		// 关注功能
 		FollowUser(ctx context.Context, in *FollowUserReq, opts ...grpc.CallOption) (*FollowUserResp, error)
@@ -60,7 +60,7 @@ type (
 		GetUserFollowerCount(ctx context.Context, in *GetUserFollowerCountReq, opts ...grpc.CallOption) (*GetUserFollowerCountResp, error)
 		GetUserFollowCount(ctx context.Context, in *GetUserFollowCountReq, opts ...grpc.CallOption) (*GetUserFollowCountResp, error)
 		GetUserFollowIdList(ctx context.Context, in *GetUserFollowIdListReq, opts ...grpc.CallOption) (*GetUserFollowIdListResp, error)
-		GetUserFollowedIdList(ctx context.Context, in *GetUserFollowedIdListReq, opts ...grpc.CallOption) (*GetUserFollowedIdListResp, error)
+		GetUserFollowerIdList(ctx context.Context, in *GetUserFollowerIdListReq, opts ...grpc.CallOption) (*GetUserFollowerIdListResp, error)
 	}
 
 	defaultSocial struct {
@@ -106,9 +106,9 @@ func (m *defaultSocial) VideoUnlike(ctx context.Context, in *VideoUnlikeReq, opt
 	return client.VideoUnlike(ctx, in, opts...)
 }
 
-func (m *defaultSocial) GetVideoLikeCountByVideoId(ctx context.Context, in *GetVideoLikeCountByVideoIdReq, opts ...grpc.CallOption) (*GetVideoLikeCountByVideoIdResp, error) {
+func (m *defaultSocial) GetVideoLikedCountByVideoId(ctx context.Context, in *GetVideoLikedCountByVideoIdReq, opts ...grpc.CallOption) (*GetVideoLikedCountByVideoIdResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.GetVideoLikeCountByVideoId(ctx, in, opts...)
+	return client.GetVideoLikedCountByVideoId(ctx, in, opts...)
 }
 
 func (m *defaultSocial) GetUserLikeVideoIdList(ctx context.Context, in *GetUserLikeVideoIdListReq, opts ...grpc.CallOption) (*GetUserLikeVideoIdListResp, error) {
@@ -142,7 +142,7 @@ func (m *defaultSocial) GetUserFollowIdList(ctx context.Context, in *GetUserFoll
 	return client.GetUserFollowIdList(ctx, in, opts...)
 }
 
-func (m *defaultSocial) GetUserFollowedIdList(ctx context.Context, in *GetUserFollowedIdListReq, opts ...grpc.CallOption) (*GetUserFollowedIdListResp, error) {
+func (m *defaultSocial) GetUserFollowerIdList(ctx context.Context, in *GetUserFollowerIdListReq, opts ...grpc.CallOption) (*GetUserFollowerIdListResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.GetUserFollowedIdList(ctx, in, opts...)
+	return client.GetUserFollowerIdList(ctx, in, opts...)
 }

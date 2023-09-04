@@ -7,4 +7,14 @@ rpc:
 gen:
 	go run ../gen/generate.go
 
-.PHONY: api rpc gen
+mock:
+	mockgen -source=./rpc/internal/dao/videoRepository.go -destination=./rpc/mock/videoDo_mock.go -package=mock
+	mockgen -source=./rpc/video/video.go -destination=./rpc/mock/video_rpc_mock.go -package=mock
+
+dockerfile-api:
+	cd api && goctl docker -go video.go --version 1.19 --home=../../../deploy/goctl
+
+dockerfile-rpc:
+	cd rpc && goctl docker -go video.go --version 1.19 --home=../../../deploy/goctl
+
+.PHONY: api rpc gen mock dockerfile-api dockerfile-rpc

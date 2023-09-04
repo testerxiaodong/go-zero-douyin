@@ -61,7 +61,7 @@ func (l *FeedLogic) Feed(req *types.VideoFeedReq) (resp *types.VideoFeedResp, er
 				if err != nil {
 					logx.WithContext(l.ctx).Errorf("get video comment count by comment rpc failed, err: %v", err)
 				}
-				likeCountResp, err := l.svcCtx.SocialRpc.GetVideoLikeCountByVideoId(l.ctx, &pbSocial.GetVideoLikeCountByVideoIdReq{VideoId: video.Id})
+				likeCountResp, err := l.svcCtx.SocialRpc.GetVideoLikedCountByVideoId(l.ctx, &pbSocial.GetVideoLikedCountByVideoIdReq{VideoId: video.Id})
 				if err != nil {
 					logx.WithContext(l.ctx).Errorf("get video like count by like rpc failed, err: %v", err)
 				}

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"go-zero-douyin/common/message"
+	"go-zero-douyin/common/utils"
+	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
 	"gorm.io/gorm"
 
@@ -39,8 +41,7 @@ func (l *VideoUnlikeLogic) VideoUnlike(in *pb.VideoUnlikeReq) (*pb.VideoLikeResp
 	}
 
 	// 查询数据库
-	likeQuery := l.svcCtx.Query.Like
-	like, err := likeQuery.WithContext(l.ctx).Where(likeQuery.VideoID.Eq(in.GetVideoId())).Where(likeQuery.UserID.Eq(in.GetUserId())).First()
+	like, err := l.svcCtx.LikeDo.GetLikeByVideoIdAndUserId(l.ctx, in.GetVideoId(), in.GetUserId())
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "find video is liked by user failed, err: %v", err)
 	}
@@ -49,27 +50,36 @@ func (l *VideoUnlikeLogic) VideoUnlike(in *pb.VideoUnlikeReq) (*pb.VideoLikeResp
 	}
 
 	// 删除点赞记录
-	_, err = likeQuery.WithContext(l.ctx).Delete(like)
+	_, err = l.svcCtx.LikeDo.DeleteLike(l.ctx, like)
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_DELETE_ERR), "delete user like video record failed, err: %v", err)
 	}
 
-	// 发布消息，异步删除缓存
-	userVideoBody, err := json.Marshal(message.UserLikeVideoMessage{UserId: in.GetUserId()})
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "marshal user like video message failed, err: %v", err)
+	// 删除用户点赞视频id集合缓存
+	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserLikeVideoPrefix, in.GetUserId())); err != nil {
+		// 删除缓存失败，发布消息异步处理
+		userVideoBody, err := json.Marshal(message.UserLikeVideoMessage{UserId: in.GetUserId()})
+		if err != nil {
+			return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "marshal user like video message failed, err: %v", err)
+		}
+		err = l.svcCtx.Rabbit.Send("", "UserLikeVideoMq", userVideoBody)
+		if err != nil {
+			return nil, errors.Wrapf(xerr.NewErrMsg("publish user like video message failed"), "video_id: %d", in.GetVideoId())
+		}
 	}
-	videoUserBody, err := json.Marshal(message.VideoLikedByUserMessage{VideoId: in.GetVideoId()})
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "marshal video liked by user message failed, err: %v", err)
-	}
-	err = l.svcCtx.Rabbit.Send("", "UserLikeVideoMq", userVideoBody)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrMsg("publish user like video message failed"), "video_id: %d", in.GetVideoId())
-	}
-	err = l.svcCtx.Rabbit.Send("", "VideoLikedByUserMq", videoUserBody)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrMsg("publish video liked by user message failed"), "user_id: %d", in.GetUserId())
+
+	// 删除视频被点赞用户id集合缓存
+	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoLikedByUserPrefix, in.GetVideoId())); err != nil {
+		// 删除缓存失败，发布消息异步处理
+		videoUserBody, err := json.Marshal(message.VideoLikedByUserMessage{VideoId: in.GetVideoId()})
+		if err != nil {
+			return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "marshal video liked by user message failed, err: %v", err)
+		}
+
+		err = l.svcCtx.Rabbit.Send("", "VideoLikedByUserMq", videoUserBody)
+		if err != nil {
+			return nil, errors.Wrapf(xerr.NewErrMsg("publish video liked by user message failed"), "user_id: %d", in.GetUserId())
+		}
 	}
 
 	return &pb.VideoLikeResp{}, nil

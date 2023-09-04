@@ -14,15 +14,15 @@ func RabbitMqs(c config.Config, ctx context.Context, svcContext *svc.ServiceCont
 
 	return []service.Service{
 		// 视频评论数的缓存一致性消息
-		rabbitmq.MustNewListener(c.RabbitListenerConf, rmqs.NewVideoCommentMq(ctx, svcContext)),
+		rabbitmq.MustNewListener(c.RabbitVideoCommentMqConf, rmqs.NewVideoCommentMq(ctx, svcContext)),
 		// 用户点赞视频
-		rabbitmq.MustNewListener(c.RabbitListenerConf, rmqs.NewUserLikeVideoMq(ctx, svcContext)),
+		rabbitmq.MustNewListener(c.RabbitUserLikeVideoMqConf, rmqs.NewUserLikeVideoMq(ctx, svcContext)),
 		// 视频被用户点赞
-		rabbitmq.MustNewListener(c.RabbitListenerConf, rmqs.NewVideoLikedByUserMq(ctx, svcContext)),
+		rabbitmq.MustNewListener(c.RabbitVideoLikedByUserMqConf, rmqs.NewVideoLikedByUserMq(ctx, svcContext)),
 		// 用户关注
-		rabbitmq.MustNewListener(c.RabbitListenerConf, rmqs.NewUserFollowUserMq(ctx, svcContext)),
+		rabbitmq.MustNewListener(c.RabbitUserFollowUserMqConf, rmqs.NewUserFollowUserMq(ctx, svcContext)),
 		// 用户被关注
-		rabbitmq.MustNewListener(c.RabbitListenerConf, rmqs.NewUserFollowedByUserMq(ctx, svcContext)),
+		rabbitmq.MustNewListener(c.RabbitUserFollowedByUserMqConf, rmqs.NewUserFollowedByUserMq(ctx, svcContext)),
 	}
 
 }

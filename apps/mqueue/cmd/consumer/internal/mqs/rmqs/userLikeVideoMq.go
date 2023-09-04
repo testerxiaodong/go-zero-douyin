@@ -30,11 +30,13 @@ func (v *UserLikeVideoMq) Consume(message string) error {
 		logx.WithContext(v.ctx).Error("userLikeVideoMessage->Consume Unmarshal err : %v , val : %s", err, message)
 		return err
 	}
+	logx.WithContext(v.ctx).Infof("获取到用户点赞视频消息，用户id: %d", userLikeVideoMessage.UserId)
 	// 删除视频缓存
 	_, err := v.svcCtx.Redis.Del(utils.GetRedisKeyWithPrefix(xconst.RedisUserLikeVideoPrefix, userLikeVideoMessage.UserId))
 	if err != nil {
 		// 少于重试最高次数，重新入队
 		return err
 	}
+	logx.WithContext(v.ctx).Info("用户点赞video_id集合被删除")
 	return nil
 }

@@ -8,6 +8,10 @@ import (
 
 type Config struct {
 	service.ServiceConf
-	Redis              redis.RedisConf
-	RabbitListenerConf rabbitmq.RabbitListenerConf
+	Redis                          redis.RedisConf
+	RabbitVideoCommentMqConf       rabbitmq.RabbitListenerConf
+	RabbitUserLikeVideoMqConf      rabbitmq.RabbitListenerConf
+	RabbitVideoLikedByUserMqConf   rabbitmq.RabbitListenerConf
+	RabbitUserFollowUserMqConf     rabbitmq.RabbitListenerConf
+	RabbitUserFollowedByUserMqConf rabbitmq.RabbitListenerConf
 }

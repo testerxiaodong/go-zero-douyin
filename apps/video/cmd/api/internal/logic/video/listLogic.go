@@ -55,7 +55,7 @@ func (l *ListLogic) List(req *types.UserVideoListReq) (resp *types.UserVideoList
 				if err != nil {
 					logx.WithContext(l.ctx).Errorf("get video comment count by comment rpc failed, err: %v", err)
 				}
-				likeCountResp, err := l.svcCtx.SocialRpc.GetVideoLikeCountByVideoId(l.ctx, &pbSocial.GetVideoLikeCountByVideoIdReq{VideoId: video.Id})
+				likeCountResp, err := l.svcCtx.SocialRpc.GetVideoLikedCountByVideoId(l.ctx, &pbSocial.GetVideoLikedCountByVideoIdReq{VideoId: video.Id})
 				if err != nil {
 					logx.WithContext(l.ctx).Errorf("get video like count by like rpc failed, err: %v", err)
 				}

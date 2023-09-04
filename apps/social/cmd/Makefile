@@ -7,4 +7,16 @@ rpc:
 gen:
 	go run ../gen/generate.go
 
-.PHONY: api rpc gen
+mock:
+	mockgen -source=./rpc/internal/dao/commentRepository.go -destination=./rpc/mock/commentDo_mock.go -package=mock
+	mockgen -source=./rpc/internal/dao/followRepository.go -destination=./rpc/mock/followDo_mock.go -package=mock
+	mockgen -source=./rpc/internal/dao/likeRepository.go -destination=./rpc/mock/likeDo_mock.go -package=mock
+	mockgen -source=./rpc/social/social.go -destination=./rpc/mock/social_rpc_mock.go -package=mock
+
+dockerfile-api:
+	cd api && goctl docker -go social.go --version 1.19 --home=../../../deploy/goctl
+
+dockerfile-rpc:
+	cd rpc && goctl docker -go social.go --version 1.19 --home=../../../deploy/goctl
+
+.PHONY: api rpc gen mock dockerfile-api dockerfile-rpc

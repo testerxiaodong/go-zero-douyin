@@ -35,8 +35,7 @@ func (l *GetVideoCommentListByIdLogic) GetVideoCommentListById(in *pb.GetComment
 	}
 
 	// 查询数据库
-	commentQuery := l.svcCtx.Query.Comment
-	comments, err := commentQuery.WithContext(l.ctx).Where(commentQuery.VideoID.Eq(in.GetId())).Find()
+	comments, err := l.svcCtx.CommentDo.GetCommentListByVideoId(l.ctx, in.GetId())
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "db get comment list by video_id failed: %v", err)
 	}

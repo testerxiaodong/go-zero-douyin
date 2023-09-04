@@ -1,6 +1,6 @@
 Name: user
 Host: 0.0.0.0
-Port: 8888
+Port: 1002
 
 JwtAuth:
   AccessSecret: go-zero-douyin
@@ -16,8 +16,7 @@ Log:
   StackCooldownMillis: 100
 
 UserRpcConf:
-  Etcd:
-    Hosts:
-      - 47.99.140.12:2379
-    Key: user.rpc
+  Endpoints:
+    - 127.0.0.1:1102
+#  Target: k8s://go-zero-douyin/user-rpc-svc:1102
   NonBlock: true

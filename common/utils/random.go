@@ -30,3 +30,7 @@ func NewRandomString(length int) string {
 
 	return string(b)
 }
+
+func NewRandomInt64(min int64, max int64) int64 {
+	return min + rand.Int63n(max-min+1)
+}

@@ -32,6 +32,7 @@ func (l *PublishVideoLogic) PublishVideo(in *pb.PublishVideoReq) (*pb.PublishVid
 	if in == nil {
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_CHECK_ERR), "Publish video empty param")
 	}
+
 	// 插入数据
 	video := &model.Video{
 		Title:    in.GetTitle(),
@@ -39,11 +40,13 @@ func (l *PublishVideoLogic) PublishVideo(in *pb.PublishVideoReq) (*pb.PublishVid
 		PlayURL:  in.GetPlayUrl(),
 		CoverURL: in.GetCoverUrl(),
 	}
-	videoQuery := l.svcCtx.Query.Video
-	err := videoQuery.WithContext(l.ctx).Create(video)
+	err := l.svcCtx.VideoDo.InsertVideo(l.ctx, video)
+
+	// 插入失败
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "insert video failed, err: %v", err)
 	}
+
 	// 返回信息
 	return &pb.PublishVideoResp{
 		Video: &pb.VideoInfo{

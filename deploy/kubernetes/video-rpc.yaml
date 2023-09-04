@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-rpc
+  namespace: go-zero-douyin
+  labels:
+    app: video-rpc
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: video-rpc
+  template:
+    metadata:
+      labels:
+        app: video-rpc
+    spec:
+      serviceAccountName: find-endpoints
+      containers:
+      - name: video-rpc
+        image: 47.99.140.12:8077/go-zero-douyin/video-rpc:v1.0
+        ports:
+        - containerPort: 1103
+        readinessProbe:
+          tcpSocket:
+            port: 1103
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 1103
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: 200m
+            memory: 50Mi
+          limits:
+            cpu: 300m
+            memory: 1024Mi
+        volumeMounts:
+        - name: timezone
+          mountPath: /etc/localtime
+      imagePullSecrets:
+      - name: docker-login
+      volumes:
+        - name: timezone
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Shanghai
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-rpc-svc
+  namespace: go-zero-douyin
+spec:
+  ports:
+  - nodePort: 31103
+    port: 1103
+    protocol: TCP
+    targetPort: 1103
+  type: NodePort
+  selector:
+    app: video-rpc
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: video-rpc-hpa-c
+  namespace: go-zero-douyin
+  labels:
+    app: video-rpc-hpa-c
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: video-rpc
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: video-rpc-hpa-m
+  namespace: go-zero-douyin
+  labels:
+    app: video-rpc-hpa-m
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: video-rpc
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

@@ -39,20 +39,23 @@ func (l *DeleteVideoLogic) DeleteVideo(in *pb.DeleteVideoReq) (*pb.DeleteVideoRe
 	}
 
 	// 查询视频是否是该用户发布的
-	videoQuery := l.svcCtx.Query.Video
-	video, err := videoQuery.WithContext(l.ctx).Where(videoQuery.ID.Eq(in.GetVideoId())).First()
-	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+	video, err := l.svcCtx.VideoDo.GetVideoById(l.ctx, in.GetVideoId())
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "Find video by id failed: %v", err)
 	}
+
+	// 视频不存在
 	if video == nil {
 		return nil, errors.Wrapf(ErrVideoNotFound, "video_id: %d", in.GetVideoId())
 	}
+
+	// 视频非该用户发布
 	if video.OwnerID != in.GetUserId() {
 		return nil, errors.Wrapf(xerr.NewErrMsg("视频非该用户发布，用户无权操作"), "video_id: %d", in.GetVideoId())
 	}
 
 	// 删除视频
-	_, err = videoQuery.WithContext(l.ctx).Delete(video)
+	_, err = l.svcCtx.VideoDo.DeleteVideo(l.ctx, video)
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_DELETE_ERR), "delete video by id failed: %v", err)
 	}

@@ -63,11 +63,11 @@ message VideoUnlikeReq {
 message VideoUnlikeResp {
 }
 
-message GetVideoLikeCountByVideoIdReq {
+message GetVideoLikedCountByVideoIdReq {
   int64 video_id = 1;
 }
 
-message GetVideoLikeCountByVideoIdResp {
+message GetVideoLikedCountByVideoIdResp {
   int64 like_count = 2;
 }
 
@@ -120,11 +120,11 @@ message GetUserFollowIdListResp {
   repeated int64 user_id_list = 1;
 }
 
-message GetUserFollowedIdListReq {
+message GetUserFollowerIdListReq {
   int64 user_id = 1;
 }
 
-message GetUserFollowedIdListResp {
+message GetUserFollowerIdListResp {
   repeated int64 user_id_list = 1;
 }
 
@@ -137,7 +137,7 @@ service social {
   //  点赞相关功能
   rpc VideoLike(VideoLikeReq) returns (VideoLikeResp);
   rpc VideoUnlike(VideoUnlikeReq) returns (VideoLikeResp);
-  rpc GetVideoLikeCountByVideoId(GetVideoLikeCountByVideoIdReq) returns (GetVideoLikeCountByVideoIdResp);
+  rpc GetVideoLikedCountByVideoId(GetVideoLikedCountByVideoIdReq) returns (GetVideoLikedCountByVideoIdResp);
   rpc GetUserLikeVideoIdList(GetUserLikeVideoIdListReq) returns (GetUserLikeVideoIdListResp);
   //  关注功能
   rpc FollowUser(FollowUserReq) returns (FollowUserResp);
@@ -145,5 +145,5 @@ service social {
   rpc GetUserFollowerCount(GetUserFollowerCountReq) returns (GetUserFollowerCountResp);
   rpc GetUserFollowCount(GetUserFollowCountReq) returns (GetUserFollowCountResp);
   rpc GetUserFollowIdList(GetUserFollowIdListReq) returns (GetUserFollowIdListResp);
-  rpc GetUserFollowedIdList(GetUserFollowedIdListReq) returns (GetUserFollowedIdListResp);
+  rpc GetUserFollowerIdList(GetUserFollowerIdListReq) returns (GetUserFollowerIdListResp);
 }

@@ -6,6 +6,8 @@ import (
 	"github.com/pkg/errors"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/model"
 	"go-zero-douyin/common/message"
+	"go-zero-douyin/common/utils"
+	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
 
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
@@ -46,20 +48,22 @@ func (l *AddCommentLogic) AddComment(in *pb.AddCommentReq) (*pb.AddCommentResp, 
 	comment.Content = in.GetContent()
 
 	// 插入评论
-	commentQuery := l.svcCtx.Query.Comment
-	err := commentQuery.WithContext(l.ctx).Create(comment)
+	err := l.svcCtx.CommentDo.InsertComment(l.ctx, comment)
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "insert comment failed: %v", err)
 	}
 
-	// 发布删除缓存消息
-	body, err := json.Marshal(message.VideoCommentMessage{VideoId: in.GetVideoId()})
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "marshal video comment count message failed: %v", err)
-	}
-	err = l.svcCtx.Rabbit.Send("", "VideoCommentMq", body)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "publish video comment count message failed: %v", err)
+	// 删除缓存
+	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoCommentPrefix, in.GetVideoId())); err != nil {
+		// 删除缓存失败，发布消息异步处理
+		body, err := json.Marshal(message.VideoCommentMessage{VideoId: in.GetVideoId()})
+		if err != nil {
+			return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "marshal video comment count message failed: %v", err)
+		}
+		err = l.svcCtx.Rabbit.Send("", "VideoCommentMq", body)
+		if err != nil {
+			return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "publish video comment count message failed: %v", err)
+		}
 	}
 	return &pb.AddCommentResp{}, nil
 }

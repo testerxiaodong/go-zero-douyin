@@ -37,14 +37,17 @@ func (l *GetVideoByIdLogic) GetVideoById(in *pb.GetVideoByIdReq) (*pb.GetVideoBy
 	}
 
 	// 查询数据库
-	videoQuery := l.svcCtx.Query.Video
-	video, err := videoQuery.WithContext(l.ctx).Where(videoQuery.ID.Eq(in.GetId())).First()
+	video, err := l.svcCtx.VideoDo.GetVideoById(l.ctx, in.GetId())
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "find video by id failed: %v", err)
 	}
+
+	// 视频不存在
 	if video == nil {
 		return nil, errors.Wrapf(xerr.NewErrMsg("video not found"), "video_id: %d", in.GetId())
 	}
+
+	// 返回数据
 	resp := &pb.GetVideoByIdResp{Video: &pb.VideoInfo{}}
 	resp.Video.Id = video.ID
 	resp.Video.Title = video.Title

@@ -54,9 +54,9 @@ func (s *SocialServer) VideoUnlike(ctx context.Context, in *pb.VideoUnlikeReq) (
 	return l.VideoUnlike(in)
 }
 
-func (s *SocialServer) GetVideoLikeCountByVideoId(ctx context.Context, in *pb.GetVideoLikeCountByVideoIdReq) (*pb.GetVideoLikeCountByVideoIdResp, error) {
-	l := logic.NewGetVideoLikeCountByVideoIdLogic(ctx, s.svcCtx)
-	return l.GetVideoLikeCountByVideoId(in)
+func (s *SocialServer) GetVideoLikedCountByVideoId(ctx context.Context, in *pb.GetVideoLikedCountByVideoIdReq) (*pb.GetVideoLikedCountByVideoIdResp, error) {
+	l := logic.NewGetVideoLikedCountByVideoIdLogic(ctx, s.svcCtx)
+	return l.GetVideoLikedCountByVideoId(in)
 }
 
 func (s *SocialServer) GetUserLikeVideoIdList(ctx context.Context, in *pb.GetUserLikeVideoIdListReq) (*pb.GetUserLikeVideoIdListResp, error) {
@@ -90,7 +90,7 @@ func (s *SocialServer) GetUserFollowIdList(ctx context.Context, in *pb.GetUserFo
 	return l.GetUserFollowIdList(in)
 }
 
-func (s *SocialServer) GetUserFollowedIdList(ctx context.Context, in *pb.GetUserFollowedIdListReq) (*pb.GetUserFollowedIdListResp, error) {
-	l := logic.NewGetUserFollowedIdListLogic(ctx, s.svcCtx)
-	return l.GetUserFollowedIdList(in)
+func (s *SocialServer) GetUserFollowerIdList(ctx context.Context, in *pb.GetUserFollowerIdListReq) (*pb.GetUserFollowerIdListResp, error) {
+	l := logic.NewGetUserFollowerIdListLogic(ctx, s.svcCtx)
+	return l.GetUserFollowerIdList(in)
 }

@@ -9,7 +9,7 @@ import (
 	"go-zero-douyin/apps/mqueue/cmd/consumer/internal/config"
 )
 
-var configFile = flag.String("f", "etc/consumer.yaml", "the config file")
+var configFile = flag.String("f", "etc/mqueue.yaml", "the config file")
 
 func main() {
 	flag.Parse()

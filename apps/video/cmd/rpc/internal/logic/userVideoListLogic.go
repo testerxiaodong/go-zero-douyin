@@ -34,16 +34,18 @@ func (l *UserVideoListLogic) UserVideoList(in *pb.UserVideoListReq) (*pb.UserVid
 	if in.GetUserId() == 0 {
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_CHECK_ERR), "Get user video list with empty user_id")
 	}
+
 	// 查询数据库数据
-	videoQuery := l.svcCtx.Query.Video
-	videos, err := videoQuery.WithContext(l.ctx).Where(videoQuery.OwnerID.Eq(in.GetUserId())).Find()
+	videos, err := l.svcCtx.VideoDo.GetVideoListByUserId(l.ctx, in.GetUserId())
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "Get user video list by user_id failed, err: %v", err)
 	}
+
 	// 没有数据，直接返回
 	if len(videos) == 0 {
 		return &pb.UserVideoListResp{}, nil
 	}
+
 	// 拼接数据
 	resp := &pb.UserVideoListResp{Videos: make([]*pb.VideoInfo, 0)}
 	for _, video := range videos {

@@ -30,11 +30,13 @@ func (v *UserFollowedByUserMq) Consume(message string) error {
 		logx.WithContext(v.ctx).Error("userFollowUserMessage->Consume Unmarshal err : %v , val : %s", err, message)
 		return err
 	}
+	logx.WithContext(v.ctx).Infof("获取到用户被关注消息，用户id: %d", userFollowedByUserMessage.UserId)
 	// 删除视频缓存
 	_, err := v.svcCtx.Redis.Del(utils.GetRedisKeyWithPrefix(xconst.RedisUserFollowedByUserPrefix, userFollowedByUserMessage.UserId))
 	if err != nil {
 		// 少于重试最高次数，重新入队
 		return err
 	}
+	logx.WithContext(v.ctx).Info("用户被关注的user_id集合缓存被删除")
 	return nil
 }

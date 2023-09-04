@@ -40,7 +40,8 @@ func (l *RegisterUserLogic) RegisterUser(in *pb.RegisterUserReq) (*pb.RegisterUs
 	if len(in.GetUsername()) == 0 || len(in.GetPassword()) == 0 {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "Register user error param")
 	}
-	user, err := l.svcCtx.Query.User.WithContext(l.ctx).Where(l.svcCtx.Query.User.Username.Eq(in.GetUsername())).First()
+
+	user, err := l.svcCtx.UserDo.GetUserByUsername(l.ctx, in.GetUsername())
 	// 查询数据库时出现错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "find user by username failed, username: %s, err: %v", in.GetUsername(), err)
@@ -58,7 +59,9 @@ func (l *RegisterUserLogic) RegisterUser(in *pb.RegisterUserReq) (*pb.RegisterUs
 	}
 	// 密码加密
 	u.Password = utils.Md5ByString(in.GetPassword())
-	err = l.svcCtx.Query.User.WithContext(l.ctx).Create(u)
+
+	// 插入用户
+	err = l.svcCtx.UserDo.InsertUser(l.ctx, u)
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "insert user failed, username: %s, password: %s", in.GetUsername(), in.GetPassword())
 	}

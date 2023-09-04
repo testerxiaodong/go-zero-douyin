@@ -58,8 +58,6 @@ message UpdateUserReq {
 message UpdateUserResp {
 }
 
-
-
 service user {
     rpc RegisterUser(RegisterUserReq) returns (RegisterUserResp);
     rpc GenerateToken(GenerateTokenReq) returns (GenerateTokenResp);

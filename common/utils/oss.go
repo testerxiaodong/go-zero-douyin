@@ -9,7 +9,14 @@ import (
 	"io"
 )
 
-type OssClient struct {
+type OssClient interface {
+	UploadFile(fileName, filePath string, data []byte) (error, string)
+	GetOssFileFullAccessPath(filePath string) string
+	DownLoadFile(fileUploadPath string) ([]byte, error)
+	DeleteFile(fileFullPath string) error
+}
+
+type AliOssClient struct {
 	AccessKeyId     string
 	AccessKeySecret string
 	BucketName      string
@@ -17,12 +24,12 @@ type OssClient struct {
 	Client          *oss.Client
 }
 
-func InitOssClient(accessKeyId, accessKeySecret, endpoint, bucketName string) *OssClient {
+func NewAliOssClient(accessKeyId, accessKeySecret, endpoint, bucketName string) *AliOssClient {
 	client, err := oss.New(endpoint, accessKeyId, accessKeySecret)
 	if err != nil {
 		panic(fmt.Sprintf("初始化Oss客户端失败: %v", err))
 	}
-	return &OssClient{
+	return &AliOssClient{
 		AccessKeyId:     accessKeyId,
 		AccessKeySecret: accessKeySecret,
 		Endpoint:        endpoint,
@@ -31,7 +38,7 @@ func InitOssClient(accessKeyId, accessKeySecret, endpoint, bucketName string) *O
 	}
 }
 
-func (o *OssClient) UploadFile(fileName, filePath string, data []byte) (error, string) {
+func (o *AliOssClient) UploadFile(fileName, filePath string, data []byte) (error, string) {
 	if len(fileName) <= 0 || len(filePath) <= 0 || data == nil {
 		return errors.New("上传必须指定文件名称、文件路径、文件内容"), ""
 	}
@@ -48,11 +55,11 @@ func (o *OssClient) UploadFile(fileName, filePath string, data []byte) (error, s
 	return nil, fileUploadPath
 }
 
-func (o *OssClient) GetOssFileFullAccessPath(filePath string) string {
+func (o *AliOssClient) GetOssFileFullAccessPath(filePath string) string {
 	return "https://" + o.BucketName + "." + o.Endpoint + "/" + filePath
 }
 
-func (o *OssClient) DownLoadFile(fileUploadPath string) ([]byte, error) {
+func (o *AliOssClient) DownLoadFile(fileUploadPath string) ([]byte, error) {
 	bucket, err := o.Client.Bucket(o.BucketName)
 	if err != nil {
 		return nil, errors.Wrap(err, "初始化oss链接失败")
@@ -76,7 +83,7 @@ func (o *OssClient) DownLoadFile(fileUploadPath string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (o *OssClient) DeleteFile(fileFullPath string) error {
+func (o *AliOssClient) DeleteFile(fileFullPath string) error {
 	if len(fileFullPath) <= 0 {
 		return errors.New("删除文件必须指定文件完整路径")
 	}
