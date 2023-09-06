@@ -30,7 +30,7 @@ func NewAddCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddCom
 func (l *AddCommentLogic) AddComment(req *types.AddCommentReq) error {
 	// todo: add your logic here and delete this line
 	// 参数校验
-	if validateResult := l.svcCtx.Validator.ValidateZh(req); len(validateResult) > 0 {
+	if validateResult := l.svcCtx.Validator.Validate(req); len(validateResult) > 0 {
 		return xerr.NewErrMsg(validateResult)
 	}
 

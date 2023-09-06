@@ -1,3 +1,9 @@
+mock:
+	mockgen -source=./common/cache/redis.go -destination=./mock/redis_mock.go -package=mock
+	mockgen -source=./common/utils/oss.go -destination=./mock/oss_mock.go -package=mock
+	mockgen -source=./common/utils/validator.go -destination=./mock/validator_mock.go -package=mock
+	mockgen -source=./common/rabbitmq/sender.go -destination=./mock/sender_mock.go -package=mock
+
 user-api:
 	docker build -t user-api:v1.0 -f ./apps/user/cmd/api/Dockerfile .; \
 	docker tag user-api:v1.0 47.99.140.12:8077/go-zero-douyin/user-api:v1.0; \
@@ -67,3 +73,5 @@ k8s-mqueue:
 	cd deploy/kubernetes; \
 	rm -rf mqueue.yaml; \
 	goctl kube deploy -secret docker-login -replicas 2 -minReplicas 2 -requestCpu 200 -requestMem 50 -limitCpu 300 -name mqueue -namespace go-zero-douyin -image 47.99.140.12:8077/go-zero-douyin/mqueue:v1.0 -o mqueue.yaml -port 2000 --serviceAccount find-endpoints --home=../goctl
+
+.PHONY: mock user-api user-rpc video-api video-rpc social-api social-rpc mqueue k8s-user-api k8s-user-rpc k8s-video-api k8s-video-rpc k8s-social-api k8s-social-rpc k8s-mqueue

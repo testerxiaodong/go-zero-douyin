@@ -31,7 +31,7 @@ func NewDelLikeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DelLikeLo
 func (l *DelLikeLogic) DelLike(req *types.VideoUnlikeReq) error {
 	// todo: add your logic here and delete this line
 	// 参数校验
-	if validateResult := l.svcCtx.Validator.ValidateZh(req); len(validateResult) > 0 {
+	if validateResult := l.svcCtx.Validator.Validate(req); len(validateResult) > 0 {
 		return xerr.NewErrMsg(validateResult)
 	}
 

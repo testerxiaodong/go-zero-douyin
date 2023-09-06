@@ -35,7 +35,7 @@ func main() {
 	})
 	defer s.Stop()
 
-	//rpc log
+	//rpc logger
 	s.AddUnaryInterceptors(rpcServer.ErrTransLogInterceptor)
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)

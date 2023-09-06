@@ -35,7 +35,7 @@ func NewFeedLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FeedLogic {
 func (l *FeedLogic) Feed(req *types.VideoFeedReq) (resp *types.VideoFeedResp, err error) {
 	// todo: add your logic here and delete this line
 	// 参数校验
-	if validateResult := l.svcCtx.Validator.ValidateZh(req); len(validateResult) > 0 {
+	if validateResult := l.svcCtx.Validator.Validate(req); len(validateResult) > 0 {
 		return nil, xerr.NewErrMsg(validateResult)
 	}
 
@@ -59,14 +59,18 @@ func (l *FeedLogic) Feed(req *types.VideoFeedReq) (resp *types.VideoFeedResp, er
 				defer wg.Done()
 				commentCountResp, err := l.svcCtx.SocialRpc.GetCommentCountByVideoId(l.ctx, &pbSocial.GetCommentCountByVideoIdReq{VideoId: video.Id})
 				if err != nil {
+					resp.Videos[index].CommentCount = 0
 					logx.WithContext(l.ctx).Errorf("get video comment count by comment rpc failed, err: %v", err)
+				} else {
+					resp.Videos[index].CommentCount = commentCountResp.Count
 				}
 				likeCountResp, err := l.svcCtx.SocialRpc.GetVideoLikedCountByVideoId(l.ctx, &pbSocial.GetVideoLikedCountByVideoIdReq{VideoId: video.Id})
 				if err != nil {
+					resp.Videos[index].LikeCount = 0
 					logx.WithContext(l.ctx).Errorf("get video like count by like rpc failed, err: %v", err)
+				} else {
+					resp.Videos[index].LikeCount = likeCountResp.LikeCount
 				}
-				resp.Videos[index].CommentCount = commentCountResp.Count
-				resp.Videos[index].LikeCount = likeCountResp.LikeCount
 			}(index, currentVideo)
 		}
 		wg.Wait()

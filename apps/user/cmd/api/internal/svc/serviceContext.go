@@ -10,13 +10,13 @@ import (
 type ServiceContext struct {
 	Config    config.Config
 	UserRpc   user.User
-	Validator *utils.Validator
+	Validator utils.Validator
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:    c,
 		UserRpc:   user.NewUser(zrpc.MustNewClient(c.UserRpcConf)),
-		Validator: utils.GetValidator(),
+		Validator: utils.NewZhValidator(),
 	}
 }

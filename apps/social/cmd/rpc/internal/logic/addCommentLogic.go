@@ -58,7 +58,7 @@ func (l *AddCommentLogic) AddComment(in *pb.AddCommentReq) (*pb.AddCommentResp, 
 		// 删除缓存失败，发布消息异步处理
 		body, err := json.Marshal(message.VideoCommentMessage{VideoId: in.GetVideoId()})
 		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "marshal video comment count message failed: %v", err)
+			panic(err)
 		}
 		err = l.svcCtx.Rabbit.Send("", "VideoCommentMq", body)
 		if err != nil {

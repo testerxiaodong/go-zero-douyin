@@ -24,7 +24,7 @@ type (
         // 注册响应
     RegisterResp {
         AccessToken string `json:"access_token"`
-        RefreshToken int64 `json:"refresh_after"`
+        RefreshAfter int64 `json:"refresh_after"`
         ExpireTime int64 `json:"expire_time"`
     }
 )
@@ -36,7 +36,7 @@ type (
     }
     LoginResp {
         AccessToken string `json:"access_token"`
-        RefreshToken int64 `json:"refresh_after"`
+        RefreshAfter int64 `json:"refresh_after"`
         ExpireTime int64 `json:"expire_time"`
     }
 )

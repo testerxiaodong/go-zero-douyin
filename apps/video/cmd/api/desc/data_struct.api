@@ -24,6 +24,7 @@ type (
     }
     PublishVideoResp {
         Id int64 `json:"id"`
+        Title string `json:"title"`
         OwnerId int64 `json:"owner_id"`
         PlayUrl string `json:"play_url"`
         CoverUrl string `json:"cover_url"`

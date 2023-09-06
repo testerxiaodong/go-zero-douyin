@@ -12,7 +12,7 @@ type ServiceContext struct {
 	Config    config.Config
 	VideoRpc  video.Video
 	SocialRpc social.Social
-	Validator *utils.Validator
+	Validator utils.Validator
 	OssClient utils.OssClient
 }
 
@@ -21,7 +21,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config:    c,
 		VideoRpc:  video.NewVideo(zrpc.MustNewClient(c.VideoRpcConf)),
 		SocialRpc: social.NewSocial(zrpc.MustNewClient(c.SocialRpcConf)),
-		Validator: utils.GetValidator(),
+		Validator: utils.NewZhValidator(),
 		OssClient: utils.NewAliOssClient(c.AliCloud.AccessKeyId, c.AliCloud.AccessKeySecret, c.AliCloud.EndPoint, c.AliCloud.BucketName),
 	}
 }

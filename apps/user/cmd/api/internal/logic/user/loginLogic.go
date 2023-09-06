@@ -30,7 +30,7 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err error) {
 	// todo: add your logic here and delete this line
 	// 参数校验
-	if validateResult := l.svcCtx.Validator.ValidateZh(req); len(validateResult) > 0 {
+	if validateResult := l.svcCtx.Validator.Validate(req); len(validateResult) > 0 {
 		return nil, xerr.NewErrMsg(validateResult)
 	}
 	// 调用rpc

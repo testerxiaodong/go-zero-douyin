@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gabriel-vasile/mimetype"
+	"github.com/pkg/errors"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/ctxdata"
 	"go-zero-douyin/common/utils"
@@ -41,13 +42,13 @@ func NewPublishLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PublishLo
 func (l *PublishLogic) Publish(req *types.PublishVideoReq) (resp *types.PublishVideoResp, err error) {
 	// todo: add your logic here and delete this line
 	// 参数校验
-	if validateResult := l.svcCtx.Validator.ValidateZh(req); len(validateResult) > 0 {
+	if validateResult := l.svcCtx.Validator.Validate(req); len(validateResult) > 0 {
 		return nil, xerr.NewErrMsg(validateResult)
 	}
 	// 获取用户id
 	uid := ctxdata.GetUidFromCtx(l.ctx)
 	// 获取文件内容
-	errorGroup, _ := errgroup.WithContext(context.Background())
+	errorGroup, _ := errgroup.WithContext(l.ctx)
 	// 资源文件本体
 	var videoOssSubPath string
 	errorGroup.Go(func() error {
@@ -67,7 +68,7 @@ func (l *PublishLogic) Publish(req *types.PublishVideoReq) (resp *types.PublishV
 		}
 		// 上传文件到oss
 		filename := req.Title + "-" + strconv.FormatInt(uid, 10) + "-" + utils.NewRandomString(5) + path.Ext(l.VideoHeader.Filename)
-		err, filePath := l.svcCtx.OssClient.UploadFile(filename, l.svcCtx.Config.AliCloud.CommonPath, fileContent)
+		filePath, err := l.svcCtx.OssClient.UploadFile(filename, l.svcCtx.Config.AliCloud.CommonPath, fileContent)
 		if err != nil {
 			l.Logger.WithFields(logx.Field("err:", err)).Error(fmt.Sprintf("上传文件到cos失败，文件名称:%v,文件路径:%v",
 				filename, filePath))
@@ -95,7 +96,7 @@ func (l *PublishLogic) Publish(req *types.PublishVideoReq) (resp *types.PublishV
 		}
 		// 上传文件到oss
 		filename := req.Title + "-" + strconv.FormatInt(uid, 10) + "-" + utils.NewRandomString(5) + path.Ext(l.VideoCoverHeader.Filename)
-		err, filePath := l.svcCtx.OssClient.UploadFile(filename, l.svcCtx.Config.AliCloud.CommonPath, fileContent)
+		filePath, err := l.svcCtx.OssClient.UploadFile(filename, l.svcCtx.Config.AliCloud.CommonPath, fileContent)
 		if err != nil {
 			l.Logger.WithFields(logx.Field("err:", err)).Error(fmt.Sprintf("上传文件到cos失败，文件名称:%v,文件路径:%v",
 				filename, filePath))
@@ -117,10 +118,11 @@ func (l *PublishLogic) Publish(req *types.PublishVideoReq) (resp *types.PublishV
 		CoverUrl: l.svcCtx.OssClient.GetOssFileFullAccessPath(videoCoverOssSubPath),
 	})
 	if err != nil {
-		return nil, xerr.NewErrCode(xerr.SERVER_ERROR)
+		return nil, errors.Wrapf(err, "req: %v", req)
 	}
 	resp = new(types.PublishVideoResp)
 	resp.Id = video.Video.Id
+	resp.Title = video.Video.Title
 	resp.OwnerId = video.Video.OwnerId
 	resp.PlayUrl = video.Video.PlayUrl
 	resp.CoverUrl = video.Video.CoverUrl

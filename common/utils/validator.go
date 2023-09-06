@@ -12,18 +12,22 @@ import (
 	zhTranslations "github.com/go-playground/validator/v10/translations/zh"
 )
 
-// Validator 参数校验器
-type Validator struct {
+type Validator interface {
+	Validate(data interface{}) string
+}
+
+// ZhValidator 参数校验器
+type ZhValidator struct {
 	Validator *validator.Validate
 	Uni       *ut.UniversalTranslator
 	Trans     map[string]ut.Translator
 }
 
-// GetValidator
+// NewZhValidator
 // @Description: 获取参数校验器
-// @return *Validator
-func GetValidator() *Validator {
-	v := Validator{}
+// @return *ZhValidator
+func NewZhValidator() *ZhValidator {
+	v := ZhValidator{}
 	translator := zh.New()
 	v.Uni = ut.New(translator, translator)
 	v.Validator = validator.New()
@@ -60,13 +64,13 @@ func GetValidator() *Validator {
 	return &v
 }
 
-// ValidateZh
+// Validate
 // @Description: 中文校验返回错误信息翻译
 // @receiver v
 // @param data
 // @param lang
 // @return string
-func (v *Validator) ValidateZh(data interface{}) string {
+func (v *ZhValidator) Validate(data interface{}) string {
 	err := v.Validator.Struct(data)
 	if err == nil {
 		return ""

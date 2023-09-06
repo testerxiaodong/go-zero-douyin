@@ -10,7 +10,7 @@ import (
 )
 
 type OssClient interface {
-	UploadFile(fileName, filePath string, data []byte) (error, string)
+	UploadFile(fileName, filePath string, data []byte) (string, error)
 	GetOssFileFullAccessPath(filePath string) string
 	DownLoadFile(fileUploadPath string) ([]byte, error)
 	DeleteFile(fileFullPath string) error
@@ -38,21 +38,21 @@ func NewAliOssClient(accessKeyId, accessKeySecret, endpoint, bucketName string) 
 	}
 }
 
-func (o *AliOssClient) UploadFile(fileName, filePath string, data []byte) (error, string) {
+func (o *AliOssClient) UploadFile(fileName, filePath string, data []byte) (string, error) {
 	if len(fileName) <= 0 || len(filePath) <= 0 || data == nil {
-		return errors.New("上传必须指定文件名称、文件路径、文件内容"), ""
+		return "", errors.New("上传必须指定文件名称、文件路径、文件内容")
 	}
 	bucket, err := o.Client.Bucket(o.BucketName)
 	if err != nil {
-		return errors.Wrap(err, "初始化oss链接失败"), ""
+		return "", errors.Wrap(err, "初始化oss链接失败")
 	}
 	reader := bytes.NewReader(data)
 	fileUploadPath := filePath + "/" + fileName
 	err = bucket.PutObject(fileUploadPath, reader)
 	if err != nil {
-		return errors.Wrap(err, "文件上传失败"), ""
+		return "", errors.Wrap(err, "文件上传失败")
 	}
-	return nil, fileUploadPath
+	return fileUploadPath, nil
 }
 
 func (o *AliOssClient) GetOssFileFullAccessPath(filePath string) string {
