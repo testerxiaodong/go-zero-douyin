@@ -30,7 +30,7 @@ func NewVideoUnlikeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Video
 	}
 }
 
-func (l *VideoUnlikeLogic) VideoUnlike(in *pb.VideoUnlikeReq) (*pb.VideoLikeResp, error) {
+func (l *VideoUnlikeLogic) VideoUnlike(in *pb.VideoUnlikeReq) (*pb.VideoUnlikeResp, error) {
 	// todo: add your logic here and delete this line
 	// 参数校验
 	if in == nil {
@@ -45,8 +45,10 @@ func (l *VideoUnlikeLogic) VideoUnlike(in *pb.VideoUnlikeReq) (*pb.VideoLikeResp
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "find video is liked by user failed, err: %v", err)
 	}
+
+	// 没有记录，直接返回
 	if like == nil {
-		return nil, errors.Wrapf(xerr.NewErrMsg("video is not liked by user"), "video_id: %d user_id: %v", in.GetVideoId(), in.GetUserId())
+		return &pb.VideoUnlikeResp{}, nil
 	}
 
 	// 删除点赞记录
@@ -60,7 +62,7 @@ func (l *VideoUnlikeLogic) VideoUnlike(in *pb.VideoUnlikeReq) (*pb.VideoLikeResp
 		// 删除缓存失败，发布消息异步处理
 		userVideoBody, err := json.Marshal(message.UserLikeVideoMessage{UserId: in.GetUserId()})
 		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "marshal user like video message failed, err: %v", err)
+			panic(err)
 		}
 		err = l.svcCtx.Rabbit.Send("", "UserLikeVideoMq", userVideoBody)
 		if err != nil {
@@ -73,7 +75,7 @@ func (l *VideoUnlikeLogic) VideoUnlike(in *pb.VideoUnlikeReq) (*pb.VideoLikeResp
 		// 删除缓存失败，发布消息异步处理
 		videoUserBody, err := json.Marshal(message.VideoLikedByUserMessage{VideoId: in.GetVideoId()})
 		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "marshal video liked by user message failed, err: %v", err)
+			panic(err)
 		}
 
 		err = l.svcCtx.Rabbit.Send("", "VideoLikedByUserMq", videoUserBody)
@@ -82,5 +84,5 @@ func (l *VideoUnlikeLogic) VideoUnlike(in *pb.VideoUnlikeReq) (*pb.VideoLikeResp
 		}
 	}
 
-	return &pb.VideoLikeResp{}, nil
+	return &pb.VideoUnlikeResp{}, nil
 }

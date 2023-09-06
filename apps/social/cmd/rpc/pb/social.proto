@@ -136,7 +136,7 @@ service social {
   rpc GetCommentCountByVideoId(GetCommentCountByVideoIdReq) returns (GetCommentCountByVideoIdResp);
   //  点赞相关功能
   rpc VideoLike(VideoLikeReq) returns (VideoLikeResp);
-  rpc VideoUnlike(VideoUnlikeReq) returns (VideoLikeResp);
+  rpc VideoUnlike(VideoUnlikeReq) returns (VideoUnlikeResp);
   rpc GetVideoLikedCountByVideoId(GetVideoLikedCountByVideoIdReq) returns (GetVideoLikedCountByVideoIdResp);
   rpc GetUserLikeVideoIdList(GetUserLikeVideoIdListReq) returns (GetUserLikeVideoIdListResp);
   //  关注功能

@@ -17,6 +17,12 @@ type RedisCache interface {
 	NewRedisLock(key string) *redis.RedisLock
 }
 
+type RedisLock interface {
+	SetExpire(seconds int)
+	Acquire() (bool, error)
+	Release() (bool, error)
+}
+
 type RedisClient struct {
 	Redis *redis.Redis
 }

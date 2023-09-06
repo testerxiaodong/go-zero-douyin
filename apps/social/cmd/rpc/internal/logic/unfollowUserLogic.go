@@ -69,7 +69,7 @@ func (l *UnfollowUserLogic) UnfollowUser(in *pb.UnfollowUserReq) (*pb.UnfollowUs
 
 		userFollowUserBody, err := json.Marshal(userFollowUserMessage)
 		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrMsg("序列化userFollowUserMessage失败"), "err: %v data: %v", err, userFollowUserMessage)
+			panic(err)
 		}
 
 		err = l.svcCtx.Rabbit.Send("", "UserFollowUserMq", userFollowUserBody)
@@ -85,12 +85,12 @@ func (l *UnfollowUserLogic) UnfollowUser(in *pb.UnfollowUserReq) (*pb.UnfollowUs
 
 		userFollowedByUserBody, err := json.Marshal(userFollowedByUserMessage)
 		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrMsg("序列化userFollowedByUserMessage失败"), "err: %v data: %v", err, userFollowedByUserMessage)
+			panic(err)
 		}
 
 		err = l.svcCtx.Rabbit.Send("", "UserFollowedByUserMq", userFollowedByUserBody)
 		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrMsg("发布userFollowUserMessage失败"), "err: %v", err)
+			return nil, errors.Wrapf(xerr.NewErrMsg("发布userFollowedByUserMessage失败"), "err: %v", err)
 		}
 	}
 

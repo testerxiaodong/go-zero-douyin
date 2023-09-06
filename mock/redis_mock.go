@@ -171,3 +171,68 @@ func (mr *MockRedisCacheMockRecorder) Smembers(ctx, key interface{}) *gomock.Cal
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Smembers", reflect.TypeOf((*MockRedisCache)(nil).Smembers), ctx, key)
 }
+
+// MockRedisLock is a mock of RedisLock interface.
+type MockRedisLock struct {
+	ctrl     *gomock.Controller
+	recorder *MockRedisLockMockRecorder
+}
+
+// MockRedisLockMockRecorder is the mock recorder for MockRedisLock.
+type MockRedisLockMockRecorder struct {
+	mock *MockRedisLock
+}
+
+// NewMockRedisLock creates a new mock instance.
+func NewMockRedisLock(ctrl *gomock.Controller) *MockRedisLock {
+	mock := &MockRedisLock{ctrl: ctrl}
+	mock.recorder = &MockRedisLockMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockRedisLock) EXPECT() *MockRedisLockMockRecorder {
+	return m.recorder
+}
+
+// Acquire mocks base method.
+func (m *MockRedisLock) Acquire() (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Acquire")
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Acquire indicates an expected call of Acquire.
+func (mr *MockRedisLockMockRecorder) Acquire() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Acquire", reflect.TypeOf((*MockRedisLock)(nil).Acquire))
+}
+
+// Release mocks base method.
+func (m *MockRedisLock) Release() (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Release")
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Release indicates an expected call of Release.
+func (mr *MockRedisLockMockRecorder) Release() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Release", reflect.TypeOf((*MockRedisLock)(nil).Release))
+}
+
+// SetExpire mocks base method.
+func (m *MockRedisLock) SetExpire(seconds int) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetExpire", seconds)
+}
+
+// SetExpire indicates an expected call of SetExpire.
+func (mr *MockRedisLockMockRecorder) SetExpire(seconds interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetExpire", reflect.TypeOf((*MockRedisLock)(nil).SetExpire), seconds)
+}

@@ -46,8 +46,10 @@ func (l *VideoLikeLogic) VideoLike(in *pb.VideoLikeReq) (*pb.VideoLikeResp, erro
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "find video is already liked by user failed, err: %v", err)
 	}
+
+	// 已经点赞，直接返回
 	if like != nil {
-		return nil, errors.Wrapf(xerr.NewErrMsg("video already liked by user"), "video_id: %d, user_id: %d", in.GetVideoId(), in.GetUserId())
+		return &pb.VideoLikeResp{}, nil
 	}
 
 	// 插入数据库
@@ -63,7 +65,7 @@ func (l *VideoLikeLogic) VideoLike(in *pb.VideoLikeReq) (*pb.VideoLikeResp, erro
 	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserLikeVideoPrefix, in.GetUserId())); err != nil {
 		userVideoBody, err := json.Marshal(message.UserLikeVideoMessage{UserId: in.GetUserId()})
 		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "marshal user like video message failed, err: %v", err)
+			panic(err)
 		}
 		err = l.svcCtx.Rabbit.Send("", "UserLikeVideoMq", userVideoBody)
 		if err != nil {
@@ -75,7 +77,7 @@ func (l *VideoLikeLogic) VideoLike(in *pb.VideoLikeReq) (*pb.VideoLikeResp, erro
 	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoLikedByUserPrefix, in.GetVideoId())); err != nil {
 		videoUserBody, err := json.Marshal(message.VideoLikedByUserMessage{VideoId: in.GetVideoId()})
 		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "marshal video liked by user message failed, err: %v", err)
+			panic(err)
 		}
 
 		err = l.svcCtx.Rabbit.Send("", "VideoLikedByUserMq", videoUserBody)

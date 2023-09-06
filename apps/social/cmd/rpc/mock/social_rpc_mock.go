@@ -297,14 +297,14 @@ func (mr *MockSocialMockRecorder) VideoLike(ctx, in interface{}, opts ...interfa
 }
 
 // VideoUnlike mocks base method.
-func (m *MockSocial) VideoUnlike(ctx context.Context, in *social.VideoUnlikeReq, opts ...grpc.CallOption) (*social.VideoLikeResp, error) {
+func (m *MockSocial) VideoUnlike(ctx context.Context, in *social.VideoUnlikeReq, opts ...grpc.CallOption) (*social.VideoUnlikeResp, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "VideoUnlike", varargs...)
-	ret0, _ := ret[0].(*social.VideoLikeResp)
+	ret0, _ := ret[0].(*social.VideoUnlikeResp)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

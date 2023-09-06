@@ -85,9 +85,13 @@ func (l *GetUserFollowerCountLogic) BuildUserFollowerCountCache(userId int64) {
 	lock := l.svcCtx.Redis.NewRedisLock(lockKey)
 	lock.SetExpire(1)
 
+	// 复制ctx，防止异步调用时logic.ctx结束
+	ctx := contextx.ValueOnlyFrom(l.ctx)
+
 	// 获取分布式锁
 	acquire, err := lock.Acquire()
 	if err != nil {
+		logx.WithContext(ctx).Errorf("获取分布式锁失败，lockKey: %s, err: %v", lockKey, err)
 		return
 	}
 
@@ -95,15 +99,12 @@ func (l *GetUserFollowerCountLogic) BuildUserFollowerCountCache(userId int64) {
 	defer func(lock *redis.RedisLock) {
 		_, err := lock.Release()
 		if err != nil {
-
+			logx.WithContext(ctx).Errorf("释放分布式锁失败，lockKey: %s, err: %v", lockKey, err)
 		}
 	}(lock)
 
 	// 设置缓存以及失效时间
 	if acquire {
-		// 复制ctx，防止异步调用时logic.ctx结束
-		ctx := contextx.ValueOnlyFrom(l.ctx)
-
 		// 查询用户的粉丝列表
 		ids, err := l.svcCtx.FollowDo.GetUserFollowerIdList(ctx, userId)
 		if err != nil {

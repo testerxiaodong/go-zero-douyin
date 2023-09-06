@@ -55,6 +55,12 @@ func (l *GetVideoLikedCountByVideoIdLogic) GetVideoLikedCountByVideoId(in *pb.Ge
 			// 查询失败。记录日志
 			logc.Errorf(l.ctx, "get redis video like count failed, err: %v video_id: %d", err, in.GetVideoId())
 		}
+		// 更新缓存失效时间
+		err = l.svcCtx.Redis.Expire(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoLikedByUserPrefix, in.GetVideoId()), xconst.RedisExpireTime)
+		if err != nil {
+			// 设置缓存失效时间失败，记录日志
+			logx.WithContext(l.ctx).Errorf("Set redis user like video id list key expire time failed, err: %v, user_id: %d", err, in.GetVideoId())
+		}
 		return &pb.GetVideoLikedCountByVideoIdResp{LikeCount: val}, nil
 	}
 
@@ -84,9 +90,13 @@ func (l *GetVideoLikedCountByVideoIdLogic) BuildVideoLikedByUserCache(videoId in
 	lock := l.svcCtx.Redis.NewRedisLock(lockKey)
 	lock.SetExpire(1)
 
+	// 复制logic.ctx，防止异步调用时父context结束
+	ctx := contextx.ValueOnlyFrom(l.ctx)
+
 	// 获取分布式锁
 	acquire, err := lock.Acquire()
 	if err != nil {
+		logx.WithContext(ctx).Errorf("获取分布式锁失败，lockKey: %s, err: %v", lockKey, err)
 		return
 	}
 
@@ -94,15 +104,12 @@ func (l *GetVideoLikedCountByVideoIdLogic) BuildVideoLikedByUserCache(videoId in
 	defer func(lock *redis.RedisLock) {
 		_, err := lock.Release()
 		if err != nil {
-
+			logx.WithContext(ctx).Errorf("释放分布式锁失败，lockKey: %s, err: %v", lockKey, err)
 		}
 	}(lock)
 
 	// 更新缓存
 	if acquire {
-		// 复制logic.ctx，防止异步调用时父context结束
-		ctx := contextx.ValueOnlyFrom(l.ctx)
-
 		// 查询点赞视频的用户列表
 		ids, err := l.svcCtx.LikeDo.GetVideoLikedByUserIdList(l.ctx, videoId)
 		if err != nil {

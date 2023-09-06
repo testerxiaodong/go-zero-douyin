@@ -75,7 +75,7 @@ func (l *GetUserFollowIdListLogic) GetUserFollowIdList(in *pb.GetUserFollowIdLis
 		return l.svcCtx.FollowDo.GetUserFollowIdList(l.ctx, in.GetUserId())
 	})
 	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "get user follow  id liet from mysql failed, err: %v", err)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "get user follow id list from mysql failed, err: %v", err)
 	}
 
 	// 类型断言
@@ -96,9 +96,13 @@ func (l *GetUserFollowIdListLogic) BuildUserFollowIdListCache(followId int64) {
 	lock := l.svcCtx.Redis.NewRedisLock(lockKey)
 	lock.SetExpire(1)
 
+	// 复制ctx，防止异步调用时logic.ctx结束
+	ctx := contextx.ValueOnlyFrom(l.ctx)
+
 	// 获取分布式锁
 	acquire, err := lock.Acquire()
 	if err != nil {
+		logx.WithContext(ctx).Errorf("获取分布式锁失败，lockKey: %s, err: %v", lockKey, err)
 		return
 	}
 
@@ -106,15 +110,12 @@ func (l *GetUserFollowIdListLogic) BuildUserFollowIdListCache(followId int64) {
 	defer func(lock *redis.RedisLock) {
 		_, err := lock.Release()
 		if err != nil {
-
+			logx.WithContext(ctx).Errorf("释放分布式锁失败，lockKey: %s, err: %v", lockKey, err)
 		}
 	}(lock)
 
 	// 更新缓存
 	if acquire {
-		// 复制ctx，防止异步调用时logic.ctx结束
-		ctx := contextx.ValueOnlyFrom(l.ctx)
-
 		// 从数据库中查询视频点赞用户列表
 		ids, err := l.svcCtx.FollowDo.GetUserFollowIdList(ctx, followId)
 		if err != nil {

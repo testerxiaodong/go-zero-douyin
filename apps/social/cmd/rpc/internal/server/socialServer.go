@@ -49,7 +49,7 @@ func (s *SocialServer) VideoLike(ctx context.Context, in *pb.VideoLikeReq) (*pb.
 	return l.VideoLike(in)
 }
 
-func (s *SocialServer) VideoUnlike(ctx context.Context, in *pb.VideoUnlikeReq) (*pb.VideoLikeResp, error) {
+func (s *SocialServer) VideoUnlike(ctx context.Context, in *pb.VideoUnlikeReq) (*pb.VideoUnlikeResp, error) {
 	l := logic.NewVideoUnlikeLogic(ctx, s.svcCtx)
 	return l.VideoUnlike(in)
 }

@@ -46,7 +46,7 @@ type SocialClient interface {
 	GetCommentCountByVideoId(ctx context.Context, in *GetCommentCountByVideoIdReq, opts ...grpc.CallOption) (*GetCommentCountByVideoIdResp, error)
 	// 点赞相关功能
 	VideoLike(ctx context.Context, in *VideoLikeReq, opts ...grpc.CallOption) (*VideoLikeResp, error)
-	VideoUnlike(ctx context.Context, in *VideoUnlikeReq, opts ...grpc.CallOption) (*VideoLikeResp, error)
+	VideoUnlike(ctx context.Context, in *VideoUnlikeReq, opts ...grpc.CallOption) (*VideoUnlikeResp, error)
 	GetVideoLikedCountByVideoId(ctx context.Context, in *GetVideoLikedCountByVideoIdReq, opts ...grpc.CallOption) (*GetVideoLikedCountByVideoIdResp, error)
 	GetUserLikeVideoIdList(ctx context.Context, in *GetUserLikeVideoIdListReq, opts ...grpc.CallOption) (*GetUserLikeVideoIdListResp, error)
 	// 关注功能
@@ -111,8 +111,8 @@ func (c *socialClient) VideoLike(ctx context.Context, in *VideoLikeReq, opts ...
 	return out, nil
 }
 
-func (c *socialClient) VideoUnlike(ctx context.Context, in *VideoUnlikeReq, opts ...grpc.CallOption) (*VideoLikeResp, error) {
-	out := new(VideoLikeResp)
+func (c *socialClient) VideoUnlike(ctx context.Context, in *VideoUnlikeReq, opts ...grpc.CallOption) (*VideoUnlikeResp, error) {
+	out := new(VideoUnlikeResp)
 	err := c.cc.Invoke(ctx, Social_VideoUnlike_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -203,7 +203,7 @@ type SocialServer interface {
 	GetCommentCountByVideoId(context.Context, *GetCommentCountByVideoIdReq) (*GetCommentCountByVideoIdResp, error)
 	// 点赞相关功能
 	VideoLike(context.Context, *VideoLikeReq) (*VideoLikeResp, error)
-	VideoUnlike(context.Context, *VideoUnlikeReq) (*VideoLikeResp, error)
+	VideoUnlike(context.Context, *VideoUnlikeReq) (*VideoUnlikeResp, error)
 	GetVideoLikedCountByVideoId(context.Context, *GetVideoLikedCountByVideoIdReq) (*GetVideoLikedCountByVideoIdResp, error)
 	GetUserLikeVideoIdList(context.Context, *GetUserLikeVideoIdListReq) (*GetUserLikeVideoIdListResp, error)
 	// 关注功能
@@ -235,7 +235,7 @@ func (UnimplementedSocialServer) GetCommentCountByVideoId(context.Context, *GetC
 func (UnimplementedSocialServer) VideoLike(context.Context, *VideoLikeReq) (*VideoLikeResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VideoLike not implemented")
 }
-func (UnimplementedSocialServer) VideoUnlike(context.Context, *VideoUnlikeReq) (*VideoLikeResp, error) {
+func (UnimplementedSocialServer) VideoUnlike(context.Context, *VideoUnlikeReq) (*VideoUnlikeResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VideoUnlike not implemented")
 }
 func (UnimplementedSocialServer) GetVideoLikedCountByVideoId(context.Context, *GetVideoLikedCountByVideoIdReq) (*GetVideoLikedCountByVideoIdResp, error) {

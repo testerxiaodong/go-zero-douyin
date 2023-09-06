@@ -59,7 +59,7 @@ func (l *DelCommentLogic) DelComment(in *pb.DelCommentReq) (*pb.DelCommentResp, 
 	// 删除评论
 	_, err = l.svcCtx.CommentDo.DeleteComment(l.ctx, comment)
 	if err != nil {
-		return nil, errors.Wrap(xerr.NewErrCode(xerr.DB_DELETE_ERR), "del comment failed")
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_DELETE_ERR), "del comment failed, err: %v", err)
 	}
 
 	// 删除缓存

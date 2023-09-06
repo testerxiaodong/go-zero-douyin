@@ -51,7 +51,7 @@ type (
 		GetCommentCountByVideoId(ctx context.Context, in *GetCommentCountByVideoIdReq, opts ...grpc.CallOption) (*GetCommentCountByVideoIdResp, error)
 		// 点赞相关功能
 		VideoLike(ctx context.Context, in *VideoLikeReq, opts ...grpc.CallOption) (*VideoLikeResp, error)
-		VideoUnlike(ctx context.Context, in *VideoUnlikeReq, opts ...grpc.CallOption) (*VideoLikeResp, error)
+		VideoUnlike(ctx context.Context, in *VideoUnlikeReq, opts ...grpc.CallOption) (*VideoUnlikeResp, error)
 		GetVideoLikedCountByVideoId(ctx context.Context, in *GetVideoLikedCountByVideoIdReq, opts ...grpc.CallOption) (*GetVideoLikedCountByVideoIdResp, error)
 		GetUserLikeVideoIdList(ctx context.Context, in *GetUserLikeVideoIdListReq, opts ...grpc.CallOption) (*GetUserLikeVideoIdListResp, error)
 		// 关注功能
@@ -101,7 +101,7 @@ func (m *defaultSocial) VideoLike(ctx context.Context, in *VideoLikeReq, opts ..
 	return client.VideoLike(ctx, in, opts...)
 }
 
-func (m *defaultSocial) VideoUnlike(ctx context.Context, in *VideoUnlikeReq, opts ...grpc.CallOption) (*VideoLikeResp, error) {
+func (m *defaultSocial) VideoUnlike(ctx context.Context, in *VideoUnlikeReq, opts ...grpc.CallOption) (*VideoUnlikeResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
 	return client.VideoUnlike(ctx, in, opts...)
 }
