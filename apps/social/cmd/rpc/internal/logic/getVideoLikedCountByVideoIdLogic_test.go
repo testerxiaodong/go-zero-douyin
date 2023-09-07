@@ -47,27 +47,27 @@ func TestGetVideoLikedCountByVideoIdLogic_GetVideoLikedCountByVideoId(t *testing
 		err  error
 	}{
 		{
-			name: "get_user_follow_id_list_with_empty_param",
+			name: "get_video_liked_count_by_video_id_with_empty_param",
 			req:  nil,
 			err:  errors.Wrapf(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "get video like count with empty param"),
 		},
 		{
-			name: "get_user_follow_id_list_with_empty_video_id",
+			name: "get_video_liked_count_by_video_id_with_empty_video_id",
 			req:  &pb.GetVideoLikedCountByVideoIdReq{VideoId: 0},
 			err:  errors.Wrapf(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "get video like count with empty video_id"),
 		},
 		{
-			name: "get_user_follow_id_list_with_redis",
+			name: "get_video_liked_count_by_video_id_with_redis",
 			req:  &pb.GetVideoLikedCountByVideoIdReq{VideoId: 10},
 			err:  nil,
 		},
 		{
-			name: "get_user_follow_id_list_with_database_error",
+			name: "get_video_liked_count_by_video_id_with_database_error",
 			req:  &pb.GetVideoLikedCountByVideoIdReq{VideoId: 10},
 			err:  dbError,
 		},
 		{
-			name: "get_user_follow_id_list_with_database_record",
+			name: "get_video_liked_count_by_video_id_with_database_record",
 			req:  &pb.GetVideoLikedCountByVideoIdReq{VideoId: 10},
 			err:  nil,
 		},

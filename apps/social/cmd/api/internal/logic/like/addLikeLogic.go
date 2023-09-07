@@ -37,7 +37,7 @@ func (l *AddLikeLogic) AddLike(req *types.VideoLikeReq) error {
 	// 调用videorpc判断视频是否存在
 	_, err := l.svcCtx.VideoRpc.GetVideoById(l.ctx, &pbVideo.GetVideoByIdReq{Id: req.VideoId})
 	if err != nil {
-		return errors.Wrapf(err, "video_id: %d", req.VideoId)
+		return errors.Wrapf(err, "req: %v", req)
 	}
 	// 获取当前用户id
 	uid := ctxdata.GetUidFromCtx(l.ctx)

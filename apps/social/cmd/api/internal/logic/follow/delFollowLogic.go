@@ -31,7 +31,7 @@ func (l *DelFollowLogic) DelFollow(req *types.UserUnfollowReq) error {
 	// todo: add your logic here and delete this line
 	// 参数校验
 	if validateResult := l.svcCtx.Validator.Validate(req); len(validateResult) > 0 {
-		return errors.Wrapf(xerr.NewErrMsg(validateResult), "req: %v", req)
+		return xerr.NewErrMsg(validateResult)
 	}
 
 	// 获取当前用户uid

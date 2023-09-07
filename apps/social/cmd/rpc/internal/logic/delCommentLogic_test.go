@@ -71,47 +71,47 @@ func TestDelCommentLogic_DelComment(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "add_comment_with_empty_param",
+			name: "del_comment_with_empty_param",
 			req:  nil,
 			err:  errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "del comment with empty param"),
 		},
 		{
-			name: "add_comment_with_empty_filed",
+			name: "del_comment_with_empty_filed",
 			req:  &pb.DelCommentReq{CommentId: 0, UserId: 1},
 			err:  errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "del comment with empty user_id or comment_id"),
 		},
 		{
-			name: "add_comment_with_database_search_error",
+			name: "del_comment_with_database_search_error",
 			req:  &pb.DelCommentReq{CommentId: 1, UserId: 1},
 			err:  errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "find comment by id failed, err: %v", searchDatabaseError),
 		},
 		{
-			name: "add_comment_with_database_no_record",
+			name: "del_comment_with_database_no_record",
 			req:  &pb.DelCommentReq{CommentId: 1, UserId: 1},
 			err:  errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "comment not found, id: %d", 1),
 		},
 		{
-			name: "add_comment_with_owner_error",
+			name: "del_comment_with_owner_error",
 			req:  &pb.DelCommentReq{CommentId: 1, UserId: 1},
 			err:  errors.Wrapf(xerr.NewErrMsg("评论非该用户发布，无法删除"), "comment_id: %d", 1),
 		},
 		{
-			name: "add_comment_with_database_delete_error",
+			name: "del_comment_with_database_delete_error",
 			req:  &pb.DelCommentReq{CommentId: 1, UserId: 1},
 			err:  errors.Wrapf(xerr.NewErrCode(xerr.DB_DELETE_ERR), "del comment failed, err: %v", deleteDatabaseError),
 		},
 		{
-			name: "add_comment_with_rabbit_error",
+			name: "del_comment_with_rabbit_error",
 			req:  &pb.DelCommentReq{CommentId: 1, UserId: 1},
 			err:  errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "publish video comment count message failed: %v", senderError),
 		},
 		{
-			name: "add_comment_with_redis_error",
+			name: "del_comment_with_redis_error",
 			req:  &pb.DelCommentReq{CommentId: 1, UserId: 1},
 			err:  nil,
 		},
 		{
-			name: "add_comment_success",
+			name: "del_comment_success",
 			req:  &pb.DelCommentReq{CommentId: 1, UserId: 1},
 			err:  nil,
 		},

@@ -70,22 +70,22 @@ func TestListLogic_List(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "get_video_feed_with_validate_error",
+			name: "get_user_video_list_with_validate_error",
 			req:  &types.UserVideoListReq{UserId: 1},
 			err:  xerr.NewErrMsg(validateResult),
 		},
 		{
-			name: "get_video_feed_with_video_rpc_error",
+			name: "get_user_video_list_with_video_rpc_error",
 			req:  &types.UserVideoListReq{UserId: 1},
 			err:  errors.Wrapf(videoRpcError, "req: %v", &types.UserVideoListReq{UserId: 1}),
 		},
 		{
-			name: "get_video_feed_with_no_data",
+			name: "get_user_video_list_with_no_data",
 			req:  &types.UserVideoListReq{UserId: 1},
 			err:  nil,
 		},
 		{
-			name: "get_video_feed_with_two_data",
+			name: "get_user_video_list_with_two_data",
 			req:  &types.UserVideoListReq{UserId: 1},
 			err:  nil,
 		},

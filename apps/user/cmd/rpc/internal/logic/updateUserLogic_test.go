@@ -46,23 +46,23 @@ func TestUpdateUserLogic_UpdateUser(t *testing.T) {
 		req  *pb.UpdateUserReq
 	}{
 		{
-			name: "login_with_empty_param",
+			name: "update_user_with_empty_param",
 			req:  nil,
 		},
 		{
-			name: "login_with_empty_id",
+			name: "update_user_with_empty_id",
 			req:  &pb.UpdateUserReq{Password: "test", Username: "test"},
 		},
 		{
-			name: "login_with_search_database_error",
+			name: "update_user_with_search_database_error",
 			req:  &pb.UpdateUserReq{Username: "test", Password: "test", Id: 1},
 		},
 		{
-			name: "login_with_no_database_record",
+			name: "update_user_with_no_database_record",
 			req:  &pb.UpdateUserReq{Username: "test", Password: "test", Id: 1},
 		},
 		{
-			name: "login_with_update_database_error",
+			name: "update_user_with_update_database_error",
 			req:  &pb.UpdateUserReq{Username: "test", Password: "test", Id: 1},
 		},
 		{

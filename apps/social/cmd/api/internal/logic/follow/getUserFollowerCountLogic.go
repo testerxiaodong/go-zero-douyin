@@ -31,13 +31,13 @@ func (l *GetUserFollowerCountLogic) GetUserFollowerCount(req *types.GetUserFollo
 	// todo: add your logic here and delete this line
 	// 参数校验
 	if validateResult := l.svcCtx.Validator.Validate(req); len(validateResult) > 0 {
-		return nil, errors.Wrapf(xerr.NewErrMsg(validateResult), "req: %v", err)
+		return nil, xerr.NewErrMsg(validateResult)
 	}
 
 	// 调用social rpc
 	countResp, err := l.svcCtx.SocialRpc.GetUserFollowerCount(l.ctx, &pb.GetUserFollowerCountReq{UserId: req.UserId})
 	if err != nil {
-		return nil, errors.Wrapf(err, "req: %v", err)
+		return nil, errors.Wrapf(err, "req: %v", req)
 	}
 
 	// 拷贝响应

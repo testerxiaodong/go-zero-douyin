@@ -40,19 +40,19 @@ func TestUserVideoListLogic_UserVideoList(t *testing.T) {
 		req  *pb.UserVideoListReq
 	}{
 		{
-			name: "publish_video_with_empty_param",
+			name: "get_user_video_list_with_empty_param",
 			req:  nil,
 		},
 		{
-			name: "publish_video_with_search_database_error",
+			name: "get_user_video_list_with_search_database_error",
 			req:  &pb.UserVideoListReq{UserId: utils.NewRandomInt64(1, 10)},
 		},
 		{
-			name: "publish_video_with_no_database_record",
+			name: "get_user_video_list_with_no_database_record",
 			req:  &pb.UserVideoListReq{UserId: utils.NewRandomInt64(1, 10)},
 		},
 		{
-			name: "publish_video_success",
+			name: "get_user_video_list_success",
 			req:  &pb.UserVideoListReq{UserId: utils.NewRandomInt64(1, 10)},
 		},
 	}

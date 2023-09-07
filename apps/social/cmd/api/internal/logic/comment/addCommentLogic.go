@@ -37,7 +37,7 @@ func (l *AddCommentLogic) AddComment(req *types.AddCommentReq) error {
 	// 调用 video rpc 判断视频是否存在
 	_, err := l.svcCtx.VideoRpc.GetVideoById(l.ctx, &pbVideo.GetVideoByIdReq{Id: req.VideoId})
 	if err != nil {
-		return xerr.NewErrMsg("视频不存在")
+		return err
 	}
 
 	// 获取当前用户id

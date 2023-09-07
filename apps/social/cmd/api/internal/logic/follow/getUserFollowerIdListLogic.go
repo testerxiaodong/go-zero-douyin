@@ -31,7 +31,7 @@ func (l *GetUserFollowerIdListLogic) GetUserFollowerIdList(req *types.GetUserFol
 	// todo: add your logic here and delete this line
 	// 参数校验
 	if validateResult := l.svcCtx.Validator.Validate(req); len(validateResult) > 0 {
-		return nil, errors.Wrapf(xerr.NewErrMsg(validateResult), "req: %v", req)
+		return nil, xerr.NewErrMsg(validateResult)
 	}
 
 	// 调用social rpc

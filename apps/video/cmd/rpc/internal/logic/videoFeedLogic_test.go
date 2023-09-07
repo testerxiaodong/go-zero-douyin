@@ -43,23 +43,23 @@ func TestVideoFeedLogic_VideoFeed(t *testing.T) {
 		req  *pb.VideoFeedReq
 	}{
 		{
-			name: "publish_video_with_empty_param",
+			name: "get_video_feed_with_empty_param",
 			req:  nil,
 		},
 		{
-			name: "publish_video_with_empty_timestamp",
+			name: "get_video_feed_with_empty_timestamp",
 			req:  &pb.VideoFeedReq{LastTimeStamp: nil},
 		},
 		{
-			name: "publish_video_with_search_database_error",
+			name: "get_video_feed_with_search_database_error",
 			req:  &pb.VideoFeedReq{LastTimeStamp: utils.FromInt64TimeStampToProtobufTimeStamp(100)},
 		},
 		{
-			name: "publish_video_with_no_database_record",
+			name: "get_video_feed_with_no_database_record",
 			req:  &pb.VideoFeedReq{LastTimeStamp: utils.FromInt64TimeStampToProtobufTimeStamp(100)},
 		},
 		{
-			name: "publish_video_success",
+			name: "get_video_feed_success",
 			req:  &pb.VideoFeedReq{LastTimeStamp: utils.FromInt64TimeStampToProtobufTimeStamp(100)},
 		},
 	}

@@ -52,31 +52,31 @@ func TestRegisterUserLogic_RegisterUser(t *testing.T) {
 		req  *pb.RegisterUserReq
 	}{
 		{
-			name: "login_with_empty_param",
+			name: "register_with_empty_param",
 			req:  nil,
 		},
 		{
-			name: "login_with_empty_username",
+			name: "register_with_empty_username",
 			req:  &pb.RegisterUserReq{Password: "test"},
 		},
 		{
-			name: "login_with_empty_password",
+			name: "register_with_empty_password",
 			req:  &pb.RegisterUserReq{Username: "test"},
 		},
 		{
-			name: "login_with_database_search_error",
+			name: "register_with_database_search_error",
 			req:  &pb.RegisterUserReq{Username: "test", Password: "test"},
 		},
 		{
-			name: "login_with_had_database_record",
+			name: "register_with_had_database_record",
 			req:  &pb.RegisterUserReq{Username: "test", Password: "test"},
 		},
 		{
-			name: "login_with_insert_database_error",
+			name: "register_with_insert_database_error",
 			req:  &pb.RegisterUserReq{Username: "test", Password: "test"},
 		},
 		{
-			name: "login_success",
+			name: "register_success",
 			req:  &pb.RegisterUserReq{Username: "test", Password: "test"},
 		},
 	}
