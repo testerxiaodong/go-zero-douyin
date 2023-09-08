@@ -17,7 +17,24 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-data/
+# idea
+.idea
+.idea/
+*.iml
+.DS_Store
+**/.DS_Store
+
+#deploy data
+
+data/*
+!data/.gitkeep
+
+# gitlab ci
+.cache
+
+#vscode
+.vscode
+.vscode/
 
 # Go workspace file
 go.work
