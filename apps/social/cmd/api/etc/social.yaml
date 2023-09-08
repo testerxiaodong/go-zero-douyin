@@ -1,9 +1,9 @@
-Name: social
+Name: social-api
 Host: 0.0.0.0
 Port: 1004
 
 Log:
-  ServiceName: api.social
+  ServiceName: social-api
   Mode: console
   Encoding: plain
   Path: logs
@@ -11,6 +11,20 @@ Log:
   Level: debug
   KeepDays: 30
   StackCooldownMillis: 100
+
+#监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4001
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: social-api
+  Endpoint: http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
 
 JwtAuth:
   AccessSecret: go-zero-douyin

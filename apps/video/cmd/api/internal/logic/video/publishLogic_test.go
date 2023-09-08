@@ -170,7 +170,7 @@ func createMultipartFileHeader(filePath string, t *testing.T) (*multipart.FileHe
 }
 
 func setLogicFilePoint(t *testing.T) (*multipart.FileHeader, multipart.File, *multipart.FileHeader, multipart.File) {
-	coverFileHeader, coverFile := createMultipartFileHeader("../../../../../../../data/test/go-zero.png", t)
-	fileHeader, file := createMultipartFileHeader("../../../../../../../data/test/SampleVideo_1280x720_1mb.mp4", t)
+	coverFileHeader, coverFile := createMultipartFileHeader("../../tmp/go-zero.png", t)
+	fileHeader, file := createMultipartFileHeader("../../tmp/SampleVideo_1280x720_1mb.mp4", t)
 	return coverFileHeader, coverFile, fileHeader, file
 }

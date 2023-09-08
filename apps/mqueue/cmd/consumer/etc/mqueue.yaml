@@ -1,8 +1,8 @@
-Name: consumer
+Name: mqueue
 Host: 0.0.0.0
 
 Log:
-  ServiceName: consumer
+  ServiceName: mqueue
   Mode: console
   Encoding: plain
   Path: logs
@@ -11,14 +11,27 @@ Log:
   KeepDays: 30
   StackCooldownMillis: 100
 
+#监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4007
+  Path: /metrics
+
+#Link Tracking
+Telemetry:
+  Name: mqueue
+  Endpoint: http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
 Redis:
-  Host: 47.99.140.12:6379
+  Host: 127.0.0.1:6379
   Type: node
 
 RabbitVideoCommentMqConf:
   Username: guest
   Password: guest
-  Host: 47.99.140.12
+  Host: 127.0.0.1
   Port: 5672
   ListenerQueues:
       -
@@ -31,7 +44,7 @@ RabbitVideoCommentMqConf:
 RabbitUserLikeVideoMqConf:
   Username: guest
   Password: guest
-  Host: 47.99.140.12
+  Host: 127.0.0.1
   Port: 5672
   ListenerQueues:
     - Name: UserLikeVideoMq
@@ -43,7 +56,7 @@ RabbitUserLikeVideoMqConf:
 RabbitVideoLikedByUserMqConf:
   Username: guest
   Password: guest
-  Host: 47.99.140.12
+  Host: 127.0.0.1
   Port: 5672
   ListenerQueues:
     - Name: VideoLikedByUserMq
@@ -55,7 +68,7 @@ RabbitVideoLikedByUserMqConf:
 RabbitUserFollowUserMqConf:
   Username: guest
   Password: guest
-  Host: 47.99.140.12
+  Host: 127.0.0.1
   Port: 5672
   ListenerQueues:
     - Name: UserFollowUserMq
@@ -67,7 +80,7 @@ RabbitUserFollowUserMqConf:
 RabbitUserFollowedByUserMqConf:
   Username: guest
   Password: guest
-  Host: 47.99.140.12
+  Host: 127.0.0.1
   Port: 5672
   ListenerQueues:
     - Name: UserFollowedByUserMq

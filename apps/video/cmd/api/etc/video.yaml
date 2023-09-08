@@ -1,10 +1,10 @@
-Name: video
+Name: video-api
 Host: 0.0.0.0
 Port: 1003
 MaxBytes: 104857600
 
 Log:
-  ServiceName: api.video
+  ServiceName: video-api
   Mode: console
   Encoding: plain
   Path: logs
@@ -12,6 +12,20 @@ Log:
   Level: debug
   KeepDays: 30
   StackCooldownMillis: 100
+
+#监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4003
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: video-api
+  Endpoint: http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
 
 JwtAuth:
   AccessSecret: go-zero-douyin

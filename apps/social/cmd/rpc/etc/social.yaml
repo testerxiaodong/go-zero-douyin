@@ -1,18 +1,36 @@
-Name: social.rpc
+Name: social-rpc
 ListenOn: 0.0.0.0:1104
 
 # 修改下面数据源
-DataSource: root:my-secret-pw@tcp(47.99.140.12:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local
+DataSource: root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local
+
+Log:
+  ServiceName: social-rpc
+  Level: error
+
+#监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4002
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: social-rpc
+  Endpoint:  http://jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
 
 # rabbitmq
 RabbitSenderConf:
   Username: guest
   Password: guest
-  Host: 47.99.140.12
+  Host: 127.0.0.1
   Port: 5672
   ContentType: text/plain
 
 # redis
 RedisCache:
-  Host: 47.99.140.12:6379
+  Host: 127.0.0.1:6379
   Type: node
