@@ -11,6 +11,7 @@ faker-douyin的go-zero版本，主要是想学习一下go-zero微服务框架。
 - gorm/gen
 - mysql
 - redis
+- elasticsearch
 - rabbitmq
 
 ### 项目功能点
@@ -30,6 +31,7 @@ go-zero绑定的消息代理是kafka，不太熟悉，先继续用rabbitmq，做
     - 获取视频流
     - 发布视频
     - 查询用户视频列表
+    - 搜索视频
 - 点赞
     - 点赞视频
     - 取消点赞
