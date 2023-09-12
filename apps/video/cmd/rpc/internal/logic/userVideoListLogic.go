@@ -59,6 +59,8 @@ func (l *UserVideoListLogic) UserVideoList(in *pb.UserVideoListReq) (*pb.UserVid
 		single.Title = video.Title
 		single.PlayUrl = video.PlayURL
 		single.CoverUrl = video.CoverURL
+		single.CreateTime = video.CreateTime
+		single.UpdateTime = video.UpdateTime
 		resp.Videos = append(resp.Videos, single)
 	}
 	return resp, nil

@@ -11,6 +11,8 @@ type VideoInfo struct {
 	CoverUrl     string   `json:"cover_url"`
 	CommentCount int64    `json:"comment_count"`
 	LikeCount    int64    `json:"like_count"`
+	CreateTime   int64    `json:"create_time"`
+	UpdateTime   int64    `json:"update_time"`
 }
 
 type PublishVideoReq struct {
@@ -20,13 +22,15 @@ type PublishVideoReq struct {
 }
 
 type PublishVideoResp struct {
-	Id        int64    `json:"id"`
-	Title     string   `json:"title"`
-	SectionId int64    `json:"section_id"`
-	Tags      []string `json:"tags"`
-	OwnerId   int64    `json:"owner_id"`
-	PlayUrl   string   `json:"play_url"`
-	CoverUrl  string   `json:"cover_url"`
+	Id         int64    `json:"id"`
+	Title      string   `json:"title"`
+	SectionId  int64    `json:"section_id"`
+	Tags       []string `json:"tags"`
+	OwnerId    int64    `json:"owner_id"`
+	PlayUrl    string   `json:"play_url"`
+	CoverUrl   string   `json:"cover_url"`
+	CreateTime int64    `json:"create_time"`
+	UpdateTime int64    `json:"update_time"`
 }
 
 type VideoFeedReq struct {
@@ -49,6 +53,14 @@ type UserVideoListResp struct {
 
 type DeleteVideoReq struct {
 	VideoId int64 `json:"video_id"`
+}
+
+type SearchVideoReq struct {
+	Keyword string `json:"keyword" validate:"required"`
+}
+
+type SearchVideoResp struct {
+	Videos []*VideoInfo `json:"videos"`
 }
 
 type SectionInfo struct {

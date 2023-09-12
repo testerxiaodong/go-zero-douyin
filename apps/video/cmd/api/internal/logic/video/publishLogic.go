@@ -158,5 +158,7 @@ func (l *PublishLogic) Publish(req *types.PublishVideoReq) (resp *types.PublishV
 	resp.OwnerId = video.Video.OwnerId
 	resp.PlayUrl = video.Video.PlayUrl
 	resp.CoverUrl = video.Video.CoverUrl
+	resp.CreateTime = video.Video.CreateTime
+	resp.UpdateTime = video.Video.UpdateTime
 	return resp, nil
 }

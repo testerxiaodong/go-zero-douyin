@@ -12,6 +12,22 @@ message VideoInfo {
   int64 owner_id = 5;
   string play_url = 6;
   string cover_url = 7;
+  int64 create_time = 8;
+  int64 update_time = 9;
+}
+
+message VideoDetailInfo {
+  int64 id = 1;
+  string title = 2;
+  int64 section_id = 3;
+  repeated string tags = 4;
+  int64 owner_id = 5;
+  string play_url = 6;
+  string cover_url = 7;
+  int64 comment_count = 8;
+  int64 like_count = 9;
+  int64 create_time = 10;
+  int64 update_time = 11;
 }
 
 message PublishVideoReq {
@@ -45,6 +61,13 @@ message UserVideoListResp {
   repeated VideoInfo videos = 1;
 }
 
+message GetAllVideoReq {
+}
+
+message GetAllVideoResp {
+  repeated VideoInfo videos = 1;
+}
+
 message DeleteVideoReq {
   int64 user_id = 1;
   int64 video_id = 2;
@@ -66,10 +89,11 @@ message GetVideoByKeywordReq {
 }
 
 message GetVideoByKeywordResp {
-  repeated VideoInfo videos = 1;
+  repeated VideoDetailInfo videos = 1;
 }
 
 message SyncVideoInfoToElasticsearchReq {
+  VideoDetailInfo video_info = 1;
 }
 
 message SyncVideoInfoToElasticsearchResp {
@@ -149,6 +173,7 @@ service video {
     rpc PublishVideo (PublishVideoReq) returns (PublishVideoResp);
     rpc VideoFeed (VideoFeedReq) returns (VideoFeedResp);
     rpc UserVideoList (UserVideoListReq) returns (UserVideoListResp);
+    rpc GetAllVideo (GetAllVideoReq) returns (GetAllVideoResp);
     rpc DeleteVideo (DeleteVideoReq) returns (DeleteVideoResp);
     rpc GetVideoById (GetVideoByIdReq) returns (GetVideoByIdResp);
     rpc SyncVideoInfoToElasticsearch (SyncVideoInfoToElasticsearchReq) returns (SyncVideoInfoToElasticsearchResp);

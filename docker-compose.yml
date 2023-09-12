@@ -15,8 +15,8 @@ services:
       - "14268:14268"
       - "9411:9411"
     environment:
-      - SPAN_STORAGE_TYPE=elasticService
-      - ES_SERVER_URLS=http://elasticService:9200
+      - SPAN_STORAGE_TYPE=elasticsearch
+      - ES_SERVER_URLS=http://elasticsearch:9200
       - LOG_LEVEL=debug
     networks:
       - douyin_net
@@ -60,15 +60,15 @@ services:
 
   #搜集kafka业务日志、存储prometheus监控数据 - Kafka for collecting business logs and storing Prometheus monitoring data
   elasticsearch:
-    image: docker.elastic.co/elasticService/elasticService:7.17.13
-    container_name: elasticService
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.13
+    container_name: elasticsearch
     user: root
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - TZ=Asia/Shanghai
     volumes:
-      - ./data/elasticService/data:/usr/share/elasticService/data
+      - ./data/elasticsearch/data:/usr/share/elasticsearch/data
     restart: always
     ports:
       - "9200:9200"
@@ -81,7 +81,7 @@ services:
     image: docker.elastic.co/kibana/kibana:7.17.13
     container_name: kibana
     environment:
-      - elasticService.hosts=http://elasticService:9200
+      - elasticsearch.hosts=http://elasticsearch:9200
       - TZ=Asia/Shanghai
     restart: always
     networks:

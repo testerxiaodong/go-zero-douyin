@@ -51,6 +51,21 @@ func (mr *MockVideoDoMockRecorder) DeleteVideo(ctx, video interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteVideo", reflect.TypeOf((*MockVideoDo)(nil).DeleteVideo), ctx, video)
 }
 
+// GetAllVideo mocks base method.
+func (m *MockVideoDo) GetAllVideo(ctx context.Context) ([]*model.Video, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllVideo", ctx)
+	ret0, _ := ret[0].([]*model.Video)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllVideo indicates an expected call of GetAllVideo.
+func (mr *MockVideoDoMockRecorder) GetAllVideo(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllVideo", reflect.TypeOf((*MockVideoDo)(nil).GetAllVideo), ctx)
+}
+
 // GetVideoById mocks base method.
 func (m *MockVideoDo) GetVideoById(ctx context.Context, videoId int64) (*model.Video, error) {
 	m.ctrl.T.Helper()

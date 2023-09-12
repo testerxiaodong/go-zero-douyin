@@ -26,10 +26,10 @@ type Comment struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id      int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	UserId  int64  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	VideoId int64  `protobuf:"varint,3,opt,name=video_id,json=videoId,proto3" json:"video_id,omitempty"`
-	Content string `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`
+	Id      int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id"`
+	UserId  int64  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id"`
+	VideoId int64  `protobuf:"varint,3,opt,name=video_id,json=videoId,proto3" json:"video_id"`
+	Content string `protobuf:"bytes,4,opt,name=content,proto3" json:"content"`
 }
 
 func (x *Comment) Reset() {
@@ -97,9 +97,9 @@ type AddCommentReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	VideoId int64  `protobuf:"varint,1,opt,name=video_id,json=videoId,proto3" json:"video_id,omitempty"`
-	UserId  int64  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Content string `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
+	VideoId int64  `protobuf:"varint,1,opt,name=video_id,json=videoId,proto3" json:"video_id"`
+	UserId  int64  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id"`
+	Content string `protobuf:"bytes,3,opt,name=content,proto3" json:"content"`
 }
 
 func (x *AddCommentReq) Reset() {
@@ -198,7 +198,7 @@ type GetCommentListByIdReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id"`
 }
 
 func (x *GetCommentListByIdReq) Reset() {
@@ -245,7 +245,7 @@ type GetCommentListByIdResp struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Comments []*Comment `protobuf:"bytes,1,rep,name=comments,proto3" json:"comments,omitempty"`
+	Comments []*Comment `protobuf:"bytes,1,rep,name=comments,proto3" json:"comments"`
 }
 
 func (x *GetCommentListByIdResp) Reset() {
@@ -292,8 +292,8 @@ type DelCommentReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	CommentId int64 `protobuf:"varint,1,opt,name=comment_id,json=commentId,proto3" json:"comment_id,omitempty"`
-	UserId    int64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	CommentId int64 `protobuf:"varint,1,opt,name=comment_id,json=commentId,proto3" json:"comment_id"`
+	UserId    int64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id"`
 }
 
 func (x *DelCommentReq) Reset() {
@@ -385,7 +385,7 @@ type GetCommentCountByVideoIdReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	VideoId int64 `protobuf:"varint,1,opt,name=video_id,json=videoId,proto3" json:"video_id,omitempty"`
+	VideoId int64 `protobuf:"varint,1,opt,name=video_id,json=videoId,proto3" json:"video_id"`
 }
 
 func (x *GetCommentCountByVideoIdReq) Reset() {
@@ -432,7 +432,7 @@ type GetCommentCountByVideoIdResp struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Count int64 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	Count int64 `protobuf:"varint,1,opt,name=count,proto3" json:"count"`
 }
 
 func (x *GetCommentCountByVideoIdResp) Reset() {
@@ -480,8 +480,8 @@ type VideoLikeReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	VideoId int64 `protobuf:"varint,1,opt,name=video_id,json=videoId,proto3" json:"video_id,omitempty"`
-	UserId  int64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	VideoId int64 `protobuf:"varint,1,opt,name=video_id,json=videoId,proto3" json:"video_id"`
+	UserId  int64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id"`
 }
 
 func (x *VideoLikeReq) Reset() {
@@ -573,8 +573,8 @@ type VideoUnlikeReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	VideoId int64 `protobuf:"varint,1,opt,name=video_id,json=videoId,proto3" json:"video_id,omitempty"`
-	UserId  int64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	VideoId int64 `protobuf:"varint,1,opt,name=video_id,json=videoId,proto3" json:"video_id"`
+	UserId  int64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id"`
 }
 
 func (x *VideoUnlikeReq) Reset() {
@@ -666,7 +666,7 @@ type GetVideoLikedCountByVideoIdReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	VideoId int64 `protobuf:"varint,1,opt,name=video_id,json=videoId,proto3" json:"video_id,omitempty"`
+	VideoId int64 `protobuf:"varint,1,opt,name=video_id,json=videoId,proto3" json:"video_id"`
 }
 
 func (x *GetVideoLikedCountByVideoIdReq) Reset() {
@@ -713,7 +713,7 @@ type GetVideoLikedCountByVideoIdResp struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	LikeCount int64 `protobuf:"varint,2,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
+	LikeCount int64 `protobuf:"varint,2,opt,name=like_count,json=likeCount,proto3" json:"like_count"`
 }
 
 func (x *GetVideoLikedCountByVideoIdResp) Reset() {
@@ -760,7 +760,7 @@ type GetUserLikeVideoIdListReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id"`
 }
 
 func (x *GetUserLikeVideoIdListReq) Reset() {
@@ -807,7 +807,7 @@ type GetUserLikeVideoIdListResp struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	VideoIdList []int64 `protobuf:"varint,1,rep,packed,name=video_id_list,json=videoIdList,proto3" json:"video_id_list,omitempty"`
+	VideoIdList []int64 `protobuf:"varint,1,rep,packed,name=video_id_list,json=videoIdList,proto3" json:"video_id_list"`
 }
 
 func (x *GetUserLikeVideoIdListResp) Reset() {
@@ -855,8 +855,8 @@ type FollowUserReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserId     int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	FollowerId int64 `protobuf:"varint,2,opt,name=follower_id,json=followerId,proto3" json:"follower_id,omitempty"`
+	UserId     int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id"`
+	FollowerId int64 `protobuf:"varint,2,opt,name=follower_id,json=followerId,proto3" json:"follower_id"`
 }
 
 func (x *FollowUserReq) Reset() {
@@ -948,8 +948,8 @@ type UnfollowUserReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserId     int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	FollowerId int64 `protobuf:"varint,2,opt,name=follower_id,json=followerId,proto3" json:"follower_id,omitempty"`
+	UserId     int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id"`
+	FollowerId int64 `protobuf:"varint,2,opt,name=follower_id,json=followerId,proto3" json:"follower_id"`
 }
 
 func (x *UnfollowUserReq) Reset() {
@@ -1041,7 +1041,7 @@ type GetUserFollowerCountReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id"`
 }
 
 func (x *GetUserFollowerCountReq) Reset() {
@@ -1088,7 +1088,7 @@ type GetUserFollowerCountResp struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	FollowerCount int64 `protobuf:"varint,1,opt,name=follower_count,json=followerCount,proto3" json:"follower_count,omitempty"`
+	FollowerCount int64 `protobuf:"varint,1,opt,name=follower_count,json=followerCount,proto3" json:"follower_count"`
 }
 
 func (x *GetUserFollowerCountResp) Reset() {
@@ -1135,7 +1135,7 @@ type GetUserFollowCountReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id"`
 }
 
 func (x *GetUserFollowCountReq) Reset() {
@@ -1182,7 +1182,7 @@ type GetUserFollowCountResp struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	FollowCount int64 `protobuf:"varint,1,opt,name=follow_count,json=followCount,proto3" json:"follow_count,omitempty"`
+	FollowCount int64 `protobuf:"varint,1,opt,name=follow_count,json=followCount,proto3" json:"follow_count"`
 }
 
 func (x *GetUserFollowCountResp) Reset() {
@@ -1229,7 +1229,7 @@ type GetUserFollowIdListReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id"`
 }
 
 func (x *GetUserFollowIdListReq) Reset() {
@@ -1276,7 +1276,7 @@ type GetUserFollowIdListResp struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserIdList []int64 `protobuf:"varint,1,rep,packed,name=user_id_list,json=userIdList,proto3" json:"user_id_list,omitempty"`
+	UserIdList []int64 `protobuf:"varint,1,rep,packed,name=user_id_list,json=userIdList,proto3" json:"user_id_list"`
 }
 
 func (x *GetUserFollowIdListResp) Reset() {
@@ -1323,7 +1323,7 @@ type GetUserFollowerIdListReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id"`
 }
 
 func (x *GetUserFollowerIdListReq) Reset() {
@@ -1370,7 +1370,7 @@ type GetUserFollowerIdListResp struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserIdList []int64 `protobuf:"varint,1,rep,packed,name=user_id_list,json=userIdList,proto3" json:"user_id_list,omitempty"`
+	UserIdList []int64 `protobuf:"varint,1,rep,packed,name=user_id_list,json=userIdList,proto3" json:"user_id_list"`
 }
 
 func (x *GetUserFollowerIdListResp) Reset() {

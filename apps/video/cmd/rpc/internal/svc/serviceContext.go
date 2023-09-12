@@ -1,7 +1,7 @@
 package svc
 
 import (
-	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/olivere/elastic/v7"
 	"github.com/zeromicro/go-queue/rabbitmq"
 	"github.com/zeromicro/go-zero/core/syncx"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/config"
@@ -34,8 +34,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 }
 
-func NewElasticsearchClient() *elasticsearch.TypedClient {
-	client, err := elasticsearch.NewTypedClient(elasticsearch.Config{Addresses: []string{"http://127.0.0.1:9200"}})
+func NewElasticsearchClient() *elastic.Client {
+	client, err := elastic.NewClient(elastic.SetURL("http://127.0.0.1:9200"), elastic.SetSniff(false))
 	if err != nil {
 		panic(err)
 	}

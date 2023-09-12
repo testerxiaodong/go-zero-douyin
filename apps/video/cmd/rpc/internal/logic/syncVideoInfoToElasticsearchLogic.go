@@ -28,24 +28,15 @@ func NewSyncVideoInfoToElasticsearchLogic(ctx context.Context, svcCtx *svc.Servi
 
 func (l *SyncVideoInfoToElasticsearchLogic) SyncVideoInfoToElasticsearch(in *pb.SyncVideoInfoToElasticsearchReq) (*pb.SyncVideoInfoToElasticsearchResp, error) {
 	// todo: add your logic here and delete this line
-	// 查询数据库所有视频信息数据
-	videos, err := l.svcCtx.VideoDo.GetAllVideo(l.ctx)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "从数据库中获取所有视频信息失败, err: %v", err)
-	}
-
-	// 没有数据，直接返回
-	if len(videos) == 0 {
-		return &pb.SyncVideoInfoToElasticsearchResp{}, nil
+	// 参数校验
+	if in == nil {
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "同步视频信息到es的参数为空")
 	}
 
 	// 全量更新
-	for _, video := range videos {
-		idStr := cast.ToString(video.ID)
-		_, err := l.svcCtx.Elasticsearch.CreateDocument(l.ctx, "video", idStr, video)
-		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_INSERT_ERR), "创建es文档失败, err: %v, video: %v", err, video)
-		}
+	_, err := l.svcCtx.Elasticsearch.CreateDocument(l.ctx, "video", cast.ToString(in.GetVideoInfo().GetId()), in.GetVideoInfo())
+	if err != nil {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_INSERT_ERR), "创建es文档失败, err: %v, video: %v", err, in.GetVideoInfo())
 	}
 	return &pb.SyncVideoInfoToElasticsearchResp{}, nil
 }

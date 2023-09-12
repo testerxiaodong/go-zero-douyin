@@ -53,13 +53,15 @@ func (l *PublishVideoLogic) PublishVideo(in *pb.PublishVideoReq) (*pb.PublishVid
 	// 返回信息
 	return &pb.PublishVideoResp{
 		Video: &pb.VideoInfo{
-			Id:        video.ID,
-			Title:     video.Title,
-			SectionId: video.SectionID,
-			Tags:      strings.Split(video.TagIds, ","),
-			OwnerId:   video.OwnerID,
-			PlayUrl:   video.PlayURL,
-			CoverUrl:  video.CoverURL,
+			Id:         video.ID,
+			Title:      video.Title,
+			SectionId:  video.SectionID,
+			Tags:       strings.Split(video.TagIds, ","),
+			OwnerId:    video.OwnerID,
+			PlayUrl:    video.PlayURL,
+			CoverUrl:   video.CoverURL,
+			CreateTime: video.CreateTime,
+			UpdateTime: video.UpdateTime,
 		},
 	}, nil
 }

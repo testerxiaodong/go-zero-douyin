@@ -176,6 +176,26 @@ func (mr *MockVideoMockRecorder) GetAllTag(ctx, in interface{}, opts ...interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllTag", reflect.TypeOf((*MockVideo)(nil).GetAllTag), varargs...)
 }
 
+// GetAllVideo mocks base method.
+func (m *MockVideo) GetAllVideo(ctx context.Context, in *video.GetAllVideoReq, opts ...grpc.CallOption) (*video.GetAllVideoResp, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetAllVideo", varargs...)
+	ret0, _ := ret[0].(*video.GetAllVideoResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllVideo indicates an expected call of GetAllVideo.
+func (mr *MockVideoMockRecorder) GetAllVideo(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllVideo", reflect.TypeOf((*MockVideo)(nil).GetAllVideo), varargs...)
+}
+
 // GetSectionById mocks base method.
 func (m *MockVideo) GetSectionById(ctx context.Context, in *video.GetSectionByIdReq, opts ...grpc.CallOption) (*video.GetSectionByIdResp, error) {
 	m.ctrl.T.Helper()
@@ -236,6 +256,26 @@ func (mr *MockVideoMockRecorder) GetVideoById(ctx, in interface{}, opts ...inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVideoById", reflect.TypeOf((*MockVideo)(nil).GetVideoById), varargs...)
 }
 
+// GetVideoByKeyword mocks base method.
+func (m *MockVideo) GetVideoByKeyword(ctx context.Context, in *video.GetVideoByKeywordReq, opts ...grpc.CallOption) (*video.GetVideoByKeywordResp, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetVideoByKeyword", varargs...)
+	ret0, _ := ret[0].(*video.GetVideoByKeywordResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetVideoByKeyword indicates an expected call of GetVideoByKeyword.
+func (mr *MockVideoMockRecorder) GetVideoByKeyword(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVideoByKeyword", reflect.TypeOf((*MockVideo)(nil).GetVideoByKeyword), varargs...)
+}
+
 // PublishVideo mocks base method.
 func (m *MockVideo) PublishVideo(ctx context.Context, in *video.PublishVideoReq, opts ...grpc.CallOption) (*video.PublishVideoResp, error) {
 	m.ctrl.T.Helper()
@@ -254,6 +294,26 @@ func (mr *MockVideoMockRecorder) PublishVideo(ctx, in interface{}, opts ...inter
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, in}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PublishVideo", reflect.TypeOf((*MockVideo)(nil).PublishVideo), varargs...)
+}
+
+// SyncVideoInfoToElasticsearch mocks base method.
+func (m *MockVideo) SyncVideoInfoToElasticsearch(ctx context.Context, in *video.SyncVideoInfoToElasticsearchReq, opts ...grpc.CallOption) (*video.SyncVideoInfoToElasticsearchResp, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "SyncVideoInfoToElasticsearch", varargs...)
+	ret0, _ := ret[0].(*video.SyncVideoInfoToElasticsearchResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SyncVideoInfoToElasticsearch indicates an expected call of SyncVideoInfoToElasticsearch.
+func (mr *MockVideoMockRecorder) SyncVideoInfoToElasticsearch(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncVideoInfoToElasticsearch", reflect.TypeOf((*MockVideo)(nil).SyncVideoInfoToElasticsearch), varargs...)
 }
 
 // UserVideoList mocks base method.

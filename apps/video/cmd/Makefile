@@ -3,6 +3,7 @@ api:
 
 rpc:
 	goctl rpc protoc ./rpc/pb/video.proto --go_out=./rpc --go-grpc_out=./rpc --zrpc_out=./rpc --style=goZero --home=../../../deploy/goctl
+	sed -i "" 's/,omitempty//g' ./rpc/pb/*.pb.go
 
 gen:
 	go run ../gen/generate.go

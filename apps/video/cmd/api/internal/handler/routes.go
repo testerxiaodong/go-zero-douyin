@@ -33,6 +33,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/list",
 				Handler: video.ListHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/search",
+				Handler: video.SearchHandler(serverCtx),
+			},
 		},
 		rest.WithPrefix("/video/v1"),
 	)
@@ -68,6 +73,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/delete",
 				Handler: video.DeleteVideoHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/sync_all",
+				Handler: video.SyncAllVideoToElasticsearchHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.JwtAuth.AccessSecret),

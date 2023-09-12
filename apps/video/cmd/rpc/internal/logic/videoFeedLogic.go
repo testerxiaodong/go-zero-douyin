@@ -58,6 +58,8 @@ func (l *VideoFeedLogic) VideoFeed(in *pb.VideoFeedReq) (*pb.VideoFeedResp, erro
 		singleVideoResp.OwnerId = video.OwnerID
 		singleVideoResp.PlayUrl = video.PlayURL
 		singleVideoResp.CoverUrl = video.CoverURL
+		singleVideoResp.CreateTime = video.CreateTime
+		singleVideoResp.UpdateTime = video.UpdateTime
 		videosResp.Videos = append(videosResp.Videos, singleVideoResp)
 	}
 	return videosResp, nil

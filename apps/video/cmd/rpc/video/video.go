@@ -27,6 +27,8 @@ type (
 	GetAllSectionResp                = pb.GetAllSectionResp
 	GetAllTagReq                     = pb.GetAllTagReq
 	GetAllTagResp                    = pb.GetAllTagResp
+	GetAllVideoReq                   = pb.GetAllVideoReq
+	GetAllVideoResp                  = pb.GetAllVideoResp
 	GetSectionByIdReq                = pb.GetSectionByIdReq
 	GetSectionByIdResp               = pb.GetSectionByIdResp
 	GetTagByIdReq                    = pb.GetTagByIdReq
@@ -43,6 +45,7 @@ type (
 	TagInfo                          = pb.TagInfo
 	UserVideoListReq                 = pb.UserVideoListReq
 	UserVideoListResp                = pb.UserVideoListResp
+	VideoDetailInfo                  = pb.VideoDetailInfo
 	VideoFeedReq                     = pb.VideoFeedReq
 	VideoFeedResp                    = pb.VideoFeedResp
 	VideoInfo                        = pb.VideoInfo
@@ -52,6 +55,7 @@ type (
 		PublishVideo(ctx context.Context, in *PublishVideoReq, opts ...grpc.CallOption) (*PublishVideoResp, error)
 		VideoFeed(ctx context.Context, in *VideoFeedReq, opts ...grpc.CallOption) (*VideoFeedResp, error)
 		UserVideoList(ctx context.Context, in *UserVideoListReq, opts ...grpc.CallOption) (*UserVideoListResp, error)
+		GetAllVideo(ctx context.Context, in *GetAllVideoReq, opts ...grpc.CallOption) (*GetAllVideoResp, error)
 		DeleteVideo(ctx context.Context, in *DeleteVideoReq, opts ...grpc.CallOption) (*DeleteVideoResp, error)
 		GetVideoById(ctx context.Context, in *GetVideoByIdReq, opts ...grpc.CallOption) (*GetVideoByIdResp, error)
 		SyncVideoInfoToElasticsearch(ctx context.Context, in *SyncVideoInfoToElasticsearchReq, opts ...grpc.CallOption) (*SyncVideoInfoToElasticsearchResp, error)
@@ -93,6 +97,11 @@ func (m *defaultVideo) VideoFeed(ctx context.Context, in *VideoFeedReq, opts ...
 func (m *defaultVideo) UserVideoList(ctx context.Context, in *UserVideoListReq, opts ...grpc.CallOption) (*UserVideoListResp, error) {
 	client := pb.NewVideoClient(m.cli.Conn())
 	return client.UserVideoList(ctx, in, opts...)
+}
+
+func (m *defaultVideo) GetAllVideo(ctx context.Context, in *GetAllVideoReq, opts ...grpc.CallOption) (*GetAllVideoResp, error) {
+	client := pb.NewVideoClient(m.cli.Conn())
+	return client.GetAllVideo(ctx, in, opts...)
 }
 
 func (m *defaultVideo) DeleteVideo(ctx context.Context, in *DeleteVideoReq, opts ...grpc.CallOption) (*DeleteVideoResp, error) {

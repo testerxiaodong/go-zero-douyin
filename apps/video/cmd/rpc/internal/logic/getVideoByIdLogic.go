@@ -57,5 +57,7 @@ func (l *GetVideoByIdLogic) GetVideoById(in *pb.GetVideoByIdReq) (*pb.GetVideoBy
 	resp.Video.OwnerId = video.OwnerID
 	resp.Video.PlayUrl = video.PlayURL
 	resp.Video.CoverUrl = video.CoverURL
+	resp.Video.CreateTime = video.CreateTime
+	resp.Video.UpdateTime = video.UpdateTime
 	return resp, nil
 }

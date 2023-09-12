@@ -19,6 +19,8 @@ type VideoInfo {
     CoverUrl string `json:"cover_url"`
     CommentCount int64 `json:"comment_count"`
     LikeCount int64 `json:"like_count"`
+    CreateTime int64 `json:"create_time"`
+    UpdateTime int64 `json:"update_time"`
 }
 
 type (
@@ -35,6 +37,8 @@ type (
         OwnerId int64 `json:"owner_id"`
         PlayUrl string `json:"play_url"`
         CoverUrl string `json:"cover_url"`
+        CreateTime int64 `json:"create_time"`
+        UpdateTime int64 `json:"update_time"`
     }
 )
 
@@ -61,6 +65,15 @@ type (
 type (
     DeleteVideoReq {
         VideoId int64 `json:"video_id"`
+    }
+)
+
+type (
+    SearchVideoReq {
+        Keyword string `json:"keyword" validate:"required"`
+    }
+    SearchVideoResp {
+        Videos []*VideoInfo `json:"videos"`
     }
 )
 
