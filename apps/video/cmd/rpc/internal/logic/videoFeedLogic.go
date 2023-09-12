@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/pkg/errors"
 	"go-zero-douyin/common/xerr"
+	"strings"
 
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
@@ -37,7 +38,7 @@ func (l *VideoFeedLogic) VideoFeed(in *pb.VideoFeedReq) (*pb.VideoFeedResp, erro
 
 	// 获取数据库数据
 	lastTimeStamp := in.GetLastTimeStamp().GetSeconds()
-	videos, err := l.svcCtx.VideoDo.GetVideoListByTimeStamp(l.ctx, lastTimeStamp)
+	videos, err := l.svcCtx.VideoDo.GetVideoListByTimeStampAndSectionId(l.ctx, lastTimeStamp, in.GetSectionId())
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "Get video feed by last timestmap failed, err: %v", err)
 	}
@@ -48,9 +49,12 @@ func (l *VideoFeedLogic) VideoFeed(in *pb.VideoFeedReq) (*pb.VideoFeedResp, erro
 	}
 	videosResp := &pb.VideoFeedResp{Videos: make([]*pb.VideoInfo, 0)}
 	for _, video := range videos {
+		tags := strings.Split(video.TagIds, ",")
 		singleVideoResp := &pb.VideoInfo{}
 		singleVideoResp.Id = video.ID
 		singleVideoResp.Title = video.Title
+		singleVideoResp.SectionId = video.SectionID
+		singleVideoResp.Tags = tags
 		singleVideoResp.OwnerId = video.OwnerID
 		singleVideoResp.PlayUrl = video.PlayURL
 		singleVideoResp.CoverUrl = video.CoverURL

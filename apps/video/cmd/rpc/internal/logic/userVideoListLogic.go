@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/pkg/errors"
 	"go-zero-douyin/common/xerr"
+	"strings"
 
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
@@ -49,9 +50,12 @@ func (l *UserVideoListLogic) UserVideoList(in *pb.UserVideoListReq) (*pb.UserVid
 	// 拼接数据
 	resp := &pb.UserVideoListResp{Videos: make([]*pb.VideoInfo, 0)}
 	for _, video := range videos {
+		tags := strings.Split(video.TagIds, ",")
 		single := &pb.VideoInfo{}
 		single.Id = video.ID
 		single.OwnerId = video.OwnerID
+		single.SectionId = video.SectionID
+		single.Tags = tags
 		single.Title = video.Title
 		single.PlayUrl = video.PlayURL
 		single.CoverUrl = video.CoverURL

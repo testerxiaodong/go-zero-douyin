@@ -9,6 +9,8 @@ gen:
 
 mock:
 	mockgen -source=./rpc/internal/dao/videoRepository.go -destination=./rpc/mock/videoDo_mock.go -package=mock
+	mockgen -source=./rpc/internal/dao/sectionRepository.go -destination=./rpc/mock/sectionDo_mock.go -package=mock
+	mockgen -source=./rpc/internal/dao/tagRepository.go -destination=./rpc/mock/tagDo_mock.go -package=mock
 	mockgen -source=./rpc/video/video.go -destination=./rpc/mock/video_rpc_mock.go -package=mock
 
 dockerfile-api:

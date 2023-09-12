@@ -44,6 +44,7 @@ func (l *ListLogic) List(req *types.UserVideoListReq) (resp *types.UserVideoList
 	// 调用socialRpc
 	if len(videoList.Videos) > 0 {
 		resp = &types.UserVideoListResp{Videos: make([]*types.VideoInfo, 0)}
+		resp.Total = int64(len(videoList.Videos))
 		err = copier.Copy(resp, videoList)
 		if err != nil {
 			return nil, errors.Wrapf(err, "copier feed resp failed: %v", videoList)

@@ -75,7 +75,11 @@ func (l *GetCommentCountByVideoIdLogic) GetCommentCountByVideoId(in *pb.GetComme
 	}
 
 	// 异步构建缓存
-	go l.BuildVideoCommentCountCache(in.VideoId, countInt64)
+	buildCache := func() {
+		l.BuildVideoCommentCountCache(in.GetVideoId(), countInt64)
+	}
+	tsg := utils.NewTestGo()
+	tsg.RunSafe(buildCache)
 
 	return &pb.GetCommentCountByVideoIdResp{Count: countInt64}, nil
 }

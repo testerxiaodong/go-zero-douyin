@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	const MysqlConfig = "root:my-secret-pw@tcp(47.99.140.12:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local"
+	const MysqlConfig = "root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local"
 
 	// 连接数据库
 	db, err := gorm.Open(mysql.Open(MysqlConfig))
@@ -79,12 +79,16 @@ func main() {
 	// 设置目标 db
 	g.UseDB(db)
 
-	// 创建模型的结构体
+	// 视频信息
 	Video := g.GenerateModelAs("video", "Video")
+	// 视频分区
+	Section := g.GenerateModelAs("section", "Section")
+	// 视频标签
+	Tag := g.GenerateModelAs("tag", "Tag")
 
 	// Generate Type Safe API with Dynamic SQL defined on Queries interface for `model.User` and `model.Company`
 	// g.ApplyInterface(func() {}, User, Major, ThirdData, UserAcc)
-	g.ApplyBasic(Video)
+	g.ApplyBasic(Video, Section, Tag)
 
 	g.Execute()
 

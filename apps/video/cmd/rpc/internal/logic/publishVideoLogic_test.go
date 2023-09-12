@@ -9,6 +9,7 @@ import (
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/mock"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
+	"strings"
 	"testing"
 )
 
@@ -42,11 +43,11 @@ func TestPublishVideoLogic_PublishVideo(t *testing.T) {
 		},
 		{
 			name: "publish_video_with_insert_database_error",
-			req:  &pb.PublishVideoReq{Title: expectVideo.Title, OwnerId: expectVideo.OwnerID, PlayUrl: expectVideo.PlayURL, CoverUrl: expectVideo.CoverURL},
+			req:  &pb.PublishVideoReq{Title: expectVideo.Title, OwnerId: expectVideo.OwnerID, SectionId: expectVideo.SectionID, Tags: strings.Split(expectVideo.TagIds, ","), PlayUrl: expectVideo.PlayURL, CoverUrl: expectVideo.CoverURL},
 		},
 		{
 			name: "publish_video_with_insert_database_error",
-			req:  &pb.PublishVideoReq{Title: expectVideo.Title, OwnerId: expectVideo.OwnerID, PlayUrl: expectVideo.PlayURL, CoverUrl: expectVideo.CoverURL},
+			req:  &pb.PublishVideoReq{Title: expectVideo.Title, OwnerId: expectVideo.OwnerID, SectionId: expectVideo.SectionID, Tags: strings.Split(expectVideo.TagIds, ","), PlayUrl: expectVideo.PlayURL, CoverUrl: expectVideo.CoverURL},
 		},
 	}
 
@@ -57,6 +58,8 @@ func TestPublishVideoLogic_PublishVideo(t *testing.T) {
 				assert.NotEmpty(t, resp)
 				assert.Equal(t, resp.GetVideo().GetTitle(), expectVideo.Title)
 				assert.Equal(t, resp.GetVideo().GetOwnerId(), expectVideo.OwnerID)
+				assert.Equal(t, resp.GetVideo().GetSectionId(), expectVideo.SectionID)
+				assert.Equal(t, resp.GetVideo().GetTags(), strings.Split(expectVideo.TagIds, ","))
 				assert.Equal(t, resp.GetVideo().GetPlayUrl(), expectVideo.PlayURL)
 				assert.Equal(t, resp.GetVideo().GetCoverUrl(), expectVideo.CoverURL)
 			} else {

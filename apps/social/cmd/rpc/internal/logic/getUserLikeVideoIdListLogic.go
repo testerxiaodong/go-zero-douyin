@@ -86,7 +86,11 @@ func (l *GetUserLikeVideoIdListLogic) GetUserLikeVideoIdList(in *pb.GetUserLikeV
 
 	// 异步构建缓存
 	if len(idInt64List) > 0 {
-		go l.BuildUserLikeVideoCache(in.GetUserId())
+		buildCache := func() {
+			l.BuildUserLikeVideoCache(in.GetUserId())
+		}
+		tsg := utils.NewTestGo()
+		tsg.RunSafe(buildCache)
 	}
 
 	return &pb.GetUserLikeVideoIdListResp{VideoIdList: idInt64List}, nil

@@ -17,6 +17,23 @@ Prometheus:
 #链路追踪
 Telemetry:
   Name: video-rpc
-  Endpoint:  http://jaeger:14268/api/traces
+  Endpoint:  http://127.0.0.1:14268/api/traces
   Sampler: 1.0
   Batcher: jaeger
+
+# rabbitmq
+RabbitSenderConf:
+  Username: guest
+  Password: guest
+  Host: 127.0.0.1
+  Port: 5672
+  ContentType: text/plain
+
+# redis
+RedisCache:
+  Host: 127.0.0.1:6379
+  Type: node
+
+#ElasticsearchConf:
+#  Addresses:
+#    - http://127.0.0.1:9200

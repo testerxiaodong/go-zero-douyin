@@ -15,8 +15,8 @@ services:
       - "14268:14268"
       - "9411:9411"
     environment:
-      - SPAN_STORAGE_TYPE=elasticsearch
-      - ES_SERVER_URLS=http://elasticsearch:9200
+      - SPAN_STORAGE_TYPE=elasticService
+      - ES_SERVER_URLS=http://elasticService:9200
       - LOG_LEVEL=debug
     networks:
       - douyin_net
@@ -60,15 +60,15 @@ services:
 
   #搜集kafka业务日志、存储prometheus监控数据 - Kafka for collecting business logs and storing Prometheus monitoring data
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.13
-    container_name: elasticsearch
+    image: docker.elastic.co/elasticService/elasticService:7.17.13
+    container_name: elasticService
     user: root
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - TZ=Asia/Shanghai
     volumes:
-      - ./data/elasticsearch/data:/usr/share/elasticsearch/data
+      - ./data/elasticService/data:/usr/share/elasticService/data
     restart: always
     ports:
       - "9200:9200"
@@ -81,7 +81,7 @@ services:
     image: docker.elastic.co/kibana/kibana:7.17.13
     container_name: kibana
     environment:
-      - elasticsearch.hosts=http://elasticsearch:9200
+      - elasticService.hosts=http://elasticService:9200
       - TZ=Asia/Shanghai
     restart: always
     networks:
@@ -130,6 +130,8 @@ services:
     container_name: zookeeper
     environment:
       TZ: Asia/Shanghai
+    volumes:
+      - ./data/zookeeper/data:/data
     restart: always
     ports:
       - "2181:2181"
@@ -137,7 +139,7 @@ services:
       - douyin_net
 
   kafka:
-    image: bitnami/kafka:latest
+    image: wurstmeister/kafka:latest
     container_name: kafka
     ports:
       - "9092:9092"
@@ -148,6 +150,7 @@ services:
       - TZ=Asia/Shanghai
     restart: always
     volumes:
+      - ./data/kafka/data:/data/kafka-data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - douyin_net
@@ -205,6 +208,8 @@ services:
       - "15672:15672"
     environment:
       TZ: Asia/Shanghai
+    volumes:
+      - ./data/rabbitmq/data/:/var/lib/rabbitmq
     privileged: true
     restart: always
     networks:

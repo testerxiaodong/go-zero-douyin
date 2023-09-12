@@ -41,16 +41,34 @@ func TestPublishLogic_Publish(t *testing.T) {
 	validateResult := utils.NewRandomString(10)
 	mockValidator.EXPECT().Validate(gomock.Any()).Return(validateResult)
 
-	// 参数校验成功，但OssClient.UploadFile调用失败mock
+	// 参数校验成功，但分区不存在
+	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
+	sectionNotExistError := errors.New("分区不存在")
+	mockVideoRpc.EXPECT().GetSectionById(gomock.Any(), gomock.Any()).Return(nil, sectionNotExistError)
+	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
+	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
 
-	// 为publishLogic对象赋值文件指针
+	// 参数校验成功，但标签不存在
+	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
+	tagNotExistError := errors.New("标签不存在")
+	mockVideoRpc.EXPECT().GetSectionById(gomock.Any(), gomock.Any()).Return(&pb.GetSectionByIdResp{}, nil)
+	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, tagNotExistError)
+	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
+
+	// 参数校验成功，但OssClient.UploadFile调用失败mock
 	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
 	ossUploadFileError := xerr.NewErrMsg("系统错误：文件上传失败")
+	mockVideoRpc.EXPECT().GetSectionById(gomock.Any(), gomock.Any()).Return(&pb.GetSectionByIdResp{}, nil)
+	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
+	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
 	mockOssClient.EXPECT().UploadFile(gomock.Any(), gomock.Any(), gomock.Any()).Return("", ossUploadFileError)
 	mockOssClient.EXPECT().UploadFile(gomock.Any(), gomock.Any(), gomock.Any()).Return("test", nil)
 
 	// 参数校验成功，且OssClient.UploadFile调用成功,但VideoRpc.PublishVideo调用失败mock
 	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
+	mockVideoRpc.EXPECT().GetSectionById(gomock.Any(), gomock.Any()).Return(&pb.GetSectionByIdResp{}, nil)
+	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
+	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
 	mockOssClient.EXPECT().UploadFile(gomock.Any(), gomock.Any(), gomock.Any()).Return("test", nil)
 	mockOssClient.EXPECT().UploadFile(gomock.Any(), gomock.Any(), gomock.Any()).Return("test", nil)
 	mockOssClient.EXPECT().GetOssFileFullAccessPath(gomock.Any()).Return("test")
@@ -62,6 +80,9 @@ func TestPublishLogic_Publish(t *testing.T) {
 	// 参数校验成功，且OssClient.UploadFile调用成功，且VideoRpc.PublishVideo调用成功mock
 
 	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
+	mockVideoRpc.EXPECT().GetSectionById(gomock.Any(), gomock.Any()).Return(&pb.GetSectionByIdResp{}, nil)
+	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
+	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
 	mockOssClient.EXPECT().UploadFile(gomock.Any(), gomock.Any(), gomock.Any()).Return("test", nil)
 	mockOssClient.EXPECT().UploadFile(gomock.Any(), gomock.Any(), gomock.Any()).Return("test", nil)
 	mockOssClient.EXPECT().GetOssFileFullAccessPath(gomock.Any()).Return("test")
@@ -77,6 +98,11 @@ func TestPublishLogic_Publish(t *testing.T) {
 	mockVideoRpc.EXPECT().PublishVideo(gomock.Any(), gomock.Any()).Return(expectedPublishVideoResp, nil)
 
 	// 表格驱动测试
+	param := &types.PublishVideoReq{
+		Title:     utils.NewRandomString(10),
+		SectionId: utils.NewRandomInt64(1, 10),
+		Tags:      "1,2",
+	}
 	testCases := []struct {
 		name string
 		req  *types.PublishVideoReq
@@ -84,22 +110,32 @@ func TestPublishLogic_Publish(t *testing.T) {
 	}{
 		{
 			name: "publish_video_with_validate_error",
-			req:  &types.PublishVideoReq{Title: "test"},
+			req:  param,
 			err:  xerr.NewErrMsg(validateResult),
 		},
 		{
+			name: "publish_video_with_section_not_exist",
+			req:  param,
+			err:  sectionNotExistError,
+		},
+		{
+			name: "publish_video_with_tag_not_exist",
+			req:  param,
+			err:  tagNotExistError,
+		},
+		{
 			name: "publish_video_with_upload_file_error",
-			req:  &types.PublishVideoReq{Title: "test"},
+			req:  param,
 			err:  ossUploadFileError,
 		},
 		{
 			name: "publish_video_with_video_rpc_error",
-			req:  &types.PublishVideoReq{Title: "test"},
-			err:  errors.Wrapf(videoRpcError, "req: %v", &types.PublishVideoReq{Title: "test"}),
+			req:  param,
+			err:  errors.Wrapf(videoRpcError, "req: %v", param),
 		},
 		{
 			name: "publish_video_success",
-			req:  &types.PublishVideoReq{Title: "test"},
+			req:  param,
 			err:  nil,
 		},
 	}

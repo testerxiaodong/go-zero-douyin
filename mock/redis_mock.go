@@ -172,31 +172,31 @@ func (mr *MockRedisCacheMockRecorder) Smembers(ctx, key interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Smembers", reflect.TypeOf((*MockRedisCache)(nil).Smembers), ctx, key)
 }
 
-// MockRedisLock is a mock of RedisLock interface.
-type MockRedisLock struct {
+// MockRedisLocker is a mock of RedisLocker interface.
+type MockRedisLocker struct {
 	ctrl     *gomock.Controller
-	recorder *MockRedisLockMockRecorder
+	recorder *MockRedisLockerMockRecorder
 }
 
-// MockRedisLockMockRecorder is the mock recorder for MockRedisLock.
-type MockRedisLockMockRecorder struct {
-	mock *MockRedisLock
+// MockRedisLockerMockRecorder is the mock recorder for MockRedisLocker.
+type MockRedisLockerMockRecorder struct {
+	mock *MockRedisLocker
 }
 
-// NewMockRedisLock creates a new mock instance.
-func NewMockRedisLock(ctrl *gomock.Controller) *MockRedisLock {
-	mock := &MockRedisLock{ctrl: ctrl}
-	mock.recorder = &MockRedisLockMockRecorder{mock}
+// NewMockRedisLocker creates a new mock instance.
+func NewMockRedisLocker(ctrl *gomock.Controller) *MockRedisLocker {
+	mock := &MockRedisLocker{ctrl: ctrl}
+	mock.recorder = &MockRedisLockerMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockRedisLock) EXPECT() *MockRedisLockMockRecorder {
+func (m *MockRedisLocker) EXPECT() *MockRedisLockerMockRecorder {
 	return m.recorder
 }
 
 // Acquire mocks base method.
-func (m *MockRedisLock) Acquire() (bool, error) {
+func (m *MockRedisLocker) Acquire() (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Acquire")
 	ret0, _ := ret[0].(bool)
@@ -205,13 +205,28 @@ func (m *MockRedisLock) Acquire() (bool, error) {
 }
 
 // Acquire indicates an expected call of Acquire.
-func (mr *MockRedisLockMockRecorder) Acquire() *gomock.Call {
+func (mr *MockRedisLockerMockRecorder) Acquire() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Acquire", reflect.TypeOf((*MockRedisLock)(nil).Acquire))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Acquire", reflect.TypeOf((*MockRedisLocker)(nil).Acquire))
+}
+
+// AcquireCtx mocks base method.
+func (m *MockRedisLocker) AcquireCtx(ctx context.Context) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AcquireCtx", ctx)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AcquireCtx indicates an expected call of AcquireCtx.
+func (mr *MockRedisLockerMockRecorder) AcquireCtx(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AcquireCtx", reflect.TypeOf((*MockRedisLocker)(nil).AcquireCtx), ctx)
 }
 
 // Release mocks base method.
-func (m *MockRedisLock) Release() (bool, error) {
+func (m *MockRedisLocker) Release() (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Release")
 	ret0, _ := ret[0].(bool)
@@ -220,19 +235,34 @@ func (m *MockRedisLock) Release() (bool, error) {
 }
 
 // Release indicates an expected call of Release.
-func (mr *MockRedisLockMockRecorder) Release() *gomock.Call {
+func (mr *MockRedisLockerMockRecorder) Release() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Release", reflect.TypeOf((*MockRedisLock)(nil).Release))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Release", reflect.TypeOf((*MockRedisLocker)(nil).Release))
+}
+
+// ReleaseCtx mocks base method.
+func (m *MockRedisLocker) ReleaseCtx(ctx context.Context) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReleaseCtx", ctx)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReleaseCtx indicates an expected call of ReleaseCtx.
+func (mr *MockRedisLockerMockRecorder) ReleaseCtx(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReleaseCtx", reflect.TypeOf((*MockRedisLocker)(nil).ReleaseCtx), ctx)
 }
 
 // SetExpire mocks base method.
-func (m *MockRedisLock) SetExpire(seconds int) {
+func (m *MockRedisLocker) SetExpire(seconds int) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetExpire", seconds)
 }
 
 // SetExpire indicates an expected call of SetExpire.
-func (mr *MockRedisLockMockRecorder) SetExpire(seconds interface{}) *gomock.Call {
+func (mr *MockRedisLockerMockRecorder) SetExpire(seconds interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetExpire", reflect.TypeOf((*MockRedisLock)(nil).SetExpire), seconds)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetExpire", reflect.TypeOf((*MockRedisLocker)(nil).SetExpire), seconds)
 }

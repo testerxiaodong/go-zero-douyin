@@ -2,29 +2,36 @@
 package types
 
 type VideoInfo struct {
-	Id           int64  `json:"id"`
-	OwnerId      int64  `json:"owner_id"`
-	Title        string `json:"title"`
-	PlayUrl      string `json:"play_url"`
-	CoverUrl     string `json:"cover_url"`
-	CommentCount int64  `json:"comment_count"`
-	LikeCount    int64  `json:"like_count"`
+	Id           int64    `json:"id"`
+	OwnerId      int64    `json:"owner_id"`
+	SectionId    int64    `json:"section_id"`
+	Tags         []string `json:"tags"`
+	Title        string   `json:"title"`
+	PlayUrl      string   `json:"play_url"`
+	CoverUrl     string   `json:"cover_url"`
+	CommentCount int64    `json:"comment_count"`
+	LikeCount    int64    `json:"like_count"`
 }
 
 type PublishVideoReq struct {
-	Title string `form:"title" validate:"required"`
+	Title     string `form:"title" validate:"required"`
+	SectionId int64  `form:"section_id" validate:"required"`
+	Tags      string `form:"tags" validate:"required"`
 }
 
 type PublishVideoResp struct {
-	Id       int64  `json:"id"`
-	Title    string `json:"title"`
-	OwnerId  int64  `json:"owner_id"`
-	PlayUrl  string `json:"play_url"`
-	CoverUrl string `json:"cover_url"`
+	Id        int64    `json:"id"`
+	Title     string   `json:"title"`
+	SectionId int64    `json:"section_id"`
+	Tags      []string `json:"tags"`
+	OwnerId   int64    `json:"owner_id"`
+	PlayUrl   string   `json:"play_url"`
+	CoverUrl  string   `json:"cover_url"`
 }
 
 type VideoFeedReq struct {
 	LastTimeStamp int64 `json:"last_time_stamp" validate:"required"`
+	SectionId     int64 `json:"section_id" validate:"required"`
 }
 
 type VideoFeedResp struct {
@@ -42,4 +49,38 @@ type UserVideoListResp struct {
 
 type DeleteVideoReq struct {
 	VideoId int64 `json:"video_id"`
+}
+
+type SectionInfo struct {
+	Id   int64  `json:"id"`
+	Name string `json:"name"`
+}
+
+type AddSectionReq struct {
+	Name string `json:"name"`
+}
+
+type DelSectionReq struct {
+	Id int64 `json:"id"`
+}
+
+type GetAllSectionResp struct {
+	Sections []*SectionInfo `json:"sections"`
+}
+
+type TagInfo struct {
+	Id   int64  `json:"id"`
+	Name string `json:"name"`
+}
+
+type AddTagReq struct {
+	Name string `json:"name"`
+}
+
+type DelTagReq struct {
+	Id int64 `json:"id"`
+}
+
+type GetAllTagResp struct {
+	Tags []*TagInfo `json:"tags"`
 }

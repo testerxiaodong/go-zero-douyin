@@ -85,7 +85,11 @@ func (l *GetUserFollowerIdListLogic) GetUserFollowerIdList(in *pb.GetUserFollowe
 
 	// 异步构建缓存
 	if len(idInt64List) > 0 {
-		go l.BuildUserFollowerIdListCache(in.GetUserId())
+		buildCache := func() {
+			l.BuildUserFollowerIdListCache(in.GetUserId())
+		}
+		tsg := utils.NewTestGo()
+		tsg.RunSafe(buildCache)
 	}
 
 	return &pb.GetUserFollowerIdListResp{UserIdList: idInt64List}, nil

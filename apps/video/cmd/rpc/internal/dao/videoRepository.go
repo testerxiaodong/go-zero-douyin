@@ -13,7 +13,8 @@ import (
 type VideoDo interface {
 	GetVideoById(ctx context.Context, videoId int64) (*model.Video, error)
 	GetVideoListByUserId(ctx context.Context, userId int64) ([]*model.Video, error)
-	GetVideoListByTimeStamp(ctx context.Context, timestamp int64) ([]*model.Video, error)
+	GetAllVideo(ctx context.Context) ([]*model.Video, error)
+	GetVideoListByTimeStampAndSectionId(ctx context.Context, timestamp int64, sectionId int64) ([]*model.Video, error)
 	InsertVideo(ctx context.Context, video *model.Video) error
 	DeleteVideo(ctx context.Context, video *model.Video) (gen.ResultInfo, error)
 }
@@ -30,6 +31,10 @@ func (v *VideoRepository) GetVideoListByUserId(ctx context.Context, userId int64
 	return v.VideoQuery.WithContext(ctx).Where(v.VideoQuery.OwnerID.Eq(userId)).Find()
 }
 
+func (v *VideoRepository) GetAllVideo(ctx context.Context) ([]*model.Video, error) {
+	return v.VideoQuery.WithContext(ctx).Find()
+}
+
 func (v *VideoRepository) InsertVideo(ctx context.Context, video *model.Video) error {
 	return v.VideoQuery.WithContext(ctx).Create(video)
 }
@@ -38,19 +43,19 @@ func (v *VideoRepository) DeleteVideo(ctx context.Context, video *model.Video) (
 	return v.VideoQuery.WithContext(ctx).Delete(video)
 }
 
-func (v *VideoRepository) GetVideoListByTimeStamp(ctx context.Context, timestamp int64) ([]*model.Video, error) {
-	return v.VideoQuery.WithContext(ctx).Where(v.VideoQuery.CreateTime.Lt(timestamp)).Limit(xconst.VideoFeedCount).Order(v.VideoQuery.CreateTime.Desc()).Find()
+func (v *VideoRepository) GetVideoListByTimeStampAndSectionId(ctx context.Context, timestamp int64, sectionId int64) ([]*model.Video, error) {
+	return v.VideoQuery.WithContext(ctx).Where(v.VideoQuery.CreateTime.Lt(timestamp)).Where(v.VideoQuery.SectionID.Eq(sectionId)).Limit(xconst.VideoFeedCount).Order(v.VideoQuery.CreateTime.Desc()).Find()
 }
 
 func NewVideoRepository(dsn string) VideoDo {
-	q := initUserQuery(dsn)
+	q := initVideoQuery(dsn)
 	return &VideoRepository{
 		VideoQuery: q,
 	}
 }
 
 // 初始化数据库设置
-func initUserQuery(dsn string) *video {
+func initVideoQuery(dsn string) *video {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		// 跳过默认事务
 		SkipDefaultTransaction: false,

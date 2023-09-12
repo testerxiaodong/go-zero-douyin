@@ -16,34 +16,44 @@ import (
 )
 
 var (
-	Q     = new(Query)
-	Video *video
+	Q       = new(Query)
+	Section *section
+	Tag     *tag
+	Video   *video
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
+	Section = &Q.Section
+	Tag = &Q.Tag
 	Video = &Q.Video
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:    db,
-		Video: newVideo(db, opts...),
+		db:      db,
+		Section: newSection(db, opts...),
+		Tag:     newTag(db, opts...),
+		Video:   newVideo(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Video video
+	Section section
+	Tag     tag
+	Video   video
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:    db,
-		Video: q.Video.clone(db),
+		db:      db,
+		Section: q.Section.clone(db),
+		Tag:     q.Tag.clone(db),
+		Video:   q.Video.clone(db),
 	}
 }
 
@@ -57,18 +67,24 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:    db,
-		Video: q.Video.replaceDB(db),
+		db:      db,
+		Section: q.Section.replaceDB(db),
+		Tag:     q.Tag.replaceDB(db),
+		Video:   q.Video.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Video IVideoDo
+	Section ISectionDo
+	Tag     ITagDo
+	Video   IVideoDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Video: q.Video.WithContext(ctx),
+		Section: q.Section.WithContext(ctx),
+		Tag:     q.Tag.WithContext(ctx),
+		Video:   q.Video.WithContext(ctx),
 	}
 }
 

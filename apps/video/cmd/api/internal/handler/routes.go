@@ -15,6 +15,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodGet,
+				Path:    "/section/list",
+				Handler: video.GetAllSectionHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/tag/list",
+				Handler: video.GetAllTagHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/feed",
 				Handler: video.FeedHandler(serverCtx),
 			},
@@ -29,6 +39,26 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 
 	server.AddRoutes(
 		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/section/add",
+				Handler: video.AddSectionHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/section/del",
+				Handler: video.DelSectionHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/tag/add",
+				Handler: video.AddTagHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/tag/del",
+				Handler: video.DelTagHandler(serverCtx),
+			},
 			{
 				Method:  http.MethodPost,
 				Path:    "/publish",

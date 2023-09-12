@@ -22,8 +22,16 @@ const (
 	RedisUserFollowedByUserPrefix = "user_id:follower_id:"
 )
 
+// RedisKey
+const (
+	RedisVideoTag     = "video_tag"
+	RedisVideoSection = "video_section"
+)
+
 // RedisLockKeyPrefix
 const (
+	RedisBuildVideoSectionCacheLockKey         = "build_video_section"
+	RedisBuildVideoTagCacheLockKey             = "build_video_Tag"
 	RedisBuildVideoCommentCountCacheLockPrefix = "build_video_comment_count_key_"
 	RedisBuildUserLikeVideoCacheLockPrefix     = "build_user_like_video_id_list_key_"
 	RedisBuildVideoLikedByUserCacheLockPrefix  = "build_video_liked_by_user_key_"

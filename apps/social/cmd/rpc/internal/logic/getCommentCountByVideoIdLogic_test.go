@@ -10,6 +10,7 @@ import (
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/social/cmd/rpc/mock"
 	"go-zero-douyin/apps/social/cmd/rpc/pb"
+	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xerr"
 	globalMock "go-zero-douyin/mock"
 	"testing"
@@ -21,6 +22,9 @@ func TestGetCommentCountByVideoIdLogic_GetCommentCountByVideoId(t *testing.T) {
 	mockCommentDo := mock.NewMockCommentDo(ctl)
 
 	mockRedis := globalMock.NewMockRedisCache(ctl)
+
+	utils.IgnoreGo()
+	defer utils.RecoverGo()
 
 	serviceContext := &svc.ServiceContext{CommentDo: mockCommentDo, Redis: mockRedis, SingleFlight: syncx.NewSingleFlight()}
 

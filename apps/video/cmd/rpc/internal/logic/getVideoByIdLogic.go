@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"go-zero-douyin/common/xerr"
 	"gorm.io/gorm"
+	"strings"
 
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
@@ -51,6 +52,8 @@ func (l *GetVideoByIdLogic) GetVideoById(in *pb.GetVideoByIdReq) (*pb.GetVideoBy
 	resp := &pb.GetVideoByIdResp{Video: &pb.VideoInfo{}}
 	resp.Video.Id = video.ID
 	resp.Video.Title = video.Title
+	resp.Video.SectionId = video.SectionID
+	resp.Video.Tags = strings.Split(video.TagIds, ",")
 	resp.Video.OwnerId = video.OwnerID
 	resp.Video.PlayUrl = video.PlayURL
 	resp.Video.CoverUrl = video.CoverURL

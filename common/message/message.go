@@ -19,3 +19,9 @@ type UserFollowUserMessage struct {
 type UserFollowedByUserMessage struct {
 	UserId int64 `json:"user_id"`
 }
+
+type VideoSectionMessage struct {
+}
+
+type VideoTagMessage struct {
+}

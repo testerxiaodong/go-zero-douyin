@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/model"
 	"go-zero-douyin/common/xerr"
+	"strings"
 
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
@@ -35,10 +36,12 @@ func (l *PublishVideoLogic) PublishVideo(in *pb.PublishVideoReq) (*pb.PublishVid
 
 	// 插入数据
 	video := &model.Video{
-		Title:    in.GetTitle(),
-		OwnerID:  in.GetOwnerId(),
-		PlayURL:  in.GetPlayUrl(),
-		CoverURL: in.GetCoverUrl(),
+		Title:     in.GetTitle(),
+		OwnerID:   in.GetOwnerId(),
+		SectionID: in.GetSectionId(),
+		TagIds:    strings.Join(in.GetTags(), ","),
+		PlayURL:   in.GetPlayUrl(),
+		CoverURL:  in.GetCoverUrl(),
 	}
 	err := l.svcCtx.VideoDo.InsertVideo(l.ctx, video)
 
@@ -50,11 +53,13 @@ func (l *PublishVideoLogic) PublishVideo(in *pb.PublishVideoReq) (*pb.PublishVid
 	// 返回信息
 	return &pb.PublishVideoResp{
 		Video: &pb.VideoInfo{
-			Id:       video.ID,
-			Title:    video.Title,
-			OwnerId:  video.OwnerID,
-			PlayUrl:  video.PlayURL,
-			CoverUrl: video.CoverURL,
+			Id:        video.ID,
+			Title:     video.Title,
+			SectionId: video.SectionID,
+			Tags:      strings.Split(video.TagIds, ","),
+			OwnerId:   video.OwnerID,
+			PlayUrl:   video.PlayURL,
+			CoverUrl:  video.CoverURL,
 		},
 	}, nil
 }

@@ -13,17 +13,39 @@ import (
 )
 
 type (
-	DeleteVideoReq    = pb.DeleteVideoReq
-	DeleteVideoResp   = pb.DeleteVideoResp
-	GetVideoByIdReq   = pb.GetVideoByIdReq
-	GetVideoByIdResp  = pb.GetVideoByIdResp
-	PublishVideoReq   = pb.PublishVideoReq
-	PublishVideoResp  = pb.PublishVideoResp
-	UserVideoListReq  = pb.UserVideoListReq
-	UserVideoListResp = pb.UserVideoListResp
-	VideoFeedReq      = pb.VideoFeedReq
-	VideoFeedResp     = pb.VideoFeedResp
-	VideoInfo         = pb.VideoInfo
+	AddSectionReq                    = pb.AddSectionReq
+	AddSectionResp                   = pb.AddSectionResp
+	AddTagReq                        = pb.AddTagReq
+	AddTagResp                       = pb.AddTagResp
+	DelSectionReq                    = pb.DelSectionReq
+	DelSectionResp                   = pb.DelSectionResp
+	DelTagReq                        = pb.DelTagReq
+	DelTagResp                       = pb.DelTagResp
+	DeleteVideoReq                   = pb.DeleteVideoReq
+	DeleteVideoResp                  = pb.DeleteVideoResp
+	GetAllSectionReq                 = pb.GetAllSectionReq
+	GetAllSectionResp                = pb.GetAllSectionResp
+	GetAllTagReq                     = pb.GetAllTagReq
+	GetAllTagResp                    = pb.GetAllTagResp
+	GetSectionByIdReq                = pb.GetSectionByIdReq
+	GetSectionByIdResp               = pb.GetSectionByIdResp
+	GetTagByIdReq                    = pb.GetTagByIdReq
+	GetTagByIdResp                   = pb.GetTagByIdResp
+	GetVideoByIdReq                  = pb.GetVideoByIdReq
+	GetVideoByIdResp                 = pb.GetVideoByIdResp
+	GetVideoByKeywordReq             = pb.GetVideoByKeywordReq
+	GetVideoByKeywordResp            = pb.GetVideoByKeywordResp
+	PublishVideoReq                  = pb.PublishVideoReq
+	PublishVideoResp                 = pb.PublishVideoResp
+	SectionInfo                      = pb.SectionInfo
+	SyncVideoInfoToElasticsearchReq  = pb.SyncVideoInfoToElasticsearchReq
+	SyncVideoInfoToElasticsearchResp = pb.SyncVideoInfoToElasticsearchResp
+	TagInfo                          = pb.TagInfo
+	UserVideoListReq                 = pb.UserVideoListReq
+	UserVideoListResp                = pb.UserVideoListResp
+	VideoFeedReq                     = pb.VideoFeedReq
+	VideoFeedResp                    = pb.VideoFeedResp
+	VideoInfo                        = pb.VideoInfo
 
 	Video interface {
 		// 视频相关功能
@@ -32,6 +54,18 @@ type (
 		UserVideoList(ctx context.Context, in *UserVideoListReq, opts ...grpc.CallOption) (*UserVideoListResp, error)
 		DeleteVideo(ctx context.Context, in *DeleteVideoReq, opts ...grpc.CallOption) (*DeleteVideoResp, error)
 		GetVideoById(ctx context.Context, in *GetVideoByIdReq, opts ...grpc.CallOption) (*GetVideoByIdResp, error)
+		SyncVideoInfoToElasticsearch(ctx context.Context, in *SyncVideoInfoToElasticsearchReq, opts ...grpc.CallOption) (*SyncVideoInfoToElasticsearchResp, error)
+		GetVideoByKeyword(ctx context.Context, in *GetVideoByKeywordReq, opts ...grpc.CallOption) (*GetVideoByKeywordResp, error)
+		// 分区相关功能
+		AddSection(ctx context.Context, in *AddSectionReq, opts ...grpc.CallOption) (*AddSectionResp, error)
+		DelSection(ctx context.Context, in *DelSectionReq, opts ...grpc.CallOption) (*DelSectionResp, error)
+		GetSectionById(ctx context.Context, in *GetSectionByIdReq, opts ...grpc.CallOption) (*GetSectionByIdResp, error)
+		GetAllSection(ctx context.Context, in *GetAllSectionReq, opts ...grpc.CallOption) (*GetAllSectionResp, error)
+		// 标签相关功能
+		AddTag(ctx context.Context, in *AddTagReq, opts ...grpc.CallOption) (*AddTagResp, error)
+		DelTag(ctx context.Context, in *DelTagReq, opts ...grpc.CallOption) (*DelTagResp, error)
+		GetTagById(ctx context.Context, in *GetTagByIdReq, opts ...grpc.CallOption) (*GetTagByIdResp, error)
+		GetAllTag(ctx context.Context, in *GetAllTagReq, opts ...grpc.CallOption) (*GetAllTagResp, error)
 	}
 
 	defaultVideo struct {
@@ -69,4 +103,56 @@ func (m *defaultVideo) DeleteVideo(ctx context.Context, in *DeleteVideoReq, opts
 func (m *defaultVideo) GetVideoById(ctx context.Context, in *GetVideoByIdReq, opts ...grpc.CallOption) (*GetVideoByIdResp, error) {
 	client := pb.NewVideoClient(m.cli.Conn())
 	return client.GetVideoById(ctx, in, opts...)
+}
+
+func (m *defaultVideo) SyncVideoInfoToElasticsearch(ctx context.Context, in *SyncVideoInfoToElasticsearchReq, opts ...grpc.CallOption) (*SyncVideoInfoToElasticsearchResp, error) {
+	client := pb.NewVideoClient(m.cli.Conn())
+	return client.SyncVideoInfoToElasticsearch(ctx, in, opts...)
+}
+
+func (m *defaultVideo) GetVideoByKeyword(ctx context.Context, in *GetVideoByKeywordReq, opts ...grpc.CallOption) (*GetVideoByKeywordResp, error) {
+	client := pb.NewVideoClient(m.cli.Conn())
+	return client.GetVideoByKeyword(ctx, in, opts...)
+}
+
+// 分区相关功能
+func (m *defaultVideo) AddSection(ctx context.Context, in *AddSectionReq, opts ...grpc.CallOption) (*AddSectionResp, error) {
+	client := pb.NewVideoClient(m.cli.Conn())
+	return client.AddSection(ctx, in, opts...)
+}
+
+func (m *defaultVideo) DelSection(ctx context.Context, in *DelSectionReq, opts ...grpc.CallOption) (*DelSectionResp, error) {
+	client := pb.NewVideoClient(m.cli.Conn())
+	return client.DelSection(ctx, in, opts...)
+}
+
+func (m *defaultVideo) GetSectionById(ctx context.Context, in *GetSectionByIdReq, opts ...grpc.CallOption) (*GetSectionByIdResp, error) {
+	client := pb.NewVideoClient(m.cli.Conn())
+	return client.GetSectionById(ctx, in, opts...)
+}
+
+func (m *defaultVideo) GetAllSection(ctx context.Context, in *GetAllSectionReq, opts ...grpc.CallOption) (*GetAllSectionResp, error) {
+	client := pb.NewVideoClient(m.cli.Conn())
+	return client.GetAllSection(ctx, in, opts...)
+}
+
+// 标签相关功能
+func (m *defaultVideo) AddTag(ctx context.Context, in *AddTagReq, opts ...grpc.CallOption) (*AddTagResp, error) {
+	client := pb.NewVideoClient(m.cli.Conn())
+	return client.AddTag(ctx, in, opts...)
+}
+
+func (m *defaultVideo) DelTag(ctx context.Context, in *DelTagReq, opts ...grpc.CallOption) (*DelTagResp, error) {
+	client := pb.NewVideoClient(m.cli.Conn())
+	return client.DelTag(ctx, in, opts...)
+}
+
+func (m *defaultVideo) GetTagById(ctx context.Context, in *GetTagByIdReq, opts ...grpc.CallOption) (*GetTagByIdResp, error) {
+	client := pb.NewVideoClient(m.cli.Conn())
+	return client.GetTagById(ctx, in, opts...)
+}
+
+func (m *defaultVideo) GetAllTag(ctx context.Context, in *GetAllTagReq, opts ...grpc.CallOption) (*GetAllTagResp, error) {
+	client := pb.NewVideoClient(m.cli.Conn())
+	return client.GetAllTag(ctx, in, opts...)
 }

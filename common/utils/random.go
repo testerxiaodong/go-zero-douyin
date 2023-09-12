@@ -1,6 +1,9 @@
 package utils
 
-import "math/rand"
+import (
+	"math/rand"
+	"time"
+)
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const (
@@ -10,6 +13,10 @@ const (
 )
 
 const DefaultNum = 6
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func NewRandomString(length int) string {
 	if length == 0 {

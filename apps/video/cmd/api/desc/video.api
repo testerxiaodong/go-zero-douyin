@@ -18,6 +18,14 @@ import (
 )
 
 service video {
+	@doc "分区列表"
+	@handler getAllSection
+	get /section/list returns (GetAllSectionResp)
+
+	@doc "标签列表"
+	@handler getAllTag
+	get /tag/list returns (GetAllTagResp)
+
 	@doc "获取视频流"
 	@handler feed
 	get /feed (VideoFeedReq) returns (VideoFeedResp)
@@ -34,6 +42,22 @@ service video {
 )
 
 service video {
+	@doc "新增分区"
+	@handler addSection
+	post /section/add (AddSectionReq)
+
+	@doc "删除分区"
+	@handler delSection
+	post /section/del (DelSectionReq)
+
+	@doc "新增标签"
+	@handler addTag
+	post /tag/add (AddTagReq)
+
+	@doc "删除标签"
+	@handler delTag
+	post /tag/del (DelTagReq)
+
 	@doc "发布视频"
 	@handler publish
 	post /publish (PublishVideoReq) returns (PublishVideoResp)

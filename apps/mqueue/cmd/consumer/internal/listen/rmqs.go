@@ -13,6 +13,10 @@ import (
 func RabbitMqs(c config.Config, ctx context.Context, svcContext *svc.ServiceContext) []service.Service {
 
 	return []service.Service{
+		// 视频分区
+		rabbitmq.MustNewListener(c.RabbitVideoSectionMqConf, rmqs.NewVideoSectionMq(ctx, svcContext)),
+		// 视频标签
+		rabbitmq.MustNewListener(c.RabbitVideoTagMqConf, rmqs.NewVideoTagMq(ctx, svcContext)),
 		// 视频评论数的缓存一致性消息
 		rabbitmq.MustNewListener(c.RabbitVideoCommentMqConf, rmqs.NewVideoCommentMq(ctx, svcContext)),
 		// 用户点赞视频

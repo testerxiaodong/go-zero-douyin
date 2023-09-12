@@ -26,15 +26,15 @@ func TestVideoFeedLogic_VideoFeed(t *testing.T) {
 	videoFeedLogic := logic.NewVideoFeedLogic(context.Background(), serviceContext)
 
 	// 查询数据库失败mock
-	mockVideoDo.EXPECT().GetVideoListByTimeStamp(gomock.Any(), gomock.Any()).
+	mockVideoDo.EXPECT().GetVideoListByTimeStampAndSectionId(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, errors.New("search database error"))
 
 	// 数据库没有数据mock
-	mockVideoDo.EXPECT().GetVideoListByTimeStamp(gomock.Any(), gomock.Any()).
+	mockVideoDo.EXPECT().GetVideoListByTimeStampAndSectionId(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return([]*model.Video{}, nil)
 
 	// 查询数据库成功mock
-	mockVideoDo.EXPECT().GetVideoListByTimeStamp(gomock.Any(), gomock.Any()).
+	mockVideoDo.EXPECT().GetVideoListByTimeStampAndSectionId(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return([]*model.Video{NewRandomVideo(), NewRandomVideo()}, nil)
 
 	// 表格驱动测试

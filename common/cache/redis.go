@@ -17,10 +17,42 @@ type RedisCache interface {
 	NewRedisLock(key string) *redis.RedisLock
 }
 
-type RedisLock interface {
+type RedisLocker interface {
 	SetExpire(seconds int)
 	Acquire() (bool, error)
+	AcquireCtx(ctx context.Context) (bool, error)
 	Release() (bool, error)
+	ReleaseCtx(ctx context.Context) (bool, error)
+}
+
+type RedisLock struct {
+	lock *redis.RedisLock
+}
+
+func NewRedisLock(lock *redis.RedisLock) RedisLocker {
+	return &RedisLock{
+		lock: lock,
+	}
+}
+
+func (r *RedisLock) SetExpire(seconds int) {
+	r.lock.SetExpire(seconds)
+}
+
+func (r *RedisLock) Acquire() (bool, error) {
+	return r.lock.Acquire()
+}
+
+func (r *RedisLock) AcquireCtx(ctx context.Context) (bool, error) {
+	return r.lock.AcquireCtx(ctx)
+}
+
+func (r *RedisLock) Release() (bool, error) {
+	return r.lock.Release()
+}
+
+func (r *RedisLock) ReleaseCtx(ctx context.Context) (bool, error) {
+	return r.lock.ReleaseCtx(ctx)
 }
 
 type RedisClient struct {

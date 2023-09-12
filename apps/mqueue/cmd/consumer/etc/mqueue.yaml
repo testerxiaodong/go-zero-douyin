@@ -20,7 +20,7 @@ Prometheus:
 #Link Tracking
 Telemetry:
   Name: mqueue
-  Endpoint: http://jaeger:14268/api/traces
+  Endpoint: http://127.0.0.1:14268/api/traces
   Sampler: 1.0
   Batcher: jaeger
 
@@ -28,18 +28,41 @@ Redis:
   Host: 127.0.0.1:6379
   Type: node
 
+RabbitVideoSectionMqConf:
+  Username: guest
+  Password: guest
+  Host: 127.0.0.1
+  Port: 5672
+  ListenerQueues:
+    - Name: VideoSectionMq
+      AutoAck: true
+      Exclusive: false
+      NoLocal: false
+      NoWait: false
+
+RabbitVideoTagMqConf:
+  Username: guest
+  Password: guest
+  Host: 127.0.0.1
+  Port: 5672
+  ListenerQueues:
+    - Name: VideoTagMq
+      AutoAck: true
+      Exclusive: false
+      NoLocal: false
+      NoWait: false
+
 RabbitVideoCommentMqConf:
   Username: guest
   Password: guest
   Host: 127.0.0.1
   Port: 5672
   ListenerQueues:
-      -
-        Name: VideoCommentMq
-        AutoAck: true
-        Exclusive: false
-        NoLocal: false
-        NoWait: false
+    - Name: VideoCommentMq
+      AutoAck: true
+      Exclusive: false
+      NoLocal: false
+      NoWait: false
 
 RabbitUserLikeVideoMqConf:
   Username: guest

@@ -78,7 +78,11 @@ func (l *GetVideoLikedCountByVideoIdLogic) GetVideoLikedCountByVideoId(in *pb.Ge
 	}
 
 	// 异步构建缓存
-	go l.BuildVideoLikedByUserCache(in.GetVideoId())
+	buildCache := func() {
+		l.BuildVideoLikedByUserCache(in.GetVideoId())
+	}
+	tsg := utils.NewTestGo()
+	tsg.RunSafe(buildCache)
 
 	return &pb.GetVideoLikedCountByVideoIdResp{LikeCount: countInt64}, nil
 }

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/pkg/errors"
+	"go-zero-douyin/apps/video/cmd/api/internal/svc"
+	"go-zero-douyin/apps/video/cmd/api/internal/types"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/ctxdata"
 	"go-zero-douyin/common/utils"
@@ -14,9 +16,7 @@ import (
 	"mime/multipart"
 	"path"
 	"strconv"
-
-	"go-zero-douyin/apps/video/cmd/api/internal/svc"
-	"go-zero-douyin/apps/video/cmd/api/internal/types"
+	"strings"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -45,13 +45,43 @@ func (l *PublishLogic) Publish(req *types.PublishVideoReq) (resp *types.PublishV
 	if validateResult := l.svcCtx.Validator.Validate(req); len(validateResult) > 0 {
 		return nil, xerr.NewErrMsg(validateResult)
 	}
+
 	// 获取用户id
 	uid := ctxdata.GetUidFromCtx(l.ctx)
-	// 获取文件内容
-	errorGroup, _ := errgroup.WithContext(l.ctx)
+
+	// 参数校验
+	validateErrorGroup, _ := errgroup.WithContext(l.ctx)
+
+	tagIdList := strings.Split(req.Tags, ",")
+
+	// 判断标签是否存在
+	for _, tag := range tagIdList {
+		id, err := strconv.ParseInt(tag, 10, 64)
+		if err != nil {
+			return nil, errors.Wrapf(xerr.NewErrMsg("标签id不正确"), "req: %v", req)
+		}
+		validateErrorGroup.Go(func() error {
+			_, err := l.svcCtx.VideoRpc.GetTagById(l.ctx, &pb.GetTagByIdReq{Id: id})
+			return err
+		})
+	}
+
+	// 判断分区是否存在
+	validateErrorGroup.Go(func() error {
+		_, err := l.svcCtx.VideoRpc.GetSectionById(l.ctx, &pb.GetSectionByIdReq{Id: req.SectionId})
+		return err
+	})
+
+	err = validateErrorGroup.Wait()
+	if err != nil {
+		return nil, err
+	}
+
+	// 文件上传
+	fileErrorGroup, _ := errgroup.WithContext(l.ctx)
 	// 资源文件本体
 	var videoOssSubPath string
-	errorGroup.Go(func() error {
+	fileErrorGroup.Go(func() error {
 		fileContent, err := io.ReadAll(l.Video)
 		if err != nil {
 			return xerr.NewFileErrMsg("文件内容读取失败")
@@ -79,7 +109,7 @@ func (l *PublishLogic) Publish(req *types.PublishVideoReq) (resp *types.PublishV
 	})
 	// 文件头图
 	var videoCoverOssSubPath string
-	errorGroup.Go(func() error {
+	fileErrorGroup.Go(func() error {
 		fileContent, err := io.ReadAll(l.VideoCover)
 		if err != nil {
 			return xerr.NewFileErrMsg("文件内容读取失败")
@@ -106,16 +136,18 @@ func (l *PublishLogic) Publish(req *types.PublishVideoReq) (resp *types.PublishV
 		return nil
 	})
 
-	err = errorGroup.Wait()
+	err = fileErrorGroup.Wait()
 	if err != nil {
 		l.Logger.WithFields(logx.Field("err:", err)).Error("头图和文件资源上传失败！")
 		return nil, err
 	}
 	video, err := l.svcCtx.VideoRpc.PublishVideo(l.ctx, &pb.PublishVideoReq{
-		Title:    req.Title,
-		OwnerId:  uid,
-		PlayUrl:  l.svcCtx.OssClient.GetOssFileFullAccessPath(videoOssSubPath),
-		CoverUrl: l.svcCtx.OssClient.GetOssFileFullAccessPath(videoCoverOssSubPath),
+		Title:     req.Title,
+		SectionId: req.SectionId,
+		Tags:      tagIdList,
+		OwnerId:   uid,
+		PlayUrl:   l.svcCtx.OssClient.GetOssFileFullAccessPath(videoOssSubPath),
+		CoverUrl:  l.svcCtx.OssClient.GetOssFileFullAccessPath(videoCoverOssSubPath),
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %v", req)

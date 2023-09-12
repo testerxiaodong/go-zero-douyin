@@ -29,6 +29,8 @@ func newVideo(db *gorm.DB, opts ...gen.DOOption) video {
 	_video.ALL = field.NewAsterisk(tableName)
 	_video.ID = field.NewInt64(tableName, "id")
 	_video.Title = field.NewString(tableName, "title")
+	_video.SectionID = field.NewInt64(tableName, "section_id")
+	_video.TagIds = field.NewString(tableName, "tag_ids")
 	_video.OwnerID = field.NewInt64(tableName, "owner_id")
 	_video.PlayURL = field.NewString(tableName, "play_url")
 	_video.CoverURL = field.NewString(tableName, "cover_url")
@@ -47,6 +49,8 @@ type video struct {
 	ALL        field.Asterisk
 	ID         field.Int64  // 视频id
 	Title      field.String // 视频标题
+	SectionID  field.Int64  // 视频分区id
+	TagIds     field.String
 	OwnerID    field.Int64  // 视频发布者id
 	PlayURL    field.String // 视频下载地址
 	CoverURL   field.String // 封面下载地址
@@ -71,6 +75,8 @@ func (v *video) updateTableName(table string) *video {
 	v.ALL = field.NewAsterisk(table)
 	v.ID = field.NewInt64(table, "id")
 	v.Title = field.NewString(table, "title")
+	v.SectionID = field.NewInt64(table, "section_id")
+	v.TagIds = field.NewString(table, "tag_ids")
 	v.OwnerID = field.NewInt64(table, "owner_id")
 	v.PlayURL = field.NewString(table, "play_url")
 	v.CoverURL = field.NewString(table, "cover_url")
@@ -101,9 +107,11 @@ func (v *video) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (v *video) fillFieldMap() {
-	v.fieldMap = make(map[string]field.Expr, 8)
+	v.fieldMap = make(map[string]field.Expr, 10)
 	v.fieldMap["id"] = v.ID
 	v.fieldMap["title"] = v.Title
+	v.fieldMap["section_id"] = v.SectionID
+	v.fieldMap["tag_ids"] = v.TagIds
 	v.fieldMap["owner_id"] = v.OwnerID
 	v.fieldMap["play_url"] = v.PlayURL
 	v.fieldMap["cover_url"] = v.CoverURL

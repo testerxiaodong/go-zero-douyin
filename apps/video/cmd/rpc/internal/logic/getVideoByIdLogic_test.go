@@ -12,6 +12,7 @@ import (
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/utils"
 	"gorm.io/gorm"
+	"strings"
 	"testing"
 )
 
@@ -71,6 +72,8 @@ func TestGetVideoByIdLogic_GetVideoById(t *testing.T) {
 				assert.NotEmpty(t, infoResp)
 				assert.Equal(t, infoResp.GetVideo().GetId(), mockVideo.ID)
 				assert.Equal(t, infoResp.GetVideo().GetTitle(), mockVideo.Title)
+				assert.Equal(t, infoResp.GetVideo().GetSectionId(), mockVideo.SectionID)
+				assert.Equal(t, infoResp.GetVideo().GetTags(), strings.Split(mockVideo.TagIds, ","))
 				assert.Equal(t, infoResp.GetVideo().GetOwnerId(), mockVideo.OwnerID)
 				assert.Equal(t, infoResp.GetVideo().GetPlayUrl(), mockVideo.PlayURL)
 				assert.Equal(t, infoResp.GetVideo().GetCoverUrl(), mockVideo.CoverURL)
@@ -85,6 +88,8 @@ func NewRandomVideo() *model.Video {
 	video := &model.Video{}
 	video.ID = utils.NewRandomInt64(1, 10)
 	video.Title = utils.NewRandomString(10)
+	video.SectionID = utils.NewRandomInt64(1, 10)
+	video.TagIds = strings.Join([]string{"11", "22"}, ",")
 	video.OwnerID = utils.NewRandomInt64(1, 10)
 	video.PlayURL = utils.NewRandomString(10)
 	video.CoverURL = utils.NewRandomString(10)

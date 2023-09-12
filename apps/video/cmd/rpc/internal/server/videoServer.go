@@ -47,3 +47,55 @@ func (s *VideoServer) GetVideoById(ctx context.Context, in *pb.GetVideoByIdReq) 
 	l := logic.NewGetVideoByIdLogic(ctx, s.svcCtx)
 	return l.GetVideoById(in)
 }
+
+func (s *VideoServer) SyncVideoInfoToElasticsearch(ctx context.Context, in *pb.SyncVideoInfoToElasticsearchReq) (*pb.SyncVideoInfoToElasticsearchResp, error) {
+	l := logic.NewSyncVideoInfoToElasticsearchLogic(ctx, s.svcCtx)
+	return l.SyncVideoInfoToElasticsearch(in)
+}
+
+func (s *VideoServer) GetVideoByKeyword(ctx context.Context, in *pb.GetVideoByKeywordReq) (*pb.GetVideoByKeywordResp, error) {
+	l := logic.NewGetVideoByKeywordLogic(ctx, s.svcCtx)
+	return l.GetVideoByKeyword(in)
+}
+
+// 分区相关功能
+func (s *VideoServer) AddSection(ctx context.Context, in *pb.AddSectionReq) (*pb.AddSectionResp, error) {
+	l := logic.NewAddSectionLogic(ctx, s.svcCtx)
+	return l.AddSection(in)
+}
+
+func (s *VideoServer) DelSection(ctx context.Context, in *pb.DelSectionReq) (*pb.DelSectionResp, error) {
+	l := logic.NewDelSectionLogic(ctx, s.svcCtx)
+	return l.DelSection(in)
+}
+
+func (s *VideoServer) GetSectionById(ctx context.Context, in *pb.GetSectionByIdReq) (*pb.GetSectionByIdResp, error) {
+	l := logic.NewGetSectionByIdLogic(ctx, s.svcCtx)
+	return l.GetSectionById(in)
+}
+
+func (s *VideoServer) GetAllSection(ctx context.Context, in *pb.GetAllSectionReq) (*pb.GetAllSectionResp, error) {
+	l := logic.NewGetAllSectionLogic(ctx, s.svcCtx)
+	return l.GetAllSection(in)
+}
+
+// 标签相关功能
+func (s *VideoServer) AddTag(ctx context.Context, in *pb.AddTagReq) (*pb.AddTagResp, error) {
+	l := logic.NewAddTagLogic(ctx, s.svcCtx)
+	return l.AddTag(in)
+}
+
+func (s *VideoServer) DelTag(ctx context.Context, in *pb.DelTagReq) (*pb.DelTagResp, error) {
+	l := logic.NewDelTagLogic(ctx, s.svcCtx)
+	return l.DelTag(in)
+}
+
+func (s *VideoServer) GetTagById(ctx context.Context, in *pb.GetTagByIdReq) (*pb.GetTagByIdResp, error) {
+	l := logic.NewGetTagByIdLogic(ctx, s.svcCtx)
+	return l.GetTagById(in)
+}
+
+func (s *VideoServer) GetAllTag(ctx context.Context, in *pb.GetAllTagReq) (*pb.GetAllTagResp, error) {
+	l := logic.NewGetAllTagLogic(ctx, s.svcCtx)
+	return l.GetAllTag(in)
+}

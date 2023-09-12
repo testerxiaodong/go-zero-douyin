@@ -36,6 +36,86 @@ func (m *MockVideo) EXPECT() *MockVideoMockRecorder {
 	return m.recorder
 }
 
+// AddSection mocks base method.
+func (m *MockVideo) AddSection(ctx context.Context, in *video.AddSectionReq, opts ...grpc.CallOption) (*video.AddSectionResp, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "AddSection", varargs...)
+	ret0, _ := ret[0].(*video.AddSectionResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddSection indicates an expected call of AddSection.
+func (mr *MockVideoMockRecorder) AddSection(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSection", reflect.TypeOf((*MockVideo)(nil).AddSection), varargs...)
+}
+
+// AddTag mocks base method.
+func (m *MockVideo) AddTag(ctx context.Context, in *video.AddTagReq, opts ...grpc.CallOption) (*video.AddTagResp, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "AddTag", varargs...)
+	ret0, _ := ret[0].(*video.AddTagResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddTag indicates an expected call of AddTag.
+func (mr *MockVideoMockRecorder) AddTag(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTag", reflect.TypeOf((*MockVideo)(nil).AddTag), varargs...)
+}
+
+// DelSection mocks base method.
+func (m *MockVideo) DelSection(ctx context.Context, in *video.DelSectionReq, opts ...grpc.CallOption) (*video.DelSectionResp, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DelSection", varargs...)
+	ret0, _ := ret[0].(*video.DelSectionResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DelSection indicates an expected call of DelSection.
+func (mr *MockVideoMockRecorder) DelSection(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DelSection", reflect.TypeOf((*MockVideo)(nil).DelSection), varargs...)
+}
+
+// DelTag mocks base method.
+func (m *MockVideo) DelTag(ctx context.Context, in *video.DelTagReq, opts ...grpc.CallOption) (*video.DelTagResp, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DelTag", varargs...)
+	ret0, _ := ret[0].(*video.DelTagResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DelTag indicates an expected call of DelTag.
+func (mr *MockVideoMockRecorder) DelTag(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DelTag", reflect.TypeOf((*MockVideo)(nil).DelTag), varargs...)
+}
+
 // DeleteVideo mocks base method.
 func (m *MockVideo) DeleteVideo(ctx context.Context, in *video.DeleteVideoReq, opts ...grpc.CallOption) (*video.DeleteVideoResp, error) {
 	m.ctrl.T.Helper()
@@ -54,6 +134,86 @@ func (mr *MockVideoMockRecorder) DeleteVideo(ctx, in interface{}, opts ...interf
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, in}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteVideo", reflect.TypeOf((*MockVideo)(nil).DeleteVideo), varargs...)
+}
+
+// GetAllSection mocks base method.
+func (m *MockVideo) GetAllSection(ctx context.Context, in *video.GetAllSectionReq, opts ...grpc.CallOption) (*video.GetAllSectionResp, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetAllSection", varargs...)
+	ret0, _ := ret[0].(*video.GetAllSectionResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllSection indicates an expected call of GetAllSection.
+func (mr *MockVideoMockRecorder) GetAllSection(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllSection", reflect.TypeOf((*MockVideo)(nil).GetAllSection), varargs...)
+}
+
+// GetAllTag mocks base method.
+func (m *MockVideo) GetAllTag(ctx context.Context, in *video.GetAllTagReq, opts ...grpc.CallOption) (*video.GetAllTagResp, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetAllTag", varargs...)
+	ret0, _ := ret[0].(*video.GetAllTagResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllTag indicates an expected call of GetAllTag.
+func (mr *MockVideoMockRecorder) GetAllTag(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllTag", reflect.TypeOf((*MockVideo)(nil).GetAllTag), varargs...)
+}
+
+// GetSectionById mocks base method.
+func (m *MockVideo) GetSectionById(ctx context.Context, in *video.GetSectionByIdReq, opts ...grpc.CallOption) (*video.GetSectionByIdResp, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetSectionById", varargs...)
+	ret0, _ := ret[0].(*video.GetSectionByIdResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSectionById indicates an expected call of GetSectionById.
+func (mr *MockVideoMockRecorder) GetSectionById(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSectionById", reflect.TypeOf((*MockVideo)(nil).GetSectionById), varargs...)
+}
+
+// GetTagById mocks base method.
+func (m *MockVideo) GetTagById(ctx context.Context, in *video.GetTagByIdReq, opts ...grpc.CallOption) (*video.GetTagByIdResp, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetTagById", varargs...)
+	ret0, _ := ret[0].(*video.GetTagByIdResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTagById indicates an expected call of GetTagById.
+func (mr *MockVideoMockRecorder) GetTagById(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagById", reflect.TypeOf((*MockVideo)(nil).GetTagById), varargs...)
 }
 
 // GetVideoById mocks base method.

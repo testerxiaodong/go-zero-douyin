@@ -74,7 +74,11 @@ func (l *GetUserFollowerCountLogic) GetUserFollowerCount(in *pb.GetUserFollowerC
 	}
 
 	// 异步构建缓存
-	go l.BuildUserFollowerCountCache(in.GetUserId())
+	buildCache := func() {
+		l.BuildUserFollowerCountCache(in.GetUserId())
+	}
+	tsg := utils.NewTestGo()
+	tsg.RunSafe(buildCache)
 
 	return &pb.GetUserFollowerCountResp{FollowerCount: countInt64}, nil
 }

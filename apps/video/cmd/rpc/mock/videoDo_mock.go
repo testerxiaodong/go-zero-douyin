@@ -66,19 +66,19 @@ func (mr *MockVideoDoMockRecorder) GetVideoById(ctx, videoId interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVideoById", reflect.TypeOf((*MockVideoDo)(nil).GetVideoById), ctx, videoId)
 }
 
-// GetVideoListByTimeStamp mocks base method.
-func (m *MockVideoDo) GetVideoListByTimeStamp(ctx context.Context, timestamp int64) ([]*model.Video, error) {
+// GetVideoListByTimeStampAndSectionId mocks base method.
+func (m *MockVideoDo) GetVideoListByTimeStampAndSectionId(ctx context.Context, timestamp, sectionId int64) ([]*model.Video, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetVideoListByTimeStamp", ctx, timestamp)
+	ret := m.ctrl.Call(m, "GetVideoListByTimeStampAndSectionId", ctx, timestamp, sectionId)
 	ret0, _ := ret[0].([]*model.Video)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetVideoListByTimeStamp indicates an expected call of GetVideoListByTimeStamp.
-func (mr *MockVideoDoMockRecorder) GetVideoListByTimeStamp(ctx, timestamp interface{}) *gomock.Call {
+// GetVideoListByTimeStampAndSectionId indicates an expected call of GetVideoListByTimeStampAndSectionId.
+func (mr *MockVideoDoMockRecorder) GetVideoListByTimeStampAndSectionId(ctx, timestamp, sectionId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVideoListByTimeStamp", reflect.TypeOf((*MockVideoDo)(nil).GetVideoListByTimeStamp), ctx, timestamp)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVideoListByTimeStampAndSectionId", reflect.TypeOf((*MockVideoDo)(nil).GetVideoListByTimeStampAndSectionId), ctx, timestamp, sectionId)
 }
 
 // GetVideoListByUserId mocks base method.

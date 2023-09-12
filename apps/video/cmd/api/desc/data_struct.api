@@ -8,9 +8,12 @@ info(
     version: "v0.1"
 )
 
+// 视频相关结构体
 type VideoInfo {
     Id int64 `json:"id"`
     OwnerId int64 `json:"owner_id"`
+    SectionId int64 `json:"section_id"`
+    Tags  []string  `json:"tags"`
     Title string `json:"title"`
     PlayUrl string `json:"play_url"`
     CoverUrl string `json:"cover_url"`
@@ -21,10 +24,14 @@ type VideoInfo {
 type (
     PublishVideoReq {
         Title string `form:"title" validate:"required"`
+        SectionId int64 `form:"section_id" validate:"required"`
+        Tags  string `form:"tags" validate:"required"`
     }
     PublishVideoResp {
         Id int64 `json:"id"`
         Title string `json:"title"`
+        SectionId int64 `json:"section_id"`
+        Tags []string  `json:"tags"`
         OwnerId int64 `json:"owner_id"`
         PlayUrl string `json:"play_url"`
         CoverUrl string `json:"cover_url"`
@@ -34,6 +41,7 @@ type (
 type (
     VideoFeedReq {
         LastTimeStamp int64 `json:"last_time_stamp" validate:"required"`
+        SectionId int64 `json:"section_id" validate:"required"`
     }
     VideoFeedResp {
         Videos []*VideoInfo `json:"videos"`
@@ -53,5 +61,59 @@ type (
 type (
     DeleteVideoReq {
         VideoId int64 `json:"video_id"`
+    }
+)
+
+// 分区相关结构体
+
+type (
+    SectionInfo {
+    Id int64 `json:"id"`
+    Name string `json:"name"`
+    }
+)
+
+type (
+    AddSectionReq {
+        Name string `json:"name"`
+    }
+)
+
+type (
+    DelSectionReq {
+        Id int64 `json:"id"`
+    }
+)
+
+type (
+    GetAllSectionResp {
+        Sections []*SectionInfo `json:"sections"`
+    }
+)
+
+// 标签相关结构体
+
+type (
+    TagInfo {
+        Id int64 `json:"id"`
+        Name string `json:"name"`
+    }
+)
+
+type (
+    AddTagReq {
+        Name string `json:"name"`
+    }
+)
+
+type (
+    DelTagReq {
+        Id int64 `json:"id"`
+    }
+)
+
+type (
+    GetAllTagResp {
+        Tags []*TagInfo `json:"tags"`
     }
 )
