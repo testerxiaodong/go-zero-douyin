@@ -31,8 +31,8 @@ JwtAuth:
   AccessSecret: go-zero-douyin
 
 AliCloud:
-  AccessKeyId: LTAI5tDLjx2vQ2BAJhHKDGjP
-  AccessKeySecret: 5b0nh186iHrzTfU2LlDt66VyMt1n3o
+  AccessKeyId: yourKey
+  AccessKeySecret: yourSecret
   BucketName: go-zero-douyin
   EndPoint: oss-cn-hangzhou.aliyuncs.com
   CommonPath: video
