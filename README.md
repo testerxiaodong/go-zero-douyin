@@ -12,12 +12,18 @@ faker-douyin的go-zero版本，主要是想学习一下go-zero微服务框架。
 - mysql
 - redis
 - elasticsearch
+- go-stash
+- kafka
+- filebeat
+- jaeger
+- prometheus
+- grafana
 - rabbitmq
 
 ### 项目功能点
 还是faker-douyin的老功能，不过这次我准备把视频数据上传到阿里云的oss服务，并且限制上传视频文件的大小
 
-项目日志的记录直接使用go-zero绑定的logx
+项目日志的记录直接使用go-zero绑定的logx，且集成了elk日志系统
 
 go-zero绑定的消息代理是kafka，不太熟悉，先继续用rabbitmq，做完之后再替换为kafka
 
@@ -42,6 +48,3 @@ go-zero绑定的消息代理是kafka，不太熟悉，先继续用rabbitmq，做
     - 取消关注
     - 获取用户关注列表
     - 获取用户被关注数
-- 礼物系统
-    - 购买礼物
-    - 赠送礼物

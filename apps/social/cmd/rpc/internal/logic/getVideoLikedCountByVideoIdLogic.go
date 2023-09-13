@@ -115,7 +115,7 @@ func (l *GetVideoLikedCountByVideoIdLogic) BuildVideoLikedByUserCache(videoId in
 	// 更新缓存
 	if acquire {
 		// 查询点赞视频的用户列表
-		ids, err := l.svcCtx.LikeDo.GetVideoLikedByUserIdList(l.ctx, videoId)
+		ids, err := l.svcCtx.LikeDo.GetVideoLikedByUserIdList(ctx, videoId)
 		if err != nil {
 			logx.WithContext(ctx).Errorf("find video liked by user with video_id failed, err: %v", err)
 		}

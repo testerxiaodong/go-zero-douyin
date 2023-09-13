@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"fmt"
 	"github.com/pkg/errors"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
@@ -38,7 +37,6 @@ func (l *GetVideoByKeywordLogic) GetVideoByKeyword(in *pb.GetVideoByKeywordReq) 
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "通过关键字查询es数据失败, err: %v, req: %v", err, in)
 	}
-	fmt.Printf("查询消耗时间 %d ms, 结果总数: %d\n", elasticsearchResp.TookInMillis, elasticsearchResp.TotalHits())
 	// 拼接响应
 	if elasticsearchResp.TotalHits() > 0 {
 		resp := &pb.GetVideoByKeywordResp{Videos: make([]*pb.VideoDetailInfo, 0, elasticsearchResp.TotalHits())}
