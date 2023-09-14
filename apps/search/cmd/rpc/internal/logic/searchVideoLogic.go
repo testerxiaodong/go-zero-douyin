@@ -30,6 +30,9 @@ func NewSearchVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Searc
 func (l *SearchVideoLogic) SearchVideo(in *pb.SearchVideoReq) (*pb.SearchVideoResp, error) {
 	// todo: add your logic here and delete this line
 	// 参数业务逻辑处理
+	if in == nil {
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "参数不能为nil")
+	}
 	if len(in.GetKeyword()) == 0 {
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "视频搜索关键字不能为空")
 	}

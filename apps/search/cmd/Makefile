@@ -9,9 +9,6 @@ gen:
 	go run ../gen/generate.go
 
 mock:
-	mockgen -source=./rpc/internal/dao/commentRepository.go -destination=./rpc/mock/commentDo_mock.go -package=mock
-	mockgen -source=./rpc/internal/dao/followRepository.go -destination=./rpc/mock/followDo_mock.go -package=mock
-	mockgen -source=./rpc/internal/dao/likeRepository.go -destination=./rpc/mock/likeDo_mock.go -package=mock
 	mockgen -source=./rpc/search/search.go -destination=./rpc/mock/search_rpc_mock.go -package=mock
 
 dockerfile-api:

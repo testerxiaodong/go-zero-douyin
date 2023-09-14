@@ -50,17 +50,32 @@ func (mr *MockElasticServiceMockRecorder) CreateDocument(ctx, indexName, id, req
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDocument", reflect.TypeOf((*MockElasticService)(nil).CreateDocument), ctx, indexName, id, req)
 }
 
-// SearchByKeyword mocks base method.
-func (m *MockElasticService) SearchByKeyword(ctx context.Context, indexName, keyword string) (*elastic.SearchResult, error) {
+// DeleteDocument mocks base method.
+func (m *MockElasticService) DeleteDocument(ctx context.Context, indexName, id string) (*elastic.DeleteResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SearchByKeyword", ctx, indexName, keyword)
+	ret := m.ctrl.Call(m, "DeleteDocument", ctx, indexName, id)
+	ret0, _ := ret[0].(*elastic.DeleteResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteDocument indicates an expected call of DeleteDocument.
+func (mr *MockElasticServiceMockRecorder) DeleteDocument(ctx, indexName, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDocument", reflect.TypeOf((*MockElasticService)(nil).DeleteDocument), ctx, indexName, id)
+}
+
+// SearchByKeyword mocks base method.
+func (m *MockElasticService) SearchByKeyword(ctx context.Context, indexName, field, keyword string, page, pageSize int64, sort string) (*elastic.SearchResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchByKeyword", ctx, indexName, field, keyword, page, pageSize, sort)
 	ret0, _ := ret[0].(*elastic.SearchResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SearchByKeyword indicates an expected call of SearchByKeyword.
-func (mr *MockElasticServiceMockRecorder) SearchByKeyword(ctx, indexName, keyword interface{}) *gomock.Call {
+func (mr *MockElasticServiceMockRecorder) SearchByKeyword(ctx, indexName, field, keyword, page, pageSize, sort interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchByKeyword", reflect.TypeOf((*MockElasticService)(nil).SearchByKeyword), ctx, indexName, keyword)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchByKeyword", reflect.TypeOf((*MockElasticService)(nil).SearchByKeyword), ctx, indexName, field, keyword, page, pageSize, sort)
 }

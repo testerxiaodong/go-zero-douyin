@@ -93,6 +93,17 @@ func (l *UnfollowUserLogic) UnfollowUser(in *pb.UnfollowUserReq) (*pb.UnfollowUs
 			return nil, errors.Wrapf(xerr.NewErrMsg("发布userFollowedByUserMessage失败"), "err: %v", err)
 		}
 	}
+	// 发布更新es用户的消息
+	userMsg, _ := json.Marshal(message.MysqlUserUpdateMessage{UserId: in.GetUserId()})
+	err = l.svcCtx.Rabbit.Send("", "MysqlUserUpdateMq", userMsg)
+	if err != nil {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
+	}
+	followerMsg, _ := json.Marshal(message.MysqlUserUpdateMessage{UserId: in.GetFollowerId()})
+	err = l.svcCtx.Rabbit.Send("", "MysqlUserUpdateMq", followerMsg)
+	if err != nil {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
+	}
 
 	return &pb.UnfollowUserResp{}, nil
 }

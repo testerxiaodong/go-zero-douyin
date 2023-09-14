@@ -28,6 +28,30 @@ Redis:
   Host: 127.0.0.1:6379
   Type: node
 
+UserRpcConf:
+  Endpoints:
+    - 127.0.0.1:1102
+  #  Target: k8s://go-zero-douyin/video-rpc-svc:1103
+  NonBlock: true
+
+VideoRpcConf:
+  Endpoints:
+    - 127.0.0.1:1103
+  #  Target: k8s://go-zero-douyin/video-rpc-svc:1103
+  NonBlock: true
+
+SocialRpcConf:
+  Endpoints:
+    - 127.0.0.1:1104
+  #  Target: k8s://go-zero-douyin/video-rpc-svc:1103
+  NonBlock: true
+
+SearchRpcConf:
+  Endpoints:
+    - 127.0.0.1:1105
+  #  Target: k8s://go-zero-douyin/video-rpc-svc:1103
+  NonBlock: true
+
 RabbitVideoSectionMqConf:
   Username: guest
   Password: guest
@@ -107,6 +131,54 @@ RabbitUserFollowedByUserMqConf:
   Port: 5672
   ListenerQueues:
     - Name: UserFollowedByUserMq
+      AutoAck: true
+      Exclusive: false
+      NoLocal: false
+      NoWait: false
+
+RabbitMysqlUserDeleteMqConf:
+  Username: guest
+  Password: guest
+  Host: 127.0.0.1
+  Port: 5672
+  ListenerQueues:
+    - Name: MysqlUserDeleteMq
+      AutoAck: true
+      Exclusive: false
+      NoLocal: false
+      NoWait: false
+
+RabbitMysqlUserUpdateMqConf:
+  Username: guest
+  Password: guest
+  Host: 127.0.0.1
+  Port: 5672
+  ListenerQueues:
+    - Name: MysqlUserUpdateMq
+      AutoAck: true
+      Exclusive: false
+      NoLocal: false
+      NoWait: false
+
+RabbitMysqlVideoDeleteMqConf:
+  Username: guest
+  Password: guest
+  Host: 127.0.0.1
+  Port: 5672
+  ListenerQueues:
+    - Name: MysqlVideoDeleteMq
+      AutoAck: true
+      Exclusive: false
+      NoLocal: false
+      NoWait: false
+
+RabbitMysqlVideoUpdateMqConf:
+  Username: guest
+  Password: guest
+  Host: 127.0.0.1
+  Port: 5672
+  ListenerQueues:
+    - Name: MysqlVideoUpdateMq
       AutoAck: true
       Exclusive: false
       NoLocal: false

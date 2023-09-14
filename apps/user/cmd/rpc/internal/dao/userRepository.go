@@ -2,7 +2,6 @@ package dao
 
 import (
 	"context"
-	"github.com/pkg/errors"
 	"go-zero-douyin/apps/user/cmd/rpc/internal/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
@@ -34,9 +33,6 @@ func (u *UserRepository) InsertUser(ctx context.Context, user *model.User) error
 }
 
 func (u *UserRepository) UpdateUserInfo(ctx context.Context, user *model.User, userId int64) (gen.ResultInfo, error) {
-	if user.ID != userId {
-		return gen.ResultInfo{}, errors.New("cannot update user_id")
-	}
 	return u.UserQuery.WithContext(ctx).Where(u.UserQuery.ID.Eq(userId)).Updates(user)
 }
 

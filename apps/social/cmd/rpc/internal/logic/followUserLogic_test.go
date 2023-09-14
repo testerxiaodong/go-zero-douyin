@@ -64,6 +64,7 @@ func TestFollowUserLogic_FollowUser(t *testing.T) {
 	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
 	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
 
 	// 查询数据库成功，数据不存在，插入数据成功，删除关注缓存失败，发布关注消息成功，删除粉丝缓存成功的mock
 	mockFollowDo.EXPECT().GetFollowByFollowerIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
@@ -71,12 +72,15 @@ func TestFollowUserLogic_FollowUser(t *testing.T) {
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
 	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
-
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
 	// 查询数据库成功，数据不存在，插入数据成功，删除关注缓存成功，删除粉丝缓存成功的mock
 	mockFollowDo.EXPECT().GetFollowByFollowerIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
 	mockFollowDo.EXPECT().InsertFollow(gomock.Any(), gomock.Any()).Return(nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 	// 表格驱动测试
 	testCases := []struct {
@@ -127,12 +131,14 @@ func TestFollowUserLogic_FollowUser(t *testing.T) {
 		{
 			name: "follow_user_with_redis_error1",
 			req:  &pb.FollowUserReq{FollowerId: 2, UserId: 1},
-			err:  nil,
+			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
+				"req: %v, err: %v", &pb.FollowUserReq{FollowerId: 2, UserId: 1}, senderError),
 		},
 		{
 			name: "follow_user_with_redis_error2",
 			req:  &pb.FollowUserReq{FollowerId: 2, UserId: 1},
-			err:  nil,
+			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
+				"req: %v, err: %v", &pb.FollowUserReq{FollowerId: 2, UserId: 1}, senderError),
 		},
 		{
 			name: "follow_user_success",

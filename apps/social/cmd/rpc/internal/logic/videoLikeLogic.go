@@ -86,5 +86,12 @@ func (l *VideoLikeLogic) VideoLike(in *pb.VideoLikeReq) (*pb.VideoLikeResp, erro
 		}
 	}
 
+	// 发布更新es视频的消息
+	msg, _ := json.Marshal(message.MysqlVideoUpdateMessage{VideoId: in.GetVideoId()})
+	err = l.svcCtx.Rabbit.Send("", "MysqlVideoUpdateMq", msg)
+	if err != nil {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
+	}
+
 	return &pb.VideoLikeResp{}, nil
 }

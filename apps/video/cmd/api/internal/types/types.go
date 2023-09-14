@@ -51,6 +51,14 @@ type UserVideoListResp struct {
 	Videos []*VideoInfo `json:"videos"`
 }
 
+type VideoDetailReq struct {
+	VideoId int64 `json:"video_id"`
+}
+
+type VideoDetailResp struct {
+	Video *VideoInfo `json:"video"`
+}
+
 type DeleteVideoReq struct {
 	VideoId int64 `json:"video_id" validate:"required"`
 }

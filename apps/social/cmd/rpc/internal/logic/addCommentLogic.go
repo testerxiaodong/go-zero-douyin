@@ -65,5 +65,12 @@ func (l *AddCommentLogic) AddComment(in *pb.AddCommentReq) (*pb.AddCommentResp, 
 			return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "publish video comment count message failed: %v", err)
 		}
 	}
+
+	// 发布更新es视频文档的消息
+	msg, _ := json.Marshal(message.MysqlVideoUpdateMessage{VideoId: in.GetVideoId()})
+	err = l.svcCtx.Rabbit.Send("", "MysqlVideoUpdateMq", msg)
+	if err != nil {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
+	}
 	return &pb.AddCommentResp{}, nil
 }

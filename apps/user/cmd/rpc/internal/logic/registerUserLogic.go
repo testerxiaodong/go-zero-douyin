@@ -2,9 +2,11 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
 	"go-zero-douyin/apps/user/cmd/rpc/internal/model"
+	"go-zero-douyin/common/message"
 	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xerr"
 	"gorm.io/gorm"
@@ -53,10 +55,7 @@ func (l *RegisterUserLogic) RegisterUser(in *pb.RegisterUserReq) (*pb.RegisterUs
 	// 插入用户
 	u := &model.User{}
 	// 深拷贝
-	err = copier.Copy(u, in)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "复制db -> pb失败")
-	}
+	_ = copier.Copy(u, in)
 	// 密码加密
 	u.Password = utils.Md5ByString(in.GetPassword())
 
@@ -70,6 +69,12 @@ func (l *RegisterUserLogic) RegisterUser(in *pb.RegisterUserReq) (*pb.RegisterUs
 	tokenResp, err := generateTokenLogic.GenerateToken(&pb.GenerateTokenReq{UserId: u.ID})
 	if err != nil {
 		return nil, errors.Wrapf(ErrGenerateTokenError, "Generate token failed, user_id: %d", u.ID)
+	}
+	// 发送中间件消息异步创建es文档
+	msg, _ := json.Marshal(message.MysqlUserUpdateMessage{UserId: u.ID})
+	err = l.svcCtx.Rabbit.Send("", "MysqlUserUpdateMq", msg)
+	if err != nil {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_INSERT_ERR), "发送es用户文档更新消息失败, err: %v", err)
 	}
 	return &pb.RegisterUserResp{
 		AccessToken:  tokenResp.AccessToken,

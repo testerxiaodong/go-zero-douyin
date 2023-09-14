@@ -75,5 +75,12 @@ func (l *DelCommentLogic) DelComment(in *pb.DelCommentReq) (*pb.DelCommentResp, 
 		}
 	}
 
+	// 发布更新es视频文档的消息
+	msg, _ := json.Marshal(message.MysqlVideoUpdateMessage{VideoId: comment.VideoID})
+	err = l.svcCtx.Rabbit.Send("", "MysqlVideoUpdateMq", msg)
+	if err != nil {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
+	}
+
 	return &pb.DelCommentResp{}, nil
 }

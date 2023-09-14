@@ -62,6 +62,15 @@ type (
     }
 )
 
+type(
+    VideoDetailReq {
+        VideoId int64 `json:"video_id"`
+    }
+    VideoDetailResp {
+        Video *VideoInfo `json:"video"`
+    }
+)
+
 type (
     DeleteVideoReq {
         VideoId int64 `json:"video_id" validate:"required"`

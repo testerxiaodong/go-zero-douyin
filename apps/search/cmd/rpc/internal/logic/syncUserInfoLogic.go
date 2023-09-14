@@ -30,6 +30,9 @@ func NewSyncUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Sync
 // SyncUserInfo 创建/更新用户信息
 func (l *SyncUserInfoLogic) SyncUserInfo(in *pb.SyncUserInfoReq) (*pb.SyncUserInfoResp, error) {
 	// todo: add your logic here and delete this line
+	if in == nil || in.GetUser() == nil {
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "参数不能为nil")
+	}
 	// 参数校验
 	if in.GetUser().GetId() == 0 {
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "用户id不允许为空")
@@ -37,7 +40,7 @@ func (l *SyncUserInfoLogic) SyncUserInfo(in *pb.SyncUserInfoReq) (*pb.SyncUserIn
 	// 调用es接口
 	_, err := l.svcCtx.ElasticSearch.CreateDocument(l.ctx, xconst.ElasticSearchUserIndexName, cast.ToString(in.GetUser().GetId()), in.GetUser())
 	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "更新es文档失败, err: %v", err)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "更新es用户文档失败, err: %v", err)
 	}
 	return &pb.SyncUserInfoResp{}, nil
 }

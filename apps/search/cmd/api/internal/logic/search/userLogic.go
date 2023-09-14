@@ -59,5 +59,5 @@ func (l *UserLogic) User(req *types.SearchUserReq) (resp *types.SearchUserResp, 
 		return resp, nil
 	}
 
-	return
+	return resp, nil
 }

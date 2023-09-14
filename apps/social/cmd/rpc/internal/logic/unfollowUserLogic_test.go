@@ -19,7 +19,7 @@ import (
 
 func TestUnfollowUserLogic_UnfollowUser(t *testing.T) {
 	ctl := gomock.NewController(t)
-
+	defer ctl.Finish()
 	mockFollowDo := mock.NewMockFollowDo(ctl)
 
 	mockSender := gloabelMock.NewMockSender(ctl)
@@ -65,6 +65,7 @@ func TestUnfollowUserLogic_UnfollowUser(t *testing.T) {
 	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
 	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
 
 	// 查询数据库成功，数据存在，删除数据成功，删除关注缓存失败，发布关注消息成功，删除粉丝缓存成功的mock
 	mockFollowDo.EXPECT().GetFollowByFollowerIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(&model.Follow{}, nil)
@@ -72,12 +73,15 @@ func TestUnfollowUserLogic_UnfollowUser(t *testing.T) {
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
 	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
 
 	// 查询数据库成功，数据存在，删除数据成功，删除关注缓存成功，删除粉丝缓存成功的mock
 	mockFollowDo.EXPECT().GetFollowByFollowerIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(&model.Follow{}, nil)
 	mockFollowDo.EXPECT().DeleteFollow(gomock.Any(), gomock.Any()).Return(gen.ResultInfo{}, nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 	// 表格驱动测试
 	testCases := []struct {
@@ -128,12 +132,14 @@ func TestUnfollowUserLogic_UnfollowUser(t *testing.T) {
 		{
 			name: "unfollow_user_with_redis_error1",
 			req:  &pb.UnfollowUserReq{FollowerId: 2, UserId: 1},
-			err:  nil,
+			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
+				"req: %v, err: %v", &pb.UnfollowUserReq{FollowerId: 2, UserId: 1}, senderError),
 		},
 		{
 			name: "unfollow_user_with_redis_error2",
 			req:  &pb.UnfollowUserReq{FollowerId: 2, UserId: 1},
-			err:  nil,
+			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
+				"req: %v, err: %v", &pb.UnfollowUserReq{FollowerId: 2, UserId: 1}, senderError),
 		},
 		{
 			name: "unfollow_user_success",

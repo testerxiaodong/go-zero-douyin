@@ -84,21 +84,6 @@ message GetVideoByIdResp {
   VideoInfo video = 1;
 }
 
-message GetVideoByKeywordReq {
-  string keyword = 1;
-}
-
-message GetVideoByKeywordResp {
-  repeated VideoDetailInfo videos = 1;
-}
-
-message SyncVideoInfoToElasticsearchReq {
-  VideoDetailInfo video_info = 1;
-}
-
-message SyncVideoInfoToElasticsearchResp {
-}
-
 // 分区相关功能
 message SectionInfo {
   int64 id = 1;
@@ -176,8 +161,6 @@ service video {
     rpc GetAllVideo (GetAllVideoReq) returns (GetAllVideoResp);
     rpc DeleteVideo (DeleteVideoReq) returns (DeleteVideoResp);
     rpc GetVideoById (GetVideoByIdReq) returns (GetVideoByIdResp);
-    rpc SyncVideoInfoToElasticsearch (SyncVideoInfoToElasticsearchReq) returns (SyncVideoInfoToElasticsearchResp);
-    rpc GetVideoByKeyword (GetVideoByKeywordReq) returns (GetVideoByKeywordResp);
     // 分区相关功能
     rpc AddSection (AddSectionReq) returns (AddSectionResp);
     rpc DelSection (DelSectionReq) returns (DelSectionResp);

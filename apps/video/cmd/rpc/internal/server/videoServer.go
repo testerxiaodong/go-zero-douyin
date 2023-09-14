@@ -53,16 +53,6 @@ func (s *VideoServer) GetVideoById(ctx context.Context, in *pb.GetVideoByIdReq) 
 	return l.GetVideoById(in)
 }
 
-func (s *VideoServer) SyncVideoInfoToElasticsearch(ctx context.Context, in *pb.SyncVideoInfoToElasticsearchReq) (*pb.SyncVideoInfoToElasticsearchResp, error) {
-	l := logic.NewSyncVideoInfoToElasticsearchLogic(ctx, s.svcCtx)
-	return l.SyncVideoInfoToElasticsearch(in)
-}
-
-func (s *VideoServer) GetVideoByKeyword(ctx context.Context, in *pb.GetVideoByKeywordReq) (*pb.GetVideoByKeywordResp, error) {
-	l := logic.NewGetVideoByKeywordLogic(ctx, s.svcCtx)
-	return l.GetVideoByKeyword(in)
-}
-
 // 分区相关功能
 func (s *VideoServer) AddSection(ctx context.Context, in *pb.AddSectionReq) (*pb.AddSectionResp, error) {
 	l := logic.NewAddSectionLogic(ctx, s.svcCtx)

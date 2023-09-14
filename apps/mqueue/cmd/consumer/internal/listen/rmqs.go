@@ -27,6 +27,14 @@ func RabbitMqs(c config.Config, ctx context.Context, svcContext *svc.ServiceCont
 		rabbitmq.MustNewListener(c.RabbitUserFollowUserMqConf, rmqs.NewUserFollowUserMq(ctx, svcContext)),
 		// 用户被关注
 		rabbitmq.MustNewListener(c.RabbitUserFollowedByUserMqConf, rmqs.NewUserFollowedByUserMq(ctx, svcContext)),
+		// 删除用户es文档
+		rabbitmq.MustNewListener(c.RabbitMysqlUserDeleteMqConf, rmqs.NewMysqlUserDeleteMq(ctx, svcContext)),
+		// 更新用户es文档
+		rabbitmq.MustNewListener(c.RabbitMysqlUserUpdateMqConf, rmqs.NewMysqlUserUpdateMq(ctx, svcContext)),
+		// 删除视频es文档
+		rabbitmq.MustNewListener(c.RabbitMysqlVideoDeleteMqConf, rmqs.NewMysqlVideoDeleteMq(ctx, svcContext)),
+		// 更新视频es文档
+		rabbitmq.MustNewListener(c.RabbitMysqlVideoUpdateMqConf, rmqs.NewMysqlVideoUpdateMq(ctx, svcContext)),
 	}
 
 }

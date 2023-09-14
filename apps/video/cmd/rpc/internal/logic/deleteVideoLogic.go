@@ -2,7 +2,9 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/pkg/errors"
+	"go-zero-douyin/common/message"
 	"go-zero-douyin/common/xerr"
 	"gorm.io/gorm"
 
@@ -58,6 +60,13 @@ func (l *DeleteVideoLogic) DeleteVideo(in *pb.DeleteVideoReq) (*pb.DeleteVideoRe
 	_, err = l.svcCtx.VideoDo.DeleteVideo(l.ctx, video)
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_DELETE_ERR), "delete video by id failed: %v", err)
+	}
+
+	// 发布删除es视频文档的消息
+	msg, _ := json.Marshal(message.MysqlVideoDeleteMessage{VideoId: in.GetVideoId()})
+	err = l.svcCtx.Rabbit.Send("", "MysqlVideoDeleteMq", msg)
+	if err != nil {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_DELETE_ERR), "req: %v, err: %v", in, err)
 	}
 
 	// 返回响应

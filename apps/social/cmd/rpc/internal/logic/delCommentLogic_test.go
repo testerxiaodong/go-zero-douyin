@@ -53,16 +53,24 @@ func TestDelCommentLogic_DelComment(t *testing.T) {
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
 	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
 
-	// 查询成功，数据存在，是该用户发布，删除评论成功，redis删除缓存失败，且rabbitmq发送消息成功的mock
+	// 查询成功，数据存在，是该用户发布，删除评论成功，redis删除缓存失败，且rabbitmq发送消息成功，但es消息发送失败的mock
 	mockCommentDo.EXPECT().GetCommentById(gomock.Any(), gomock.Any()).Return(&model.Comment{UserID: 1}, nil)
 	mockCommentDo.EXPECT().DeleteComment(gomock.Any(), gomock.Any()).Return(gen.ResultInfo{RowsAffected: 1}, nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
 	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
 
 	// 查询成功，数据存在，是该用户发布，删除评论成功，redis删除缓存成功的mock
 	mockCommentDo.EXPECT().GetCommentById(gomock.Any(), gomock.Any()).Return(&model.Comment{UserID: 1}, nil)
 	mockCommentDo.EXPECT().DeleteComment(gomock.Any(), gomock.Any()).Return(gen.ResultInfo{RowsAffected: 1}, nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
+
+	// 成功的mock
+	mockCommentDo.EXPECT().GetCommentById(gomock.Any(), gomock.Any()).Return(&model.Comment{UserID: 1}, nil)
+	mockCommentDo.EXPECT().DeleteComment(gomock.Any(), gomock.Any()).Return(gen.ResultInfo{RowsAffected: 1}, nil)
+	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 	// 表格驱动测试
 	testCases := []struct {
@@ -108,7 +116,14 @@ func TestDelCommentLogic_DelComment(t *testing.T) {
 		{
 			name: "del_comment_with_redis_error",
 			req:  &pb.DelCommentReq{CommentId: 1, UserId: 1},
-			err:  nil,
+			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
+				"req: %v, err: %v", &pb.DelCommentReq{CommentId: 1, UserId: 1}, senderError),
+		},
+		{
+			name: "del_comment_with_es_sender_error",
+			req:  &pb.DelCommentReq{CommentId: 1, UserId: 1},
+			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
+				"req: %v, err: %v", &pb.DelCommentReq{CommentId: 1, UserId: 1}, senderError),
 		},
 		{
 			name: "del_comment_success",

@@ -24,3 +24,11 @@ DataSource: root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin?charset=utf8mb4
 JwtAuth:
   AccessSecret: go-zero-douyin
   AccessExpire: 31536000
+
+# rabbitmq
+RabbitSenderConf:
+  Username: guest
+  Password: guest
+  Host: 127.0.0.1
+  Port: 5672
+  ContentType: text/plain

@@ -84,5 +84,12 @@ func (l *VideoUnlikeLogic) VideoUnlike(in *pb.VideoUnlikeReq) (*pb.VideoUnlikeRe
 		}
 	}
 
+	// 发布更新es视频的消息
+	msg, _ := json.Marshal(message.MysqlVideoUpdateMessage{VideoId: in.GetVideoId()})
+	err = l.svcCtx.Rabbit.Send("", "MysqlVideoUpdateMq", msg)
+	if err != nil {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
+	}
+
 	return &pb.VideoUnlikeResp{}, nil
 }

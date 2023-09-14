@@ -26,6 +26,10 @@ service video {
 	@handler getAllTag
 	get /tag/list returns (GetAllTagResp)
 
+	@doc "视频详情"
+	@handler detail
+	get /detail (VideoDetailReq) returns (VideoDetailResp)
+
 	@doc "获取视频流"
 	@handler feed
 	get /feed (VideoFeedReq) returns (VideoFeedResp)

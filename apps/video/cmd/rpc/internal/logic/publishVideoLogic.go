@@ -2,8 +2,10 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/pkg/errors"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/model"
+	"go-zero-douyin/common/message"
 	"go-zero-douyin/common/xerr"
 	"strings"
 
@@ -48,6 +50,13 @@ func (l *PublishVideoLogic) PublishVideo(in *pb.PublishVideoReq) (*pb.PublishVid
 	// 插入失败
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "insert video failed, err: %v", err)
+	}
+
+	// 发布更新es视频文档的消息
+	msg, _ := json.Marshal(message.MysqlVideoUpdateMessage{VideoId: video.ID})
+	err = l.svcCtx.Rabbit.Send("", "MysqlVideoUpdateMq", msg)
+	if err != nil {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
 	}
 
 	// 返回信息

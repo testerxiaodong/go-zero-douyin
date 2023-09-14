@@ -19,22 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Video_PublishVideo_FullMethodName                 = "/pb.video/PublishVideo"
-	Video_VideoFeed_FullMethodName                    = "/pb.video/VideoFeed"
-	Video_UserVideoList_FullMethodName                = "/pb.video/UserVideoList"
-	Video_GetAllVideo_FullMethodName                  = "/pb.video/GetAllVideo"
-	Video_DeleteVideo_FullMethodName                  = "/pb.video/DeleteVideo"
-	Video_GetVideoById_FullMethodName                 = "/pb.video/GetVideoById"
-	Video_SyncVideoInfoToElasticsearch_FullMethodName = "/pb.video/SyncVideoInfoToElasticsearch"
-	Video_GetVideoByKeyword_FullMethodName            = "/pb.video/GetVideoByKeyword"
-	Video_AddSection_FullMethodName                   = "/pb.video/AddSection"
-	Video_DelSection_FullMethodName                   = "/pb.video/DelSection"
-	Video_GetSectionById_FullMethodName               = "/pb.video/GetSectionById"
-	Video_GetAllSection_FullMethodName                = "/pb.video/GetAllSection"
-	Video_AddTag_FullMethodName                       = "/pb.video/AddTag"
-	Video_DelTag_FullMethodName                       = "/pb.video/DelTag"
-	Video_GetTagById_FullMethodName                   = "/pb.video/GetTagById"
-	Video_GetAllTag_FullMethodName                    = "/pb.video/GetAllTag"
+	Video_PublishVideo_FullMethodName   = "/pb.video/PublishVideo"
+	Video_VideoFeed_FullMethodName      = "/pb.video/VideoFeed"
+	Video_UserVideoList_FullMethodName  = "/pb.video/UserVideoList"
+	Video_GetAllVideo_FullMethodName    = "/pb.video/GetAllVideo"
+	Video_DeleteVideo_FullMethodName    = "/pb.video/DeleteVideo"
+	Video_GetVideoById_FullMethodName   = "/pb.video/GetVideoById"
+	Video_AddSection_FullMethodName     = "/pb.video/AddSection"
+	Video_DelSection_FullMethodName     = "/pb.video/DelSection"
+	Video_GetSectionById_FullMethodName = "/pb.video/GetSectionById"
+	Video_GetAllSection_FullMethodName  = "/pb.video/GetAllSection"
+	Video_AddTag_FullMethodName         = "/pb.video/AddTag"
+	Video_DelTag_FullMethodName         = "/pb.video/DelTag"
+	Video_GetTagById_FullMethodName     = "/pb.video/GetTagById"
+	Video_GetAllTag_FullMethodName      = "/pb.video/GetAllTag"
 )
 
 // VideoClient is the client API for Video service.
@@ -48,8 +46,6 @@ type VideoClient interface {
 	GetAllVideo(ctx context.Context, in *GetAllVideoReq, opts ...grpc.CallOption) (*GetAllVideoResp, error)
 	DeleteVideo(ctx context.Context, in *DeleteVideoReq, opts ...grpc.CallOption) (*DeleteVideoResp, error)
 	GetVideoById(ctx context.Context, in *GetVideoByIdReq, opts ...grpc.CallOption) (*GetVideoByIdResp, error)
-	SyncVideoInfoToElasticsearch(ctx context.Context, in *SyncVideoInfoToElasticsearchReq, opts ...grpc.CallOption) (*SyncVideoInfoToElasticsearchResp, error)
-	GetVideoByKeyword(ctx context.Context, in *GetVideoByKeywordReq, opts ...grpc.CallOption) (*GetVideoByKeywordResp, error)
 	// 分区相关功能
 	AddSection(ctx context.Context, in *AddSectionReq, opts ...grpc.CallOption) (*AddSectionResp, error)
 	DelSection(ctx context.Context, in *DelSectionReq, opts ...grpc.CallOption) (*DelSectionResp, error)
@@ -118,24 +114,6 @@ func (c *videoClient) DeleteVideo(ctx context.Context, in *DeleteVideoReq, opts 
 func (c *videoClient) GetVideoById(ctx context.Context, in *GetVideoByIdReq, opts ...grpc.CallOption) (*GetVideoByIdResp, error) {
 	out := new(GetVideoByIdResp)
 	err := c.cc.Invoke(ctx, Video_GetVideoById_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *videoClient) SyncVideoInfoToElasticsearch(ctx context.Context, in *SyncVideoInfoToElasticsearchReq, opts ...grpc.CallOption) (*SyncVideoInfoToElasticsearchResp, error) {
-	out := new(SyncVideoInfoToElasticsearchResp)
-	err := c.cc.Invoke(ctx, Video_SyncVideoInfoToElasticsearch_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *videoClient) GetVideoByKeyword(ctx context.Context, in *GetVideoByKeywordReq, opts ...grpc.CallOption) (*GetVideoByKeywordResp, error) {
-	out := new(GetVideoByKeywordResp)
-	err := c.cc.Invoke(ctx, Video_GetVideoByKeyword_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -225,8 +203,6 @@ type VideoServer interface {
 	GetAllVideo(context.Context, *GetAllVideoReq) (*GetAllVideoResp, error)
 	DeleteVideo(context.Context, *DeleteVideoReq) (*DeleteVideoResp, error)
 	GetVideoById(context.Context, *GetVideoByIdReq) (*GetVideoByIdResp, error)
-	SyncVideoInfoToElasticsearch(context.Context, *SyncVideoInfoToElasticsearchReq) (*SyncVideoInfoToElasticsearchResp, error)
-	GetVideoByKeyword(context.Context, *GetVideoByKeywordReq) (*GetVideoByKeywordResp, error)
 	// 分区相关功能
 	AddSection(context.Context, *AddSectionReq) (*AddSectionResp, error)
 	DelSection(context.Context, *DelSectionReq) (*DelSectionResp, error)
@@ -261,12 +237,6 @@ func (UnimplementedVideoServer) DeleteVideo(context.Context, *DeleteVideoReq) (*
 }
 func (UnimplementedVideoServer) GetVideoById(context.Context, *GetVideoByIdReq) (*GetVideoByIdResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetVideoById not implemented")
-}
-func (UnimplementedVideoServer) SyncVideoInfoToElasticsearch(context.Context, *SyncVideoInfoToElasticsearchReq) (*SyncVideoInfoToElasticsearchResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SyncVideoInfoToElasticsearch not implemented")
-}
-func (UnimplementedVideoServer) GetVideoByKeyword(context.Context, *GetVideoByKeywordReq) (*GetVideoByKeywordResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetVideoByKeyword not implemented")
 }
 func (UnimplementedVideoServer) AddSection(context.Context, *AddSectionReq) (*AddSectionResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddSection not implemented")
@@ -409,42 +379,6 @@ func _Video_GetVideoById_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(VideoServer).GetVideoById(ctx, req.(*GetVideoByIdReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Video_SyncVideoInfoToElasticsearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncVideoInfoToElasticsearchReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(VideoServer).SyncVideoInfoToElasticsearch(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Video_SyncVideoInfoToElasticsearch_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VideoServer).SyncVideoInfoToElasticsearch(ctx, req.(*SyncVideoInfoToElasticsearchReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Video_GetVideoByKeyword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetVideoByKeywordReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(VideoServer).GetVideoByKeyword(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Video_GetVideoByKeyword_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VideoServer).GetVideoByKeyword(ctx, req.(*GetVideoByKeywordReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -623,14 +557,6 @@ var Video_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetVideoById",
 			Handler:    _Video_GetVideoById_Handler,
-		},
-		{
-			MethodName: "SyncVideoInfoToElasticsearch",
-			Handler:    _Video_SyncVideoInfoToElasticsearch_Handler,
-		},
-		{
-			MethodName: "GetVideoByKeyword",
-			Handler:    _Video_GetVideoByKeyword_Handler,
 		},
 		{
 			MethodName: "AddSection",

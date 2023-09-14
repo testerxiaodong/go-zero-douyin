@@ -16,14 +16,12 @@ import (
 
 func TestAddCommentLogic_AddComment(t *testing.T) {
 	ctl := gomock.NewController(t)
-
+	defer ctl.Finish()
 	mockCommentDo := mock.NewMockCommentDo(ctl)
-
 	mockSender := gloabelMock.NewMockSender(ctl)
-
 	mockRedis := gloabelMock.NewMockRedisCache(ctl)
-
-	serviceContext := &svc.ServiceContext{CommentDo: mockCommentDo, Redis: mockRedis, Rabbit: mockSender}
+	serviceContext := &svc.ServiceContext{CommentDo: mockCommentDo, Redis: mockRedis,
+		Rabbit: mockSender}
 
 	addCommentLogic := logic.NewAddCommentLogic(context.Background(), serviceContext)
 
@@ -38,14 +36,21 @@ func TestAddCommentLogic_AddComment(t *testing.T) {
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
 	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
 
-	// 插入数据库成功，但删除缓存失败，且消息发布成功mock
+	// 插入数据库成功，但删除缓存失败，且消息发布成功mock，但发送es消息失败的mock
 	mockCommentDo.EXPECT().InsertComment(gomock.Any(), gomock.Any()).Return(nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
 	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
 
-	// 插入数据库成功，删除缓存成功mock
+	// 插入数据库成功，删除缓存成功mock，但发送es消息失败
 	mockCommentDo.EXPECT().InsertComment(gomock.Any(), gomock.Any()).Return(nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
+
+	// 成功的mock
+	mockCommentDo.EXPECT().InsertComment(gomock.Any(), gomock.Any()).Return(nil)
+	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 	// 表格驱动测试
 	testCases := []struct {
@@ -76,7 +81,14 @@ func TestAddCommentLogic_AddComment(t *testing.T) {
 		{
 			name: "add_comment_with_redis_error",
 			req:  &pb.AddCommentReq{VideoId: 1, UserId: 1, Content: "test"},
-			err:  nil,
+			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
+				"req: %v, err: %v", &pb.AddCommentReq{VideoId: 1, UserId: 1, Content: "test"}, senderError),
+		},
+		{
+			name: "add_comment_with_es_sender_error",
+			req:  &pb.AddCommentReq{VideoId: 1, UserId: 1, Content: "test"},
+			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
+				"req: %v, err: %v", &pb.AddCommentReq{VideoId: 1, UserId: 1, Content: "test"}, senderError),
 		},
 		{
 			name: "add_comment_success",

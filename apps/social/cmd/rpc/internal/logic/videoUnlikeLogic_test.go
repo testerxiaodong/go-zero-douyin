@@ -65,6 +65,7 @@ func TestVideoUnlikeLogic_VideoUnlike(t *testing.T) {
 	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
 	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
 
 	// 查询数据库成功，数据存在，删除数据成功，删除关注缓存失败，发布关注消息成功，删除粉丝缓存成功的mock
 	mockLikeDo.EXPECT().GetLikeByVideoIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(&model.Like{}, nil)
@@ -72,12 +73,14 @@ func TestVideoUnlikeLogic_VideoUnlike(t *testing.T) {
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
 	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
 
 	// 查询数据库成功，数据存在，删除数据成功，删除关注缓存成功，删除粉丝缓存成功的mock
 	mockLikeDo.EXPECT().GetLikeByVideoIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(&model.Like{}, nil)
 	mockLikeDo.EXPECT().DeleteLike(gomock.Any(), gomock.Any()).Return(gen.ResultInfo{}, nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
 	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
+	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 	// 表格驱动测试
 	testCases := []struct {
@@ -123,12 +126,14 @@ func TestVideoUnlikeLogic_VideoUnlike(t *testing.T) {
 		{
 			name: "video_unlike_with_redis_error1",
 			req:  &pb.VideoUnlikeReq{VideoId: 2, UserId: 1},
-			err:  nil,
+			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
+				"req: %v, err: %v", &pb.VideoUnlikeReq{VideoId: 2, UserId: 1}, senderError),
 		},
 		{
 			name: "video_unlike_with_redis_error2",
 			req:  &pb.VideoUnlikeReq{VideoId: 2, UserId: 1},
-			err:  nil,
+			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
+				"req: %v, err: %v", &pb.VideoUnlikeReq{VideoId: 2, UserId: 1}, senderError),
 		},
 		{
 			name: "video_unlike_success",

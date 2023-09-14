@@ -30,6 +30,9 @@ func NewSearchUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Search
 func (l *SearchUserLogic) SearchUser(in *pb.SearchUserReq) (*pb.SearchUserResp, error) {
 	// todo: add your logic here and delete this line
 	// 参数业务逻辑处理
+	if in == nil {
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "参数不能为nil")
+	}
 	if len(in.GetKeyword()) == 0 {
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "用户搜索关键字不能为空")
 	}

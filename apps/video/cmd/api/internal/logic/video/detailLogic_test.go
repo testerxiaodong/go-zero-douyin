@@ -5,8 +5,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
-	searchMock "go-zero-douyin/apps/search/cmd/rpc/mock"
-	searchPb "go-zero-douyin/apps/search/cmd/rpc/pb"
 	socialMock "go-zero-douyin/apps/social/cmd/rpc/mock"
 	socialPb "go-zero-douyin/apps/social/cmd/rpc/pb"
 	"go-zero-douyin/apps/video/cmd/api/internal/logic/video"
@@ -20,15 +18,14 @@ import (
 	"testing"
 )
 
-func TestSyncVideoToEsByIdLogic_SyncVideoToEsById(t *testing.T) {
+func TestDetailLogic_Detail(t *testing.T) {
 	ctl := gomock.NewController(t)
 	defer ctl.Finish()
 	mockValidator := globalMock.NewMockValidator(ctl)
 	mockVideoRpc := mock.NewMockVideo(ctl)
 	mockSocialRpc := socialMock.NewMockSocial(ctl)
-	mockSearchRpc := searchMock.NewMockSearch(ctl)
-	serviceContext := &svc.ServiceContext{Validator: mockValidator, VideoRpc: mockVideoRpc, SocialRpc: mockSocialRpc, SearchRpc: mockSearchRpc}
-	syncVideoToEsByIdLogic := video.NewSyncVideoToEsByIdLogic(context.Background(), serviceContext)
+	serviceContext := &svc.ServiceContext{Validator: mockValidator, VideoRpc: mockVideoRpc, SocialRpc: mockSocialRpc}
+	detailLogic := video.NewDetailLogic(context.Background(), serviceContext)
 
 	// 参数校验失败mock
 	validateResult := utils.NewRandomString(10)
@@ -67,17 +64,6 @@ func TestSyncVideoToEsByIdLogic_SyncVideoToEsById(t *testing.T) {
 	mockSocialRpc.EXPECT().GetVideoLikedCountByVideoId(gomock.Any(), gomock.Any()).
 		Return(nil, likeCountError)
 
-	// VideoRpc.SyncVideoInfoToElasticsearch失败的mock
-	esError := errors.New("SearchRpc.SyncVideoInfo error")
-	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
-	mockVideoRpc.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(videoInfo, nil)
-	mockSocialRpc.EXPECT().GetCommentCountByVideoId(gomock.Any(), gomock.Any()).
-		Return(&socialPb.GetCommentCountByVideoIdResp{Count: 1}, nil)
-	mockSocialRpc.EXPECT().GetVideoLikedCountByVideoId(gomock.Any(), gomock.Any()).
-		Return(&socialPb.GetVideoLikedCountByVideoIdResp{LikeCount: 1}, nil)
-	mockSearchRpc.EXPECT().SyncVideoInfo(gomock.Any(), gomock.Any()).
-		Return(nil, esError)
-
 	// 成功的mock
 	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
 	mockVideoRpc.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(videoInfo, nil)
@@ -85,14 +71,12 @@ func TestSyncVideoToEsByIdLogic_SyncVideoToEsById(t *testing.T) {
 		Return(&socialPb.GetCommentCountByVideoIdResp{Count: 1}, nil)
 	mockSocialRpc.EXPECT().GetVideoLikedCountByVideoId(gomock.Any(), gomock.Any()).
 		Return(&socialPb.GetVideoLikedCountByVideoIdResp{LikeCount: 1}, nil)
-	mockSearchRpc.EXPECT().SyncVideoInfo(gomock.Any(), gomock.Any()).
-		Return(&searchPb.SyncVideoInfoResp{}, nil)
 
 	// 表格驱动测试
-	req := &types.SyncVideoToEsByIdReq{VideoId: utils.NewRandomInt64(1, 10)}
+	req := &types.VideoDetailReq{VideoId: utils.NewRandomInt64(1, 10)}
 	testCases := []struct {
 		name string
-		req  *types.SyncVideoToEsByIdReq
+		req  *types.VideoDetailReq
 		err  error
 	}{
 		{
@@ -116,11 +100,6 @@ func TestSyncVideoToEsByIdLogic_SyncVideoToEsById(t *testing.T) {
 			err:  errors.Wrapf(likeCountError, "req: %v", req),
 		},
 		{
-			name: "sync_video_to_es_with_es_error",
-			req:  req,
-			err:  errors.Wrapf(esError, "req: %v", req),
-		},
-		{
 			name: "sync_video_to_es_success",
 			req:  req,
 			err:  nil,
@@ -129,7 +108,7 @@ func TestSyncVideoToEsByIdLogic_SyncVideoToEsById(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := syncVideoToEsByIdLogic.SyncVideoToEsById(tc.req)
+			_, err := detailLogic.Detail(tc.req)
 			if err != nil {
 				assert.Equal(t, tc.err.Error(), err.Error())
 			} else {

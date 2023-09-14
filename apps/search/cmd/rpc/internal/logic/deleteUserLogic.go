@@ -29,6 +29,13 @@ func NewDeleteUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delete
 
 func (l *DeleteUserLogic) DeleteUser(in *pb.DeleteUserDocumentReq) (*pb.DeleteUserDocumentResp, error) {
 	// todo: add your logic here and delete this line
+	// 参数校验
+	if in == nil {
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "参数不能为nil")
+	}
+	if in.GetId() == 0 {
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "用户id不能为空")
+	}
 	// 调用es
 	_, err := l.svcCtx.ElasticSearch.DeleteDocument(l.ctx, xconst.ElasticSearchUserIndexName, cast.ToString(in.GetId()))
 	if err != nil {

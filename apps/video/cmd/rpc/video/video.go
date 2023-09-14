@@ -13,42 +13,38 @@ import (
 )
 
 type (
-	AddSectionReq                    = pb.AddSectionReq
-	AddSectionResp                   = pb.AddSectionResp
-	AddTagReq                        = pb.AddTagReq
-	AddTagResp                       = pb.AddTagResp
-	DelSectionReq                    = pb.DelSectionReq
-	DelSectionResp                   = pb.DelSectionResp
-	DelTagReq                        = pb.DelTagReq
-	DelTagResp                       = pb.DelTagResp
-	DeleteVideoReq                   = pb.DeleteVideoReq
-	DeleteVideoResp                  = pb.DeleteVideoResp
-	GetAllSectionReq                 = pb.GetAllSectionReq
-	GetAllSectionResp                = pb.GetAllSectionResp
-	GetAllTagReq                     = pb.GetAllTagReq
-	GetAllTagResp                    = pb.GetAllTagResp
-	GetAllVideoReq                   = pb.GetAllVideoReq
-	GetAllVideoResp                  = pb.GetAllVideoResp
-	GetSectionByIdReq                = pb.GetSectionByIdReq
-	GetSectionByIdResp               = pb.GetSectionByIdResp
-	GetTagByIdReq                    = pb.GetTagByIdReq
-	GetTagByIdResp                   = pb.GetTagByIdResp
-	GetVideoByIdReq                  = pb.GetVideoByIdReq
-	GetVideoByIdResp                 = pb.GetVideoByIdResp
-	GetVideoByKeywordReq             = pb.GetVideoByKeywordReq
-	GetVideoByKeywordResp            = pb.GetVideoByKeywordResp
-	PublishVideoReq                  = pb.PublishVideoReq
-	PublishVideoResp                 = pb.PublishVideoResp
-	SectionInfo                      = pb.SectionInfo
-	SyncVideoInfoToElasticsearchReq  = pb.SyncVideoInfoToElasticsearchReq
-	SyncVideoInfoToElasticsearchResp = pb.SyncVideoInfoToElasticsearchResp
-	TagInfo                          = pb.TagInfo
-	UserVideoListReq                 = pb.UserVideoListReq
-	UserVideoListResp                = pb.UserVideoListResp
-	VideoDetailInfo                  = pb.VideoDetailInfo
-	VideoFeedReq                     = pb.VideoFeedReq
-	VideoFeedResp                    = pb.VideoFeedResp
-	VideoInfo                        = pb.VideoInfo
+	AddSectionReq      = pb.AddSectionReq
+	AddSectionResp     = pb.AddSectionResp
+	AddTagReq          = pb.AddTagReq
+	AddTagResp         = pb.AddTagResp
+	DelSectionReq      = pb.DelSectionReq
+	DelSectionResp     = pb.DelSectionResp
+	DelTagReq          = pb.DelTagReq
+	DelTagResp         = pb.DelTagResp
+	DeleteVideoReq     = pb.DeleteVideoReq
+	DeleteVideoResp    = pb.DeleteVideoResp
+	GetAllSectionReq   = pb.GetAllSectionReq
+	GetAllSectionResp  = pb.GetAllSectionResp
+	GetAllTagReq       = pb.GetAllTagReq
+	GetAllTagResp      = pb.GetAllTagResp
+	GetAllVideoReq     = pb.GetAllVideoReq
+	GetAllVideoResp    = pb.GetAllVideoResp
+	GetSectionByIdReq  = pb.GetSectionByIdReq
+	GetSectionByIdResp = pb.GetSectionByIdResp
+	GetTagByIdReq      = pb.GetTagByIdReq
+	GetTagByIdResp     = pb.GetTagByIdResp
+	GetVideoByIdReq    = pb.GetVideoByIdReq
+	GetVideoByIdResp   = pb.GetVideoByIdResp
+	PublishVideoReq    = pb.PublishVideoReq
+	PublishVideoResp   = pb.PublishVideoResp
+	SectionInfo        = pb.SectionInfo
+	TagInfo            = pb.TagInfo
+	UserVideoListReq   = pb.UserVideoListReq
+	UserVideoListResp  = pb.UserVideoListResp
+	VideoDetailInfo    = pb.VideoDetailInfo
+	VideoFeedReq       = pb.VideoFeedReq
+	VideoFeedResp      = pb.VideoFeedResp
+	VideoInfo          = pb.VideoInfo
 
 	Video interface {
 		// 视频相关功能
@@ -58,8 +54,6 @@ type (
 		GetAllVideo(ctx context.Context, in *GetAllVideoReq, opts ...grpc.CallOption) (*GetAllVideoResp, error)
 		DeleteVideo(ctx context.Context, in *DeleteVideoReq, opts ...grpc.CallOption) (*DeleteVideoResp, error)
 		GetVideoById(ctx context.Context, in *GetVideoByIdReq, opts ...grpc.CallOption) (*GetVideoByIdResp, error)
-		SyncVideoInfoToElasticsearch(ctx context.Context, in *SyncVideoInfoToElasticsearchReq, opts ...grpc.CallOption) (*SyncVideoInfoToElasticsearchResp, error)
-		GetVideoByKeyword(ctx context.Context, in *GetVideoByKeywordReq, opts ...grpc.CallOption) (*GetVideoByKeywordResp, error)
 		// 分区相关功能
 		AddSection(ctx context.Context, in *AddSectionReq, opts ...grpc.CallOption) (*AddSectionResp, error)
 		DelSection(ctx context.Context, in *DelSectionReq, opts ...grpc.CallOption) (*DelSectionResp, error)
@@ -112,16 +106,6 @@ func (m *defaultVideo) DeleteVideo(ctx context.Context, in *DeleteVideoReq, opts
 func (m *defaultVideo) GetVideoById(ctx context.Context, in *GetVideoByIdReq, opts ...grpc.CallOption) (*GetVideoByIdResp, error) {
 	client := pb.NewVideoClient(m.cli.Conn())
 	return client.GetVideoById(ctx, in, opts...)
-}
-
-func (m *defaultVideo) SyncVideoInfoToElasticsearch(ctx context.Context, in *SyncVideoInfoToElasticsearchReq, opts ...grpc.CallOption) (*SyncVideoInfoToElasticsearchResp, error) {
-	client := pb.NewVideoClient(m.cli.Conn())
-	return client.SyncVideoInfoToElasticsearch(ctx, in, opts...)
-}
-
-func (m *defaultVideo) GetVideoByKeyword(ctx context.Context, in *GetVideoByKeywordReq, opts ...grpc.CallOption) (*GetVideoByKeywordResp, error) {
-	client := pb.NewVideoClient(m.cli.Conn())
-	return client.GetVideoByKeyword(ctx, in, opts...)
 }
 
 // 分区相关功能
