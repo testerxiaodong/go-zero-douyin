@@ -2,9 +2,9 @@ package user
 
 import (
 	"context"
-	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
-	"go-zero-douyin/apps/user/cmd/rpc/user"
+	socialPb "go-zero-douyin/apps/social/cmd/rpc/pb"
+	"go-zero-douyin/apps/user/cmd/rpc/pb"
 	"go-zero-douyin/common/xerr"
 
 	"go-zero-douyin/apps/user/cmd/api/internal/svc"
@@ -33,11 +33,29 @@ func (l *DetailLogic) Detail(req *types.UserInfoReq) (resp *types.UserInfoResp, 
 	if validateResult := l.svcCtx.Validator.Validate(req); len(validateResult) > 0 {
 		return nil, xerr.NewErrMsg(validateResult)
 	}
-	userInfo, err := l.svcCtx.UserRpc.GetUserInfo(l.ctx, &user.GetUserInfoReq{Id: req.Id})
+
+	// 调用userRpc获取用户信息
+	userInfoResp, err := l.svcCtx.UserRpc.GetUserInfo(l.ctx, &pb.GetUserInfoReq{Id: req.Id})
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %v", req)
 	}
-	resp = new(types.UserInfoResp)
-	_ = copier.Copy(&resp, userInfo)
-	return resp, nil
+	// 调用socialRpc获取用户粉丝数
+	followerCountResp, err := l.svcCtx.SocialRpc.GetUserFollowerCount(l.ctx, &socialPb.GetUserFollowerCountReq{UserId: req.Id})
+	if err != nil {
+		return nil, errors.Wrapf(err, "req: %v", req)
+	}
+	// 调用socialRpc获取用户关注数
+	followCountResp, err := l.svcCtx.SocialRpc.GetUserFollowCount(l.ctx, &socialPb.GetUserFollowCountReq{UserId: req.Id})
+	if err != nil {
+		return nil, errors.Wrapf(err, "req: %v", req)
+	}
+
+	return &types.UserInfoResp{
+		User: types.UserInfo{
+			Id:            userInfoResp.User.Id,
+			Username:      userInfoResp.User.Username,
+			FollowerCount: followerCountResp.FollowerCount,
+			FollowCount:   followCountResp.FollowCount,
+		},
+	}, nil
 }

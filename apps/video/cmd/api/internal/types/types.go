@@ -52,15 +52,11 @@ type UserVideoListResp struct {
 }
 
 type DeleteVideoReq struct {
-	VideoId int64 `json:"video_id"`
+	VideoId int64 `json:"video_id" validate:"required"`
 }
 
-type SearchVideoReq struct {
-	Keyword string `json:"keyword" validate:"required"`
-}
-
-type SearchVideoResp struct {
-	Videos []*VideoInfo `json:"videos"`
+type SyncVideoToEsByIdReq struct {
+	VideoId int64 `json:"video_id" validate:"required"`
 }
 
 type SectionInfo struct {

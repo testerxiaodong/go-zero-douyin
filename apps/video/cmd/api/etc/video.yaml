@@ -31,8 +31,8 @@ JwtAuth:
   AccessSecret: go-zero-douyin
 
 AliCloud:
-  AccessKeyId: yourKey
-  AccessKeySecret: yourSecret
+  AccessKeyId: LTAI5tDLjx2vQ2BAJhHKDGjP
+  AccessKeySecret: 5b0nh186iHrzTfU2LlDt66VyMt1n3o
   BucketName: go-zero-douyin
   EndPoint: oss-cn-hangzhou.aliyuncs.com
   CommonPath: video
@@ -47,4 +47,10 @@ SocialRpcConf:
   Endpoints:
     - 127.0.0.1:1104
 #  Target: k8s://go-zero-douyin/social-rpc-svc:1104
+  NonBlock: true
+
+SearchRpcConf:
+  Endpoints:
+    - 127.0.0.1:1105
+  #  Target: k8s://go-zero-douyin/social-rpc-svc:1104
   NonBlock: true

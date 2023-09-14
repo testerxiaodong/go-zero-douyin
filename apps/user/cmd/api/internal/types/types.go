@@ -2,8 +2,10 @@
 package types
 
 type UserInfo struct {
-	Id       int64  `json:"id"`
-	Username string `json:"username"`
+	Id            int64  `json:"id"`
+	Username      string `json:"username"`
+	FollowerCount int64  `json:"follower_count"`
+	FollowCount   int64  `json:"follow_count"`
 }
 
 type RegisterReq struct {
@@ -39,4 +41,8 @@ type UserInfoResp struct {
 type UpdateUserReq struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required,password"`
+}
+
+type SyncUserToEsByIdReq struct {
+	UserId int64 `json:"user_id" validate:"required"`
 }

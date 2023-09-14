@@ -42,3 +42,9 @@ const (
 const (
 	RedisExpireTime = 600
 )
+
+const (
+	ElasticSearchVideoIndexName       = "video"
+	ElasticSearchUserIndexName        = "user"
+	ElasticSearchVideoDefaultPageSize = 10
+)

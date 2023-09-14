@@ -40,4 +40,8 @@ service user {
 	@doc "update user info"
 	@handler update
 	post /update (UpdateUserReq)
+
+	@doc "同步用户信息到es"
+	@handler syncUserToEsById
+	post /sync (syncUserToEsByIdReq)
 }

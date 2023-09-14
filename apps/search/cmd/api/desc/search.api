@@ -1,0 +1,26 @@
+syntax = "v1"
+
+info(
+	title: "搜索中心"
+	desc: "搜索基本数据与接口定义"
+	author: "cengdong"
+	email: "happy_game_dong@163.com"
+	version: "v0.1"
+)
+
+import "data_struct.api"
+
+@server(
+	group: search
+	prefix: search/v1
+)
+
+service search {
+	@doc "根据关键字搜索视频"
+	@handler Video
+	get /video (SearchVideoReq) returns (SearchVideoResp)
+
+	@doc "根据关键字搜索用户"
+	@handler User
+	get /user (SearchUserReq) returns (SearchUserResp)
+}

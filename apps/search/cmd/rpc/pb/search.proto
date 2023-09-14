@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+package pb;
+
+// 视频相关功能
+message Video {
+  int64 id = 1;
+  string title = 2;
+  int64 section_id = 3;
+  repeated string tags = 4;
+  int64 owner_id = 5;
+  string play_url = 6;
+  string cover_url = 7;
+  int64 comment_count = 8;
+  int64 like_count = 9;
+  int64 create_time = 10;
+  int64 update_time = 11;
+}
+
+message SyncVideoInfoReq {
+  Video video = 1;
+}
+
+message SyncVideoInfoResp {
+
+}
+
+message DeleteVideoDocumentReq {
+  int64 id = 1;
+}
+
+message DeleteVideoDocumentResp {
+}
+
+message SearchVideoReq {
+  string keyword = 1;
+  int64 page = 2;
+  int64 page_size = 3;
+  enum Sort {
+    DEFAULT = 0;
+    LIKECOUNT = 1;
+    COMMENTCOUNT = 2;
+  }
+  Sort sort = 4;
+}
+
+message SearchVideoResp {
+  int64 total = 1;
+  repeated Video videos = 2;
+}
+
+// 用户相关功能
+message User {
+  int64 id = 1;
+  string username = 2;
+  int64 follower_count = 3;
+  int64 follow_count = 4;
+}
+
+message SyncUserInfoReq {
+  User user = 1;
+}
+
+message SyncUserInfoResp {
+}
+
+message DeleteUserDocumentReq {
+  int64 id = 1;
+}
+
+message DeleteUserDocumentResp {
+}
+
+message SearchUserReq {
+  string keyword = 1;
+  int64 page = 2;
+  int64 page_size = 3;
+  enum Sort {
+    DEFAULT = 0;
+    FOLLOWERCOUNT = 1;
+  }
+  Sort sort = 4;
+}
+
+message SearchUserResp {
+  int64 total = 1;
+  repeated User users = 2;
+}
+
+service search {
+  // 视频相关功能
+  rpc SyncVideoInfo (SyncVideoInfoReq) returns (SyncVideoInfoResp);
+  rpc DeleteVideo (DeleteVideoDocumentReq) returns (DeleteVideoDocumentResp);
+  rpc SearchVideo (SearchVideoReq) returns (SearchVideoResp);
+  // 用户相关功能
+  rpc SyncUserInfo (SyncUserInfoReq) returns (SyncUserInfoResp);
+  rpc DeleteUser (DeleteUserDocumentReq) returns (DeleteUserDocumentResp);
+  rpc SearchUser (SearchUserReq) returns (SearchUserResp);
+}

@@ -33,10 +33,6 @@ service video {
 	@doc "获取用户发布视频列表"
 	@handler list
 	get /list (UserVideoListReq) returns (UserVideoListResp)
-
-	@doc "搜索视频"
-	@handler search
-	get /search (SearchVideoReq) returns (SearchVideoResp)
 }
 
 @server(
@@ -70,7 +66,7 @@ service video {
 	@handler deleteVideo
 	post  /delete (DeleteVideoReq)
 
-	@doc "同步所有视频信息到es"
-	@handler syncAllVideoToElasticsearch
-	post /sync_all
+	@doc "同步视频信息到es"
+	@handler syncVideoToEsById
+	post /sync (syncVideoToEsByIdReq)
 }

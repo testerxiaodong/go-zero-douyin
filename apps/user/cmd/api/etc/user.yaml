@@ -33,3 +33,15 @@ UserRpcConf:
     - 127.0.0.1:1102
 #  Target: k8s://go-zero-douyin/user-rpc-svc:1102
   NonBlock: true
+
+SocialRpcConf:
+  Endpoints:
+    - 127.0.0.1:1104
+  #  Target: k8s://go-zero-douyin/user-rpc-svc:1102
+  NonBlock: true
+
+SearchRpcConf:
+  Endpoints:
+    - 127.0.0.1:1105
+  #  Target: k8s://go-zero-douyin/user-rpc-svc:1102
+  NonBlock: true

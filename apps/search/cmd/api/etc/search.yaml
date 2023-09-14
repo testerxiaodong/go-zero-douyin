@@ -1,0 +1,37 @@
+Name: search-api
+Host: 0.0.0.0
+Port: 1005
+MaxBytes: 104857600
+
+Log:
+  ServiceName: search-api
+  Mode: console
+  Encoding: plain
+  Path: logs
+  TimeFormat: 2006-01-02T15:04:05.000Z07:00
+  Level: debug
+  KeepDays: 30
+  StackCooldownMillis: 100
+
+JwtAuth:
+  AccessSecret: go-zero-douyin
+
+#监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4008
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: search-api
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
+
+SearchRpcConf:
+  Endpoints:
+    - 127.0.0.1:1105
+  #  Target: k8s://go-zero-douyin/social-rpc-svc:1104
+  NonBlock: true
