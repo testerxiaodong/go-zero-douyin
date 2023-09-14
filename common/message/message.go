@@ -25,3 +25,19 @@ type VideoSectionMessage struct {
 
 type VideoTagMessage struct {
 }
+
+type MysqlVideoUpdateMessage struct {
+	VideoId int64 `json:"video_id"`
+}
+
+type MysqlVideoDeleteMessage struct {
+	VideoId int64 `json:"video_id"`
+}
+
+type MysqlUserUpdateMessage struct {
+	UserId int64 `json:"user_id"`
+}
+
+type MysqlUserDeleteMessage struct {
+	UserId int64 `json:"user_id"`
+}
