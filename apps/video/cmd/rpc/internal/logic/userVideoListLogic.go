@@ -54,6 +54,7 @@ func (l *UserVideoListLogic) UserVideoList(in *pb.UserVideoListReq) (*pb.UserVid
 		single := &pb.VideoInfo{}
 		single.Id = video.ID
 		single.OwnerId = video.OwnerID
+		single.OwnerName = video.OwnerName
 		single.SectionId = video.SectionID
 		single.Tags = tags
 		single.Title = video.Title

@@ -4,6 +4,7 @@ package types
 type VideoInfo struct {
 	Id           int64    `json:"id"`
 	OwnerId      int64    `json:"owner_id"`
+	OwnerName    string   `json:"owner_name"`
 	SectionId    int64    `json:"section_id"`
 	Tags         []string `json:"tags"`
 	Title        string   `json:"title"`
@@ -16,9 +17,10 @@ type VideoInfo struct {
 }
 
 type PublishVideoReq struct {
-	Title     string `form:"title" validate:"required"`
-	SectionId int64  `form:"section_id" validate:"required"`
-	Tags      string `form:"tags" validate:"required"`
+	Title       string `form:"title" validate:"required"`
+	SectionId   int64  `form:"section_id" validate:"required"`
+	Tags        string `form:"tags" validate:"required"`
+	PublishTime int64  `form:"publish_time,optional"`
 }
 
 type PublishVideoResp struct {
@@ -27,6 +29,7 @@ type PublishVideoResp struct {
 	SectionId  int64    `json:"section_id"`
 	Tags       []string `json:"tags"`
 	OwnerId    int64    `json:"owner_id"`
+	OwnerName  string   `json:"owner_name"`
 	PlayUrl    string   `json:"play_url"`
 	CoverUrl   string   `json:"cover_url"`
 	CreateTime int64    `json:"create_time"`

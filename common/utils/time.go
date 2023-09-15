@@ -5,11 +5,15 @@ import (
 	"time"
 )
 
-func GetCurrentTimeStamp() int64 {
+func GetCurrentUnixTimestamp() int64 {
 	return time.Now().Unix()
 }
 
-func FromInt64TimeStampToProtobufTimeStamp(timestamp int64) *timestamppb.Timestamp {
+func FromInt64TimeStampToProtobufTimestamp(timestamp int64) *timestamppb.Timestamp {
 	t := time.Unix(timestamp, 0)
 	return timestamppb.New(t)
+}
+
+func FromUnixTimestampToTime(timestamp int64) time.Time {
+	return time.Unix(timestamp, 0)
 }

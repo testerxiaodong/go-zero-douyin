@@ -56,6 +56,7 @@ func (l *VideoFeedLogic) VideoFeed(in *pb.VideoFeedReq) (*pb.VideoFeedResp, erro
 		singleVideoResp.SectionId = video.SectionID
 		singleVideoResp.Tags = tags
 		singleVideoResp.OwnerId = video.OwnerID
+		singleVideoResp.OwnerName = video.OwnerName
 		singleVideoResp.PlayUrl = video.PlayURL
 		singleVideoResp.CoverUrl = video.CoverURL
 		singleVideoResp.CreateTime = video.CreateTime

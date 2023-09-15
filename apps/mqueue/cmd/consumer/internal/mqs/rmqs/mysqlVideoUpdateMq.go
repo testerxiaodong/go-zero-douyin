@@ -49,6 +49,7 @@ func (v *MysqlVideoUpdateMq) Consume(message string) error {
 		SectionId:    videoInfoResp.Video.SectionId,
 		Tags:         videoInfoResp.Video.Tags,
 		OwnerId:      videoInfoResp.Video.OwnerId,
+		OwnerName:    videoInfoResp.Video.OwnerName,
 		PlayUrl:      videoInfoResp.Video.PlayUrl,
 		CoverUrl:     videoInfoResp.Video.CoverUrl,
 		CommentCount: commentCountResp.Count,

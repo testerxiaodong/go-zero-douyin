@@ -55,6 +55,7 @@ func (l *GetVideoByIdLogic) GetVideoById(in *pb.GetVideoByIdReq) (*pb.GetVideoBy
 	resp.Video.SectionId = video.SectionID
 	resp.Video.Tags = strings.Split(video.TagIds, ",")
 	resp.Video.OwnerId = video.OwnerID
+	resp.Video.OwnerName = video.OwnerName
 	resp.Video.PlayUrl = video.PlayURL
 	resp.Video.CoverUrl = video.CoverURL
 	resp.Video.CreateTime = video.CreateTime

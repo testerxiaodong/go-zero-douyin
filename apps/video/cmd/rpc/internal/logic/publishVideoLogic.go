@@ -3,9 +3,12 @@ package logic
 import (
 	"context"
 	"encoding/json"
+	"github.com/hibiken/asynq"
 	"github.com/pkg/errors"
+	"go-zero-douyin/apps/mqueue/cmd/job/jobtype"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/model"
 	"go-zero-douyin/common/message"
+	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xerr"
 	"strings"
 
@@ -35,11 +38,32 @@ func (l *PublishVideoLogic) PublishVideo(in *pb.PublishVideoReq) (*pb.PublishVid
 	if in == nil {
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_CHECK_ERR), "Publish video empty param")
 	}
+	// 属于延迟发布的视频，创建延迟任务，直接返回成功
+	if in.GetPublishTime() != 0 {
+		if payload, err := json.Marshal(jobtype.DeferPublishVideoPayload{
+			Title:     in.GetTitle(),
+			OwnerId:   in.GetOwnerId(),
+			OwnerName: in.GetOwnerName(),
+			SectionID: in.GetSectionId(),
+			TagIds:    in.GetTags(),
+			PlayUrl:   in.GetPlayUrl(),
+			CoverUrl:  in.GetCoverUrl(),
+		}); err != nil {
+			l.Logger.Errorf("创建发布视频延迟任务时，序列化消息失败, err: %v", err)
+		} else {
+			_, err = l.svcCtx.Asynq.EnqueueContext(l.ctx, asynq.NewTask(jobtype.DeferPublishVideo, payload), asynq.ProcessAt(utils.FromUnixTimestampToTime(in.GetPublishTime())))
+			if err != nil {
+				return nil, errors.Wrapf(xerr.NewErrMsg("创建发布视频的延迟任务失败"), "err: %v", err)
+			}
+		}
+		return &pb.PublishVideoResp{}, nil
+	}
 
-	// 插入数据
+	// 非延迟任务，直接插入数据
 	video := &model.Video{
 		Title:     in.GetTitle(),
 		OwnerID:   in.GetOwnerId(),
+		OwnerName: in.GetOwnerName(),
 		SectionID: in.GetSectionId(),
 		TagIds:    strings.Join(in.GetTags(), ","),
 		PlayURL:   in.GetPlayUrl(),
@@ -67,6 +91,7 @@ func (l *PublishVideoLogic) PublishVideo(in *pb.PublishVideoReq) (*pb.PublishVid
 			SectionId:  video.SectionID,
 			Tags:       strings.Split(video.TagIds, ","),
 			OwnerId:    video.OwnerID,
+			OwnerName:  video.OwnerName,
 			PlayUrl:    video.PlayURL,
 			CoverUrl:   video.CoverURL,
 			CreateTime: video.CreateTime,

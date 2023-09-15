@@ -11,12 +11,13 @@ message Video {
   int64 section_id = 3;
   repeated string tags = 4;
   int64 owner_id = 5;
-  string play_url = 6;
-  string cover_url = 7;
-  int64 comment_count = 8;
-  int64 like_count = 9;
-  int64 create_time = 10;
-  int64 update_time = 11;
+  string owner_name = 6;
+  string play_url = 7;
+  string cover_url = 8;
+  int64 comment_count = 9;
+  int64 like_count = 10;
+  int64 create_time = 11;
+  int64 update_time = 12;
 }
 
 message SyncVideoInfoReq {

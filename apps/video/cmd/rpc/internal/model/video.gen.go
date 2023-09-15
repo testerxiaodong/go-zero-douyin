@@ -12,11 +12,12 @@ const TableNameVideo = "video"
 
 // Video mapped from table <video>
 type Video struct {
-	ID         int64          `gorm:"column:id;primaryKey;autoIncrement:true;comment:视频id" json:"id"` // 视频id
-	Title      string         `gorm:"column:title;not null;comment:视频标题" json:"title"`                // 视频标题
-	SectionID  int64          `gorm:"column:section_id;not null;comment:视频分区id" json:"section_id"`    // 视频分区id
-	TagIds     string         `gorm:"column:tag_ids;not null" json:"tag_ids"`
+	ID         int64          `gorm:"column:id;primaryKey;autoIncrement:true;comment:视频id" json:"id"`              // 视频id
+	Title      string         `gorm:"column:title;not null;comment:视频标题" json:"title"`                             // 视频标题
+	SectionID  int64          `gorm:"column:section_id;not null;comment:视频分区id" json:"section_id"`                 // 视频分区id
+	TagIds     string         `gorm:"column:tag_ids;not null;comment:视频标签列表" json:"tag_ids"`                       // 视频标签列表
 	OwnerID    int64          `gorm:"column:owner_id;not null;comment:视频发布者id" json:"owner_id"`                    // 视频发布者id
+	OwnerName  string         `gorm:"column:owner_name;not null;comment:视频发布者用户名" json:"owner_name"`               // 视频发布者用户名
 	PlayURL    string         `gorm:"column:play_url;not null;comment:视频下载地址" json:"play_url"`                     // 视频下载地址
 	CoverURL   string         `gorm:"column:cover_url;not null;comment:封面下载地址" json:"cover_url"`                   // 封面下载地址
 	CreateTime int64          `gorm:"column:create_time;type:int;type:unsigned;autoCreateTime" json:"create_time"` // 创建时间

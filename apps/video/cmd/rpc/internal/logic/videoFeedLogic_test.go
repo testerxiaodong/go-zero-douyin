@@ -52,15 +52,15 @@ func TestVideoFeedLogic_VideoFeed(t *testing.T) {
 		},
 		{
 			name: "get_video_feed_with_search_database_error",
-			req:  &pb.VideoFeedReq{LastTimeStamp: utils.FromInt64TimeStampToProtobufTimeStamp(100)},
+			req:  &pb.VideoFeedReq{LastTimeStamp: utils.FromInt64TimeStampToProtobufTimestamp(100)},
 		},
 		{
 			name: "get_video_feed_with_no_database_record",
-			req:  &pb.VideoFeedReq{LastTimeStamp: utils.FromInt64TimeStampToProtobufTimeStamp(100)},
+			req:  &pb.VideoFeedReq{LastTimeStamp: utils.FromInt64TimeStampToProtobufTimestamp(100)},
 		},
 		{
 			name: "get_video_feed_success",
-			req:  &pb.VideoFeedReq{LastTimeStamp: utils.FromInt64TimeStampToProtobufTimeStamp(100)},
+			req:  &pb.VideoFeedReq{LastTimeStamp: utils.FromInt64TimeStampToProtobufTimestamp(100)},
 		},
 	}
 

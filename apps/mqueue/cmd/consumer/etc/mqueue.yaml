@@ -1,5 +1,6 @@
 Name: mqueue
 Host: 0.0.0.0
+Port: 3001
 
 Log:
   ServiceName: mqueue

@@ -11,6 +11,7 @@ faker-douyin的go-zero版本，主要是想学习一下go-zero微服务框架。
 - gorm/gen
 - mysql
 - redis
+- asynq
 - elasticsearch
 - go-stash
 - kafka
@@ -27,6 +28,8 @@ faker-douyin的go-zero版本，主要是想学习一下go-zero微服务框架。
 
 go-zero绑定的消息代理是kafka，不太熟悉，先继续用rabbitmq，做完之后再替换为kafka
 
+使用asynq作为分布式任务队列，实现视频的延迟发布（延迟任务）
+
 项目功能点：
 - 用户
     - 注册
@@ -35,7 +38,7 @@ go-zero绑定的消息代理是kafka，不太熟悉，先继续用rabbitmq，做
     - 更新用户信息
 - 视频
     - 获取视频流
-    - 发布视频
+    - 发布视频(延迟发布)
     - 查询用户视频列表
 - 评论
     - 添加评论

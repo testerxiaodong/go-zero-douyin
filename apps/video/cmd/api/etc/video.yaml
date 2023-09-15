@@ -37,6 +37,12 @@ AliCloud:
   EndPoint: oss-cn-hangzhou.aliyuncs.com
   CommonPath: video
 
+UserRpcConf:
+  Endpoints:
+    - 127.0.0.1:1102
+  #  Target: k8s://go-zero-douyin/video-rpc-svc:1103
+  NonBlock: true
+
 VideoRpcConf:
   Endpoints:
     - 127.0.0.1:1103

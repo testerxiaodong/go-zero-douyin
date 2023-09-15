@@ -10,10 +10,11 @@ message VideoInfo {
   int64 section_id = 3;
   repeated string tags = 4;
   int64 owner_id = 5;
-  string play_url = 6;
-  string cover_url = 7;
-  int64 create_time = 8;
-  int64 update_time = 9;
+  string owner_name =6;
+  string play_url = 7;
+  string cover_url = 8;
+  int64 create_time = 9;
+  int64 update_time = 10;
 }
 
 message VideoDetailInfo {
@@ -22,12 +23,13 @@ message VideoDetailInfo {
   int64 section_id = 3;
   repeated string tags = 4;
   int64 owner_id = 5;
-  string play_url = 6;
-  string cover_url = 7;
-  int64 comment_count = 8;
-  int64 like_count = 9;
-  int64 create_time = 10;
-  int64 update_time = 11;
+  string owner_name = 6;
+  string play_url = 7;
+  string cover_url = 8;
+  int64 comment_count = 9;
+  int64 like_count = 10;
+  int64 create_time = 11;
+  int64 update_time = 12;
 }
 
 message PublishVideoReq {
@@ -35,8 +37,10 @@ message PublishVideoReq {
   int64 section_id = 2;
   repeated string tags = 3;
   int64 owner_id = 4;
-  string play_url = 5;
-  string cover_url = 6;
+  string owner_name = 5;
+  string play_url = 6;
+  string cover_url = 7;
+  int64 publish_time = 8;
 }
 
 // 视频相关功能

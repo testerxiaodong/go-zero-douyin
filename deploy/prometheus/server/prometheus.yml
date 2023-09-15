@@ -72,5 +72,12 @@ scrape_configs:
           job: search-rpc
           app: search-rpc
           env: dev
+  - job_name: 'mqueue-job'
+    static_configs:
+      - targets: [ '192.168.2.248:4010' ]
+        labels:
+          job: mqueue-job
+          app: mqueue-job
+          env: dev
 
 

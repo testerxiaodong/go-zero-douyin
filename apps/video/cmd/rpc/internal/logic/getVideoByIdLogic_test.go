@@ -75,6 +75,7 @@ func TestGetVideoByIdLogic_GetVideoById(t *testing.T) {
 				assert.Equal(t, infoResp.GetVideo().GetSectionId(), mockVideo.SectionID)
 				assert.Equal(t, infoResp.GetVideo().GetTags(), strings.Split(mockVideo.TagIds, ","))
 				assert.Equal(t, infoResp.GetVideo().GetOwnerId(), mockVideo.OwnerID)
+				assert.Equal(t, infoResp.GetVideo().GetOwnerName(), mockVideo.OwnerName)
 				assert.Equal(t, infoResp.GetVideo().GetPlayUrl(), mockVideo.PlayURL)
 				assert.Equal(t, infoResp.GetVideo().GetCoverUrl(), mockVideo.CoverURL)
 			} else {
@@ -91,6 +92,7 @@ func NewRandomVideo() *model.Video {
 	video.SectionID = utils.NewRandomInt64(1, 10)
 	video.TagIds = strings.Join([]string{"11", "22"}, ",")
 	video.OwnerID = utils.NewRandomInt64(1, 10)
+	video.OwnerName = utils.NewRandomString(10)
 	video.PlayURL = utils.NewRandomString(10)
 	video.CoverURL = utils.NewRandomString(10)
 

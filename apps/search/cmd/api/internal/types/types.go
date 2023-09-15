@@ -4,6 +4,7 @@ package types
 type Video struct {
 	Id           int64    `json:"id"`
 	OwnerId      int64    `json:"owner_id"`
+	OwnerName    string   `json:"owner_name"`
 	SectionId    int64    `json:"section_id"`
 	Tags         []string `json:"tags"`
 	Title        string   `json:"title"`

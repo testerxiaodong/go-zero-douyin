@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/pkg/errors"
+	userPb "go-zero-douyin/apps/user/cmd/rpc/pb"
 	"go-zero-douyin/apps/video/cmd/api/internal/svc"
 	"go-zero-douyin/apps/video/cmd/api/internal/types"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
@@ -45,13 +46,14 @@ func (l *PublishLogic) Publish(req *types.PublishVideoReq) (resp *types.PublishV
 	if validateResult := l.svcCtx.Validator.Validate(req); len(validateResult) > 0 {
 		return nil, xerr.NewErrMsg(validateResult)
 	}
-
+	// 判断发布时间是否小于当前时间
+	if req.PublishTime != 0 && req.PublishTime < utils.GetCurrentUnixTimestamp() {
+		return nil, xerr.NewErrMsg("发布时间不能小于当前时间")
+	}
 	// 获取用户id
 	uid := ctxdata.GetUidFromCtx(l.ctx)
-
 	// 参数校验
 	validateErrorGroup, _ := errgroup.WithContext(l.ctx)
-
 	tagIdList := strings.Split(req.Tags, ",")
 
 	// 判断标签是否存在
@@ -70,6 +72,17 @@ func (l *PublishLogic) Publish(req *types.PublishVideoReq) (resp *types.PublishV
 	validateErrorGroup.Go(func() error {
 		_, err := l.svcCtx.VideoRpc.GetSectionById(l.ctx, &pb.GetSectionByIdReq{Id: req.SectionId})
 		return err
+	})
+
+	// 查询用户名
+	var ownerName string
+	validateErrorGroup.Go(func() error {
+		userInfoResp, err := l.svcCtx.UserRpc.GetUserInfo(l.ctx, &userPb.GetUserInfoReq{Id: uid})
+		if err != nil {
+			return err
+		}
+		ownerName = userInfoResp.User.GetUsername()
+		return nil
 	})
 
 	err = validateErrorGroup.Wait()
@@ -142,20 +155,28 @@ func (l *PublishLogic) Publish(req *types.PublishVideoReq) (resp *types.PublishV
 		return nil, err
 	}
 	video, err := l.svcCtx.VideoRpc.PublishVideo(l.ctx, &pb.PublishVideoReq{
-		Title:     req.Title,
-		SectionId: req.SectionId,
-		Tags:      tagIdList,
-		OwnerId:   uid,
-		PlayUrl:   l.svcCtx.OssClient.GetOssFileFullAccessPath(videoOssSubPath),
-		CoverUrl:  l.svcCtx.OssClient.GetOssFileFullAccessPath(videoCoverOssSubPath),
+		Title:       req.Title,
+		SectionId:   req.SectionId,
+		Tags:        tagIdList,
+		OwnerId:     uid,
+		OwnerName:   ownerName,
+		PlayUrl:     l.svcCtx.OssClient.GetOssFileFullAccessPath(videoOssSubPath),
+		CoverUrl:    l.svcCtx.OssClient.GetOssFileFullAccessPath(videoCoverOssSubPath),
+		PublishTime: req.PublishTime,
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %v", req)
 	}
+	if video.GetVideo() == nil {
+		return nil, nil
+	}
 	resp = new(types.PublishVideoResp)
 	resp.Id = video.Video.Id
 	resp.Title = video.Video.Title
+	resp.SectionId = video.Video.SectionId
+	resp.Tags = video.Video.Tags
 	resp.OwnerId = video.Video.OwnerId
+	resp.OwnerName = video.Video.OwnerName
 	resp.PlayUrl = video.Video.PlayUrl
 	resp.CoverUrl = video.Video.CoverUrl
 	resp.CreateTime = video.Video.CreateTime
