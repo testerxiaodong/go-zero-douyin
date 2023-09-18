@@ -45,10 +45,11 @@ func (l *VideoLogic) Video(req *types.SearchVideoReq) (resp *types.SearchVideoRe
 
 	// 调用searchRpc
 	searchVideoResp, err := l.svcCtx.SearchRpc.SearchVideo(l.ctx, &pb.SearchVideoReq{
-		Keyword:  req.Keyword,
-		Page:     req.Page,
-		PageSize: req.PageSize,
-		Sort:     sort,
+		Keyword:   req.Keyword,
+		Page:      req.Page,
+		PageSize:  req.PageSize,
+		Sort:      sort,
+		Highlight: req.Highlight,
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %v", req)

@@ -36,6 +36,26 @@ func (m *MockSearch) EXPECT() *MockSearchMockRecorder {
 	return m.recorder
 }
 
+// CompleteVideo mocks base method.
+func (m *MockSearch) CompleteVideo(ctx context.Context, in *search.CompleteVideoReq, opts ...grpc.CallOption) (*search.CompleteVideoResp, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CompleteVideo", varargs...)
+	ret0, _ := ret[0].(*search.CompleteVideoResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CompleteVideo indicates an expected call of CompleteVideo.
+func (mr *MockSearchMockRecorder) CompleteVideo(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompleteVideo", reflect.TypeOf((*MockSearch)(nil).CompleteVideo), varargs...)
+}
+
 // DeleteUser mocks base method.
 func (m *MockSearch) DeleteUser(ctx context.Context, in *search.DeleteUserDocumentReq, opts ...grpc.CallOption) (*search.DeleteUserDocumentResp, error) {
 	m.ctrl.T.Helper()

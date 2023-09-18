@@ -45,6 +45,7 @@ const (
 
 const (
 	ElasticSearchVideoIndexName       = "video"
+	ElasticSearchVideoSuggestionName  = "video_suggestion"
 	ElasticSearchUserIndexName        = "user"
 	ElasticSearchVideoDefaultPageSize = 10
 )

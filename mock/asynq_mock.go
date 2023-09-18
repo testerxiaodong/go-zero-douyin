@@ -12,31 +12,31 @@ import (
 	asynq "github.com/hibiken/asynq"
 )
 
-// MockTaskQueue is a mock of TaskQueue interface.
-type MockTaskQueue struct {
+// MockTaskQueueClient is a mock of TaskQueueClient interface.
+type MockTaskQueueClient struct {
 	ctrl     *gomock.Controller
-	recorder *MockTaskQueueMockRecorder
+	recorder *MockTaskQueueClientMockRecorder
 }
 
-// MockTaskQueueMockRecorder is the mock recorder for MockTaskQueue.
-type MockTaskQueueMockRecorder struct {
-	mock *MockTaskQueue
+// MockTaskQueueClientMockRecorder is the mock recorder for MockTaskQueueClient.
+type MockTaskQueueClientMockRecorder struct {
+	mock *MockTaskQueueClient
 }
 
-// NewMockTaskQueue creates a new mock instance.
-func NewMockTaskQueue(ctrl *gomock.Controller) *MockTaskQueue {
-	mock := &MockTaskQueue{ctrl: ctrl}
-	mock.recorder = &MockTaskQueueMockRecorder{mock}
+// NewMockTaskQueueClient creates a new mock instance.
+func NewMockTaskQueueClient(ctrl *gomock.Controller) *MockTaskQueueClient {
+	mock := &MockTaskQueueClient{ctrl: ctrl}
+	mock.recorder = &MockTaskQueueClientMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockTaskQueue) EXPECT() *MockTaskQueueMockRecorder {
+func (m *MockTaskQueueClient) EXPECT() *MockTaskQueueClientMockRecorder {
 	return m.recorder
 }
 
 // Enqueue mocks base method.
-func (m *MockTaskQueue) Enqueue(task *asynq.Task, opts ...asynq.Option) (*asynq.TaskInfo, error) {
+func (m *MockTaskQueueClient) Enqueue(task *asynq.Task, opts ...asynq.Option) (*asynq.TaskInfo, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{task}
 	for _, a := range opts {
@@ -49,14 +49,14 @@ func (m *MockTaskQueue) Enqueue(task *asynq.Task, opts ...asynq.Option) (*asynq.
 }
 
 // Enqueue indicates an expected call of Enqueue.
-func (mr *MockTaskQueueMockRecorder) Enqueue(task interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockTaskQueueClientMockRecorder) Enqueue(task interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{task}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Enqueue", reflect.TypeOf((*MockTaskQueue)(nil).Enqueue), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Enqueue", reflect.TypeOf((*MockTaskQueueClient)(nil).Enqueue), varargs...)
 }
 
 // EnqueueContext mocks base method.
-func (m *MockTaskQueue) EnqueueContext(ctx context.Context, task *asynq.Task, opts ...asynq.Option) (*asynq.TaskInfo, error) {
+func (m *MockTaskQueueClient) EnqueueContext(ctx context.Context, task *asynq.Task, opts ...asynq.Option) (*asynq.TaskInfo, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, task}
 	for _, a := range opts {
@@ -69,8 +69,8 @@ func (m *MockTaskQueue) EnqueueContext(ctx context.Context, task *asynq.Task, op
 }
 
 // EnqueueContext indicates an expected call of EnqueueContext.
-func (mr *MockTaskQueueMockRecorder) EnqueueContext(ctx, task interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockTaskQueueClientMockRecorder) EnqueueContext(ctx, task interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, task}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnqueueContext", reflect.TypeOf((*MockTaskQueue)(nil).EnqueueContext), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnqueueContext", reflect.TypeOf((*MockTaskQueueClient)(nil).EnqueueContext), varargs...)
 }

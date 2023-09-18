@@ -38,6 +38,11 @@ func (s *SearchServer) SearchVideo(ctx context.Context, in *pb.SearchVideoReq) (
 	return l.SearchVideo(in)
 }
 
+func (s *SearchServer) CompleteVideo(ctx context.Context, in *pb.CompleteVideoReq) (*pb.CompleteVideoResp, error) {
+	l := logic.NewCompleteVideoLogic(ctx, s.svcCtx)
+	return l.CompleteVideo(in)
+}
+
 // 用户相关功能
 func (s *SearchServer) SyncUserInfo(ctx context.Context, in *pb.SyncUserInfoReq) (*pb.SyncUserInfoResp, error) {
 	l := logic.NewSyncUserInfoLogic(ctx, s.svcCtx)

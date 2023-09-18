@@ -18,6 +18,7 @@ message Video {
   int64 like_count = 10;
   int64 create_time = 11;
   int64 update_time = 12;
+  string suggestion = 13;
 }
 
 message SyncVideoInfoReq {
@@ -45,11 +46,20 @@ message SearchVideoReq {
     COMMENTCOUNT = 2;
   }
   Sort sort = 4;
+  int64 highlight = 5;
 }
 
 message SearchVideoResp {
   int64 total = 1;
   repeated Video videos = 2;
+}
+
+message CompleteVideoReq {
+  string input = 1;
+}
+
+message CompleteVideoResp {
+  repeated string suggestions = 1;
 }
 
 // 用户相关功能
@@ -58,6 +68,7 @@ message User {
   string username = 2;
   int64 follower_count = 3;
   int64 follow_count = 4;
+  string suggestion = 5;
 }
 
 message SyncUserInfoReq {
@@ -83,6 +94,7 @@ message SearchUserReq {
     FOLLOWERCOUNT = 1;
   }
   Sort sort = 4;
+  int64 highlight = 5;
 }
 
 message SearchUserResp {
@@ -95,6 +107,7 @@ service search {
   rpc SyncVideoInfo (SyncVideoInfoReq) returns (SyncVideoInfoResp);
   rpc DeleteVideo (DeleteVideoDocumentReq) returns (DeleteVideoDocumentResp);
   rpc SearchVideo (SearchVideoReq) returns (SearchVideoResp);
+  rpc CompleteVideo (CompleteVideoReq) returns (CompleteVideoResp);
   // 用户相关功能
   rpc SyncUserInfo (SyncUserInfoReq) returns (SyncUserInfoResp);
   rpc DeleteUser (DeleteUserDocumentReq) returns (DeleteUserDocumentResp);

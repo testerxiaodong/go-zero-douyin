@@ -37,6 +37,8 @@ func (l *SyncUserInfoLogic) SyncUserInfo(in *pb.SyncUserInfoReq) (*pb.SyncUserIn
 	if in.GetUser().GetId() == 0 {
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "用户id不允许为空")
 	}
+	// 冗余字段业务处理
+	in.User.Suggestion = in.User.Username
 	// 调用es接口
 	_, err := l.svcCtx.ElasticSearch.CreateDocument(l.ctx, xconst.ElasticSearchUserIndexName, cast.ToString(in.GetUser().GetId()), in.GetUser())
 	if err != nil {

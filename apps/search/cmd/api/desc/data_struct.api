@@ -35,7 +35,8 @@ type (
         Keyword string `json:"keyword" validate:"required"`
         Page int64 `json:"page" validate:"required"`
         PageSize int64 `json:"page_size" validate:"required"`
-        Sort int64 `json:"sort" validate:"required"`
+        Sort int64 `json:"sort,optional"`
+        Highlight int64 `json:"highlight,optional"`
     }
     SearchVideoResp {
         Total int64  `json:"total"`
@@ -44,11 +45,21 @@ type (
 )
 
 type (
+    CompleteVideoReq {
+        Input string `json:"input" validate:"required"`
+    }
+    CompleteVideoResp {
+        Suggestions []string `json:"suggestions"`
+    }
+)
+
+type (
     SearchUserReq {
         Keyword string `json:"keyword" validate:"required"`
         Page int64 `json:"page" validate:"required"`
         PageSize int64 `json:"page_size" validate:"required"`
-        Sort int64 `json:"sort" validate:"required"`
+        Sort int64 `json:"sort,optional"`
+        Highlight int64 `json:"highlight,optional"`
     }
     SearchUserResp {
         Total int64  `json:"total"`

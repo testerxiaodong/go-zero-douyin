@@ -13,6 +13,8 @@ import (
 )
 
 type (
+	CompleteVideoReq        = pb.CompleteVideoReq
+	CompleteVideoResp       = pb.CompleteVideoResp
 	DeleteUserDocumentReq   = pb.DeleteUserDocumentReq
 	DeleteUserDocumentResp  = pb.DeleteUserDocumentResp
 	DeleteVideoDocumentReq  = pb.DeleteVideoDocumentReq
@@ -33,6 +35,7 @@ type (
 		SyncVideoInfo(ctx context.Context, in *SyncVideoInfoReq, opts ...grpc.CallOption) (*SyncVideoInfoResp, error)
 		DeleteVideo(ctx context.Context, in *DeleteVideoDocumentReq, opts ...grpc.CallOption) (*DeleteVideoDocumentResp, error)
 		SearchVideo(ctx context.Context, in *SearchVideoReq, opts ...grpc.CallOption) (*SearchVideoResp, error)
+		CompleteVideo(ctx context.Context, in *CompleteVideoReq, opts ...grpc.CallOption) (*CompleteVideoResp, error)
 		// 用户相关功能
 		SyncUserInfo(ctx context.Context, in *SyncUserInfoReq, opts ...grpc.CallOption) (*SyncUserInfoResp, error)
 		DeleteUser(ctx context.Context, in *DeleteUserDocumentReq, opts ...grpc.CallOption) (*DeleteUserDocumentResp, error)
@@ -64,6 +67,11 @@ func (m *defaultSearch) DeleteVideo(ctx context.Context, in *DeleteVideoDocument
 func (m *defaultSearch) SearchVideo(ctx context.Context, in *SearchVideoReq, opts ...grpc.CallOption) (*SearchVideoResp, error) {
 	client := pb.NewSearchClient(m.cli.Conn())
 	return client.SearchVideo(ctx, in, opts...)
+}
+
+func (m *defaultSearch) CompleteVideo(ctx context.Context, in *CompleteVideoReq, opts ...grpc.CallOption) (*CompleteVideoResp, error) {
+	client := pb.NewSearchClient(m.cli.Conn())
+	return client.CompleteVideo(ctx, in, opts...)
 }
 
 // 用户相关功能

@@ -20,6 +20,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
+				Path:    "/video/suggestion",
+				Handler: search.CompleteVideoHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/user",
 				Handler: search.UserHandler(serverCtx),
 			},

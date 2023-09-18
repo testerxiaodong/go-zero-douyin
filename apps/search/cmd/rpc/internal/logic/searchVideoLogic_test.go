@@ -27,7 +27,7 @@ func TestSearchVideoLogic_SearchVideo(t *testing.T) {
 	// ElasticSearch.SearchByKeyword失败的mock
 	esError := errors.New("es error")
 	mockElastic.EXPECT().SearchByKeyword(gomock.Any(), gomock.Any(), gomock.Any(),
-		gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, esError)
 
 	// ElasticSearch.SearchByKeyword成功的mock
@@ -57,7 +57,7 @@ func TestSearchVideoLogic_SearchVideo(t *testing.T) {
 		},
 	}
 	mockElastic.EXPECT().SearchByKeyword(gomock.Any(), gomock.Any(), gomock.Any(),
-		gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(resp, nil)
 
 	// 表格驱动测试

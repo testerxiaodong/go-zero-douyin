@@ -20,6 +20,10 @@ service search {
 	@handler Video
 	get /video (SearchVideoReq) returns (SearchVideoResp)
 
+	@doc "视频搜索输入自动补全"
+	@handler CompleteVideo
+	get /video/suggestion (CompleteVideoReq) returns (CompleteVideoResp)
+
 	@doc "根据关键字搜索用户"
 	@handler User
 	get /user (SearchUserReq) returns (SearchUserResp)

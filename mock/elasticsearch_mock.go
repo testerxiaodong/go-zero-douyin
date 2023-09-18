@@ -66,16 +66,31 @@ func (mr *MockElasticServiceMockRecorder) DeleteDocument(ctx, indexName, id inte
 }
 
 // SearchByKeyword mocks base method.
-func (m *MockElasticService) SearchByKeyword(ctx context.Context, indexName, field, keyword string, page, pageSize int64, sort string) (*elastic.SearchResult, error) {
+func (m *MockElasticService) SearchByKeyword(ctx context.Context, indexName, field, keyword string, page, pageSize int64, sort string, highLight int64) (*elastic.SearchResult, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SearchByKeyword", ctx, indexName, field, keyword, page, pageSize, sort)
+	ret := m.ctrl.Call(m, "SearchByKeyword", ctx, indexName, field, keyword, page, pageSize, sort, highLight)
 	ret0, _ := ret[0].(*elastic.SearchResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SearchByKeyword indicates an expected call of SearchByKeyword.
-func (mr *MockElasticServiceMockRecorder) SearchByKeyword(ctx, indexName, field, keyword, page, pageSize, sort interface{}) *gomock.Call {
+func (mr *MockElasticServiceMockRecorder) SearchByKeyword(ctx, indexName, field, keyword, page, pageSize, sort, highLight interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchByKeyword", reflect.TypeOf((*MockElasticService)(nil).SearchByKeyword), ctx, indexName, field, keyword, page, pageSize, sort)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchByKeyword", reflect.TypeOf((*MockElasticService)(nil).SearchByKeyword), ctx, indexName, field, keyword, page, pageSize, sort, highLight)
+}
+
+// Suggestion mocks base method.
+func (m *MockElasticService) Suggestion(ctx context.Context, indexName, suggestionName, input string) (*elastic.SearchResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Suggestion", ctx, indexName, suggestionName, input)
+	ret0, _ := ret[0].(*elastic.SearchResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Suggestion indicates an expected call of Suggestion.
+func (mr *MockElasticServiceMockRecorder) Suggestion(ctx, indexName, suggestionName, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Suggestion", reflect.TypeOf((*MockElasticService)(nil).Suggestion), ctx, indexName, suggestionName, input)
 }

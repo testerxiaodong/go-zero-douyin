@@ -13,52 +13,34 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type UserLogic struct {
+type CompleteVideoLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserLogic {
-	return &UserLogic{
+func NewCompleteVideoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CompleteVideoLogic {
+	return &CompleteVideoLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *UserLogic) User(req *types.SearchUserReq) (resp *types.SearchUserResp, err error) {
+func (l *CompleteVideoLogic) CompleteVideo(req *types.CompleteVideoReq) (resp *types.CompleteVideoResp, err error) {
 	// todo: add your logic here and delete this line
 	// 参数校验
 	if validateResult := l.svcCtx.Validator.Validate(req); len(validateResult) > 0 {
 		return nil, xerr.NewErrMsg(validateResult)
 	}
-
-	var sort pb.SearchUserReq_Sort
-	if req.Sort == 1 {
-		sort = pb.SearchUserReq_FOLLOWERCOUNT
-	} else {
-		sort = pb.SearchUserReq_DEFAULT
-	}
-
 	// 调用searchRpc
-	searchVideoResp, err := l.svcCtx.SearchRpc.SearchUser(l.ctx, &pb.SearchUserReq{
-		Keyword:   req.Keyword,
-		Page:      req.Page,
-		PageSize:  req.PageSize,
-		Sort:      sort,
-		Highlight: req.Highlight,
-	})
+	completeVideoResp, err := l.svcCtx.SearchRpc.CompleteVideo(l.ctx, &pb.CompleteVideoReq{Input: req.Input})
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %v", req)
 	}
-
 	// 拼接响应
-	if len(searchVideoResp.GetUsers()) > 0 {
-		resp = &types.SearchUserResp{Users: make([]*types.User, 0)}
-		_ = copier.Copy(resp, searchVideoResp)
-		return resp, nil
-	}
+	resp = &types.CompleteVideoResp{Suggestions: make([]string, 0)}
+	_ = copier.Copy(resp, completeVideoResp)
 
 	return resp, nil
 }

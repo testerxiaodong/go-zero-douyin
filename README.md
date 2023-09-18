@@ -4,7 +4,7 @@ faker-douyin的go-zero版本，主要是想学习一下go-zero微服务框架。
 
 因为go-zero深度绑定了orm框架sqlx以及sqlc并帮助了用户处理了缓存击穿问题，与我在faker-douyin中通过rabbitmq处理缓存一致性问题时不一致
 
-准备先继续采用faker-douyin的处理方式，沿用gorm框架(因为代码生成的方式熟悉一点，而且不用手撸sql)
+准备先继续采用faker-douyin的处理方式，沿用gorm框架(因为代码生成的方式熟悉一点，而且不用手撸sql)，同时也参考了一些go-zero对于缓存的处理
 
 ### 项目预计用到技术
 - go-zero

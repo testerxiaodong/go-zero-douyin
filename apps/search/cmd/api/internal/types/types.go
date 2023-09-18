@@ -24,10 +24,11 @@ type User struct {
 }
 
 type SearchVideoReq struct {
-	Keyword  string `json:"keyword" validate:"required"`
-	Page     int64  `json:"page" validate:"required"`
-	PageSize int64  `json:"page_size" validate:"required"`
-	Sort     int64  `json:"sort" validate:"required"`
+	Keyword   string `json:"keyword" validate:"required"`
+	Page      int64  `json:"page" validate:"required"`
+	PageSize  int64  `json:"page_size" validate:"required"`
+	Sort      int64  `json:"sort,optional"`
+	Highlight int64  `json:"highlight,optional"`
 }
 
 type SearchVideoResp struct {
@@ -35,11 +36,20 @@ type SearchVideoResp struct {
 	Videos []*Video `json:"videos"`
 }
 
+type CompleteVideoReq struct {
+	Input string `json:"input" validate:"required"`
+}
+
+type CompleteVideoResp struct {
+	Suggestions []string `json:"suggestions"`
+}
+
 type SearchUserReq struct {
-	Keyword  string `json:"keyword" validate:"required"`
-	Page     int64  `json:"page" validate:"required"`
-	PageSize int64  `json:"page_size" validate:"required"`
-	Sort     int64  `json:"sort" validate:"required"`
+	Keyword   string `json:"keyword" validate:"required"`
+	Page      int64  `json:"page" validate:"required"`
+	PageSize  int64  `json:"page_size" validate:"required"`
+	Sort      int64  `json:"sort,optional"`
+	Highlight int64  `json:"highlight,optional"`
 }
 
 type SearchUserResp struct {
