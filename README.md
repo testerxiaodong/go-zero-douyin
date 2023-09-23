@@ -5,7 +5,7 @@ faker-douyin的go-zero版本，主要是想学习一下go-zero微服务框架。
 
 因为go-zero深度绑定了orm框架sqlx以及sqlc并帮助了用户处理了缓存击穿问题，与我在faker-douyin中通过rabbitmq处理缓存一致性问题时不一致
 
-～～准备先继续采用faker-douyin的处理方式，沿用gorm框架(因为代码生成的方式熟悉一点，而且不用手撸sql)，同时也参考了一些go-zero对于缓存的处理～～
+~~准备先继续采用faker-douyin的处理方式，沿用gorm框架(因为代码生成的方式熟悉一点，而且不用手撸sql)，同时也参考了一些go-zero对于缓存的处理~~
 
 feature/sqlx+sqlc分支采用了sqlx+sqlc的方式，没有兜底缓存删除失败的情况(后续canal更新1.17之后会考虑)
 
@@ -31,7 +31,7 @@ feature/sqlx+sqlc分支采用了sqlx+sqlc的方式，没有兜底缓存删除失
 
 项目日志的记录直接使用go-zero绑定的logx，且集成了elk日志系统(filebeat->kafka->go-stash->es->kibana)。
 
-～～go-zero绑定的消息代理是kafka，不太熟悉，先继续用rabbitmq，做完之后再替换为kafka～～
+~~go-zero绑定的消息代理是kafka，不太熟悉，先继续用rabbitmq，做完之后再替换为kafka~~
 
 放弃了用消息队列同步es数据的方式(耦合度高)，使用flink-cdc(flink sql)方案。
 
