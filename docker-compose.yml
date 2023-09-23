@@ -201,21 +201,6 @@ services:
     networks:
       - douyin_net
 
-  rabbit:
-    image: rabbitmq:management
-    container_name: rabbit
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      TZ: Asia/Shanghai
-    volumes:
-      - ./data/rabbitmq/data/:/var/lib/rabbitmq
-    privileged: true
-    restart: always
-    networks:
-      - douyin_net
-
   jobmanager:
     image: flink:latest
     container_name: jobmanager
