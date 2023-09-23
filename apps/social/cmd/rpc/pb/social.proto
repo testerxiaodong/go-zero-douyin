@@ -24,10 +24,13 @@ message AddCommentResp {
 
 message GetCommentListByIdReq {
   int64 id = 1;
+  int64 page = 2;
+  int64 page_size = 3;
 }
 
 message GetCommentListByIdResp {
-  repeated Comment comments = 1;
+  int64 total = 1;
+  repeated Comment comments = 2;
 }
 
 message DelCommentReq {
@@ -73,6 +76,8 @@ message GetVideoLikedCountByVideoIdResp {
 
 message GetUserLikeVideoIdListReq {
   int64 user_id = 1;
+  int64 page = 2;
+  int64 page_size = 3;
 }
 
 message GetUserLikeVideoIdListResp {
@@ -114,6 +119,8 @@ message GetUserFollowCountResp {
 
 message GetUserFollowIdListReq {
   int64 user_id = 1;
+  int64 page = 2;
+  int64 page_size = 3;
 }
 
 message GetUserFollowIdListResp {
@@ -122,6 +129,8 @@ message GetUserFollowIdListResp {
 
 message GetUserFollowerIdListReq {
   int64 user_id = 1;
+  int64 page = 2;
+  int64 page_size = 3;
 }
 
 message GetUserFollowerIdListResp {

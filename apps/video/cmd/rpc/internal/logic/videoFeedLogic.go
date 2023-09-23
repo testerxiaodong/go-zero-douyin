@@ -2,12 +2,13 @@ package logic
 
 import (
 	"context"
+	"github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
-	"go-zero-douyin/common/xerr"
-	"strings"
-
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
+	"go-zero-douyin/common/utils"
+	"go-zero-douyin/common/xconst"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,13 +33,14 @@ func (l *VideoFeedLogic) VideoFeed(in *pb.VideoFeedReq) (*pb.VideoFeedResp, erro
 	if in == nil {
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_CHECK_ERR), "Get video feed with empty param")
 	}
-	if in.GetLastTimeStamp() == nil {
+	if in.GetLastTimeStamp() == 0 {
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_CHECK_ERR), "Get video feed with empty timestamp")
 	}
 
 	// 获取数据库数据
-	lastTimeStamp := in.GetLastTimeStamp().GetSeconds()
-	videos, err := l.svcCtx.VideoDo.GetVideoListByTimeStampAndSectionId(l.ctx, lastTimeStamp, in.GetSectionId())
+	lastTime := utils.FromUnixTimestampToTime(in.GetLastTimeStamp())
+	builder := l.svcCtx.VideoModel.SelectBuilder().Where(squirrel.Lt{"create_time": lastTime}).Where(squirrel.Eq{"section_id": in.GetSectionId()})
+	videos, err := l.svcCtx.VideoModel.FindPageListByPage(l.ctx, builder, 1, xconst.VideoFeedCount, "create_time DESC")
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "Get video feed by last timestmap failed, err: %v", err)
 	}
@@ -49,18 +51,17 @@ func (l *VideoFeedLogic) VideoFeed(in *pb.VideoFeedReq) (*pb.VideoFeedResp, erro
 	}
 	videosResp := &pb.VideoFeedResp{Videos: make([]*pb.VideoInfo, 0)}
 	for _, video := range videos {
-		tags := strings.Split(video.TagIds, ",")
 		singleVideoResp := &pb.VideoInfo{}
-		singleVideoResp.Id = video.ID
+		singleVideoResp.Id = video.Id
 		singleVideoResp.Title = video.Title
-		singleVideoResp.SectionId = video.SectionID
-		singleVideoResp.Tags = tags
-		singleVideoResp.OwnerId = video.OwnerID
+		singleVideoResp.SectionId = video.SectionId
+		singleVideoResp.TagIds = video.TagIds
+		singleVideoResp.OwnerId = video.OwnerId
 		singleVideoResp.OwnerName = video.OwnerName
-		singleVideoResp.PlayUrl = video.PlayURL
-		singleVideoResp.CoverUrl = video.CoverURL
-		singleVideoResp.CreateTime = video.CreateTime
-		singleVideoResp.UpdateTime = video.UpdateTime
+		singleVideoResp.PlayUrl = video.PlayUrl
+		singleVideoResp.CoverUrl = video.CoverUrl
+		singleVideoResp.CreateTime = video.CreateTime.Unix()
+		singleVideoResp.UpdateTime = video.UpdateTime.Unix()
 		videosResp.Videos = append(videosResp.Videos, singleVideoResp)
 	}
 	return videosResp, nil

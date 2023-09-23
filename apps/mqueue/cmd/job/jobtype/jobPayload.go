@@ -5,7 +5,7 @@ type DeferPublishVideoPayload struct {
 	OwnerId   int64
 	OwnerName string
 	SectionID int64
-	TagIds    []string
+	TagIds    string
 	PlayUrl   string
 	CoverUrl  string
 }

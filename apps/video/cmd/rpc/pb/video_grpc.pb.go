@@ -22,7 +22,6 @@ const (
 	Video_PublishVideo_FullMethodName   = "/pb.video/PublishVideo"
 	Video_VideoFeed_FullMethodName      = "/pb.video/VideoFeed"
 	Video_UserVideoList_FullMethodName  = "/pb.video/UserVideoList"
-	Video_GetAllVideo_FullMethodName    = "/pb.video/GetAllVideo"
 	Video_DeleteVideo_FullMethodName    = "/pb.video/DeleteVideo"
 	Video_GetVideoById_FullMethodName   = "/pb.video/GetVideoById"
 	Video_AddSection_FullMethodName     = "/pb.video/AddSection"
@@ -43,7 +42,6 @@ type VideoClient interface {
 	PublishVideo(ctx context.Context, in *PublishVideoReq, opts ...grpc.CallOption) (*PublishVideoResp, error)
 	VideoFeed(ctx context.Context, in *VideoFeedReq, opts ...grpc.CallOption) (*VideoFeedResp, error)
 	UserVideoList(ctx context.Context, in *UserVideoListReq, opts ...grpc.CallOption) (*UserVideoListResp, error)
-	GetAllVideo(ctx context.Context, in *GetAllVideoReq, opts ...grpc.CallOption) (*GetAllVideoResp, error)
 	DeleteVideo(ctx context.Context, in *DeleteVideoReq, opts ...grpc.CallOption) (*DeleteVideoResp, error)
 	GetVideoById(ctx context.Context, in *GetVideoByIdReq, opts ...grpc.CallOption) (*GetVideoByIdResp, error)
 	// 分区相关功能
@@ -87,15 +85,6 @@ func (c *videoClient) VideoFeed(ctx context.Context, in *VideoFeedReq, opts ...g
 func (c *videoClient) UserVideoList(ctx context.Context, in *UserVideoListReq, opts ...grpc.CallOption) (*UserVideoListResp, error) {
 	out := new(UserVideoListResp)
 	err := c.cc.Invoke(ctx, Video_UserVideoList_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *videoClient) GetAllVideo(ctx context.Context, in *GetAllVideoReq, opts ...grpc.CallOption) (*GetAllVideoResp, error) {
-	out := new(GetAllVideoResp)
-	err := c.cc.Invoke(ctx, Video_GetAllVideo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +189,6 @@ type VideoServer interface {
 	PublishVideo(context.Context, *PublishVideoReq) (*PublishVideoResp, error)
 	VideoFeed(context.Context, *VideoFeedReq) (*VideoFeedResp, error)
 	UserVideoList(context.Context, *UserVideoListReq) (*UserVideoListResp, error)
-	GetAllVideo(context.Context, *GetAllVideoReq) (*GetAllVideoResp, error)
 	DeleteVideo(context.Context, *DeleteVideoReq) (*DeleteVideoResp, error)
 	GetVideoById(context.Context, *GetVideoByIdReq) (*GetVideoByIdResp, error)
 	// 分区相关功能
@@ -228,9 +216,6 @@ func (UnimplementedVideoServer) VideoFeed(context.Context, *VideoFeedReq) (*Vide
 }
 func (UnimplementedVideoServer) UserVideoList(context.Context, *UserVideoListReq) (*UserVideoListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserVideoList not implemented")
-}
-func (UnimplementedVideoServer) GetAllVideo(context.Context, *GetAllVideoReq) (*GetAllVideoResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAllVideo not implemented")
 }
 func (UnimplementedVideoServer) DeleteVideo(context.Context, *DeleteVideoReq) (*DeleteVideoResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteVideo not implemented")
@@ -325,24 +310,6 @@ func _Video_UserVideoList_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(VideoServer).UserVideoList(ctx, req.(*UserVideoListReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Video_GetAllVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAllVideoReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(VideoServer).GetAllVideo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Video_GetAllVideo_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VideoServer).GetAllVideo(ctx, req.(*GetAllVideoReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -545,10 +512,6 @@ var Video_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UserVideoList",
 			Handler:    _Video_UserVideoList_Handler,
-		},
-		{
-			MethodName: "GetAllVideo",
-			Handler:    _Video_GetAllVideo_Handler,
 		},
 		{
 			MethodName: "DeleteVideo",

@@ -1,8 +1,11 @@
 Name: video-rpc
 ListenOn: 0.0.0.0:1103
 
-# 修改下面数据源
-DataSource: root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local
+DB:
+  DataSource: root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local
+
+Cache:
+  - Host: 127.0.0.1:6379
 
 Log:
   ServiceName: video-rpc
@@ -20,16 +23,3 @@ Telemetry:
   Endpoint:  http://127.0.0.1:14268/api/traces
   Sampler: 1.0
   Batcher: jaeger
-
-# rabbitmq
-RabbitSenderConf:
-  Username: guest
-  Password: guest
-  Host: 127.0.0.1
-  Port: 5672
-  ContentType: text/plain
-
-# redis
-RedisCache:
-  Host: 127.0.0.1:6379
-  Type: node

@@ -2,6 +2,8 @@ package logic
 
 import (
 	"context"
+	"github.com/Masterminds/squirrel"
+	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
 	"go-zero-douyin/common/xerr"
 
@@ -35,7 +37,8 @@ func (l *GetVideoCommentListByIdLogic) GetVideoCommentListById(in *pb.GetComment
 	}
 
 	// 查询数据库
-	comments, err := l.svcCtx.CommentDo.GetCommentListByVideoId(l.ctx, in.GetId())
+	builder := l.svcCtx.CommentModel.SelectBuilder().Where(squirrel.Eq{"video_id": in.GetId()})
+	comments, n, err := l.svcCtx.CommentModel.FindPageListByPageWithTotal(l.ctx, builder, in.GetPage(), in.GetPageSize(), "create_time DESC")
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "db get comment list by video_id failed: %v", err)
 	}
@@ -45,16 +48,7 @@ func (l *GetVideoCommentListByIdLogic) GetVideoCommentListById(in *pb.GetComment
 	}
 
 	resp := &pb.GetCommentListByIdResp{Comments: make([]*pb.Comment, 0)}
-
-	// 拼接数据
-	for _, comment := range comments {
-		single := &pb.Comment{}
-		single.Id = comment.ID
-		single.VideoId = comment.VideoID
-		single.UserId = comment.UserID
-		single.Content = comment.Content
-		resp.Comments = append(resp.Comments, single)
-	}
-
+	resp.Total = n
+	_ = copier.Copy(&resp.Comments, comments)
 	return resp, nil
 }

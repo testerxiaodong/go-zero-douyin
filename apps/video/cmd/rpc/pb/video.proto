@@ -8,7 +8,7 @@ message VideoInfo {
   int64 id = 1;
   string title = 2;
   int64 section_id = 3;
-  repeated string tags = 4;
+  string tag_ids = 4;
   int64 owner_id = 5;
   string owner_name =6;
   string play_url = 7;
@@ -17,25 +17,10 @@ message VideoInfo {
   int64 update_time = 10;
 }
 
-message VideoDetailInfo {
-  int64 id = 1;
-  string title = 2;
-  int64 section_id = 3;
-  repeated string tags = 4;
-  int64 owner_id = 5;
-  string owner_name = 6;
-  string play_url = 7;
-  string cover_url = 8;
-  int64 comment_count = 9;
-  int64 like_count = 10;
-  int64 create_time = 11;
-  int64 update_time = 12;
-}
-
 message PublishVideoReq {
   string title = 1;
   int64 section_id = 2;
-  repeated string tags = 3;
+  string tag_ids = 3;
   int64 owner_id = 4;
   string owner_name = 5;
   string play_url = 6;
@@ -45,11 +30,10 @@ message PublishVideoReq {
 
 // 视频相关功能
 message PublishVideoResp {
-  VideoInfo video = 1;
 }
 
 message VideoFeedReq {
-  google.protobuf.Timestamp last_time_stamp = 1;
+  int64 last_time_stamp = 1;
   int64 section_id = 2;
 }
 
@@ -59,17 +43,13 @@ message VideoFeedResp {
 
 message UserVideoListReq {
   int64 user_id = 1;
+  int64 page = 2;
+  int64 page_size = 3;
 }
 
 message UserVideoListResp {
-  repeated VideoInfo videos = 1;
-}
-
-message GetAllVideoReq {
-}
-
-message GetAllVideoResp {
-  repeated VideoInfo videos = 1;
+  int64 total = 1;
+  repeated VideoInfo videos = 2;
 }
 
 message DeleteVideoReq {
@@ -89,7 +69,7 @@ message GetVideoByIdResp {
 }
 
 // 分区相关功能
-message SectionInfo {
+message Section {
   int64 id = 1;
   string name = 2;
 }
@@ -112,18 +92,18 @@ message GetSectionByIdReq {
 }
 
 message GetSectionByIdResp {
-  SectionInfo section_info = 1;
+  Section section = 1;
 }
 
 message GetAllSectionReq {
 }
 
 message GetAllSectionResp {
-  repeated SectionInfo sections = 1;
+  repeated Section sections = 1;
 }
 
 // 标签相关功能
-message TagInfo {
+message Tag {
   int64 id = 1;
   string name = 2;
 }
@@ -147,14 +127,14 @@ message GetTagByIdReq {
 }
 
 message GetTagByIdResp {
-  TagInfo tag_info = 1;
+  Tag tag = 1;
 }
 
 message GetAllTagReq {
 }
 
 message GetAllTagResp {
-  repeated TagInfo tags = 1;
+  repeated Tag tags = 1;
 }
 
 service video {
@@ -162,7 +142,6 @@ service video {
     rpc PublishVideo (PublishVideoReq) returns (PublishVideoResp);
     rpc VideoFeed (VideoFeedReq) returns (VideoFeedResp);
     rpc UserVideoList (UserVideoListReq) returns (UserVideoListResp);
-    rpc GetAllVideo (GetAllVideoReq) returns (GetAllVideoResp);
     rpc DeleteVideo (DeleteVideoReq) returns (DeleteVideoResp);
     rpc GetVideoById (GetVideoByIdReq) returns (GetVideoByIdResp);
     // 分区相关功能

@@ -42,7 +42,7 @@ func TestDetailLogic_Detail(t *testing.T) {
 			Id:         utils.NewRandomInt64(1, 10),
 			Title:      utils.NewRandomString(10),
 			SectionId:  utils.NewRandomInt64(1, 10),
-			Tags:       []string{"1", "2", "3"},
+			TagIds:     "1,2,3",
 			OwnerId:    utils.NewRandomInt64(1, 10),
 			PlayUrl:    utils.NewRandomString(10),
 			CoverUrl:   utils.NewRandomString(10),

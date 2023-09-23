@@ -2,16 +2,11 @@ package logic
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/pkg/errors"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/model"
-	"go-zero-douyin/common/message"
-	"go-zero-douyin/common/xconst"
-	"go-zero-douyin/common/xerr"
-	"gorm.io/gorm"
-
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -43,8 +38,8 @@ func (l *AddTagLogic) AddTag(in *pb.AddTagReq) (*pb.AddTagResp, error) {
 	}
 
 	// 查询标签名是否已存在
-	tag, err := l.svcCtx.TagDo.GetTagByName(l.ctx, in.GetName())
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	tag, err := l.svcCtx.TagModel.FindOneByName(l.ctx, in.GetName())
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "数据库根据名称查询标签失败, err: %v, name: %s", err, in.GetName())
 	}
 
@@ -56,25 +51,10 @@ func (l *AddTagLogic) AddTag(in *pb.AddTagReq) (*pb.AddTagResp, error) {
 	newTag := &model.Tag{}
 	newTag.Name = in.GetName()
 
-	err = l.svcCtx.TagDo.InsertTag(l.ctx, newTag)
+	_, err = l.svcCtx.TagModel.Insert(l.ctx, nil, newTag)
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "数据库新增标签失败, err: %v, name: %s", err, in.GetName())
 	}
 
-	// 删除redis缓存
-	_, err = l.svcCtx.Redis.Delete(l.ctx, xconst.RedisVideoSection)
-	// 缓存删除失败，发送kafka消息
-	if err != nil {
-		l.Logger.Errorf("redis标签信息删除失败, err: %v", err)
-		body, err := json.Marshal(message.VideoTagMessage{})
-		if err != nil {
-			panic(err)
-		}
-		err = l.svcCtx.Rabbit.Send("", "VideoTag", body)
-		if err != nil {
-			l.Logger.Errorf("发布删除视频标签缓存消息失败, err: %v", err)
-			return nil, errors.Wrapf(xerr.NewErrMsg("发布删除标签缓存信息失败"), "err: %v", err)
-		}
-	}
 	return &pb.AddTagResp{}, nil
 }

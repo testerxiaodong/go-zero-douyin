@@ -2,14 +2,11 @@ package logic
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/pkg/errors"
-	"go-zero-douyin/common/message"
-	"go-zero-douyin/common/xerr"
-	"gorm.io/gorm"
-
+	"go-zero-douyin/apps/video/cmd/rpc/internal/model"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -41,8 +38,8 @@ func (l *DeleteVideoLogic) DeleteVideo(in *pb.DeleteVideoReq) (*pb.DeleteVideoRe
 	}
 
 	// 查询视频是否是该用户发布的
-	video, err := l.svcCtx.VideoDo.GetVideoById(l.ctx, in.GetVideoId())
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	video, err := l.svcCtx.VideoModel.FindOne(l.ctx, in.GetVideoId())
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "Find video by id failed: %v", err)
 	}
 
@@ -52,21 +49,14 @@ func (l *DeleteVideoLogic) DeleteVideo(in *pb.DeleteVideoReq) (*pb.DeleteVideoRe
 	}
 
 	// 视频非该用户发布
-	if video.OwnerID != in.GetUserId() {
+	if video.OwnerId != in.GetUserId() {
 		return nil, errors.Wrapf(xerr.NewErrMsg("视频非该用户发布，用户无权操作"), "video_id: %d", in.GetVideoId())
 	}
 
 	// 删除视频
-	_, err = l.svcCtx.VideoDo.DeleteVideo(l.ctx, video)
+	err = l.svcCtx.VideoModel.DeleteSoft(l.ctx, nil, video)
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_DELETE_ERR), "delete video by id failed: %v", err)
-	}
-
-	// 发布删除es视频文档的消息
-	msg, _ := json.Marshal(message.MysqlVideoDeleteMessage{VideoId: in.GetVideoId()})
-	err = l.svcCtx.Rabbit.Send("", "MysqlVideoDeleteMq", msg)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_DELETE_ERR), "req: %v, err: %v", in, err)
 	}
 
 	// 返回响应

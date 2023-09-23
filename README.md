@@ -1,17 +1,16 @@
 ## go-zero-douyin
 ### 项目介绍
 faker-douyin的go-zero版本，主要是想学习一下go-zero微服务框架。
-
 因为go-zero深度绑定了orm框架sqlx以及sqlc并帮助了用户处理了缓存击穿问题，与我在faker-douyin中通过rabbitmq处理缓存一致性问题时不一致
-
-准备先继续采用faker-douyin的处理方式，沿用gorm框架(因为代码生成的方式熟悉一点，而且不用手撸sql)，同时也参考了一些go-zero对于缓存的处理
-
+～～准备先继续采用faker-douyin的处理方式，沿用gorm框架(因为代码生成的方式熟悉一点，而且不用手撸sql)，同时也参考了一些go-zero对于缓存的处理～～
+feature/sqlx+sqlc分支采用了sqlx+sqlc的方式，没有兜底缓存删除失败的情况(后续canal更新1.17之后会考虑)
 ### 项目预计用到技术
 - go-zero
 - gorm/gen
 - mysql
 - redis
 - asynq
+- flink-cdc
 - elasticsearch
 - go-stash
 - kafka
@@ -19,15 +18,12 @@ faker-douyin的go-zero版本，主要是想学习一下go-zero微服务框架。
 - jaeger
 - prometheus
 - grafana
-- rabbitmq
 
 ### 项目功能点
 还是faker-douyin的老功能，不过这次我准备把视频数据上传到阿里云的oss服务，并且限制上传视频文件的大小
-
-项目日志的记录直接使用go-zero绑定的logx，且集成了elk日志系统
-
-go-zero绑定的消息代理是kafka，不太熟悉，先继续用rabbitmq，做完之后再替换为kafka
-
+项目日志的记录直接使用go-zero绑定的logx，且集成了elk日志系统(filebeat->kafka->go-stash->es->kibana)
+～～go-zero绑定的消息代理是kafka，不太熟悉，先继续用rabbitmq，做完之后再替换为kafka～～
+放弃了用消息队列同步es数据的方式(耦合度高)，使用flink-cdc(flink sql)方案
 使用asynq作为分布式任务队列，实现视频的延迟发布（延迟任务）
 
 项目功能点：

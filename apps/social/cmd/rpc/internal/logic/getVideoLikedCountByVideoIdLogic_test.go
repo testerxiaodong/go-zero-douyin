@@ -5,44 +5,31 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
-	"github.com/zeromicro/go-zero/core/syncx"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/logic"
+	"go-zero-douyin/apps/social/cmd/rpc/internal/model"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/social/cmd/rpc/mock"
 	"go-zero-douyin/apps/social/cmd/rpc/pb"
-	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xerr"
-	globalMock "go-zero-douyin/mock"
 	"testing"
 )
 
 func TestGetVideoLikedCountByVideoIdLogic_GetVideoLikedCountByVideoId(t *testing.T) {
 	ctl := gomock.NewController(t)
-
-	mockLikeDo := mock.NewMockLikeDo(ctl)
-
-	mockRedis := globalMock.NewMockRedisCache(ctl)
-
-	utils.IgnoreGo()
-	defer utils.RecoverGo()
-
-	serviceContext := &svc.ServiceContext{LikeDo: mockLikeDo, Redis: mockRedis, SingleFlight: syncx.NewSingleFlight()}
-
+	defer ctl.Finish()
+	mockLikeDo := mock.NewMocklikeCountModel(ctl)
+	serviceContext := &svc.ServiceContext{LikeCountModel: mockLikeDo}
 	getVideoLikedCountByVideoIdLogic := logic.NewGetVideoLikedCountByVideoIdLogic(context.Background(), serviceContext)
 
-	// redis中有数据mock
-	mockRedis.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(true, nil)
-	mockRedis.EXPECT().Scard(gomock.Any(), gomock.Any()).Return(int64(3), nil)
-	mockRedis.EXPECT().Expire(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-
-	// redis中没有数据，查询数据库失败的mock
+	// 查询数据库失败的mock
 	dbError := errors.New("LikeDo GetVideoLikedCount error")
-	mockRedis.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(false, nil)
-	mockLikeDo.EXPECT().GetVideoLikedCount(gomock.Any(), gomock.Any()).Return(int64(0), dbError)
+	mockLikeDo.EXPECT().FindOneByVideoId(gomock.Any(), gomock.Any()).Return(nil, dbError)
 
-	// redis中没有数据，查询数据库成功的mock
-	mockRedis.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(false, nil)
-	mockLikeDo.EXPECT().GetVideoLikedCount(gomock.Any(), gomock.Any()).Return(int64(3), nil)
+	// 查询数据库成功，但没有数据的mock
+	mockLikeDo.EXPECT().FindOneByVideoId(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+
+	// 查询数据库成功，有数据的mock
+	mockLikeDo.EXPECT().FindOneByVideoId(gomock.Any(), gomock.Any()).Return(&model.LikeCount{LikeCount: 1}, nil)
 
 	// 表格驱动测试
 	testCases := []struct {
@@ -61,14 +48,15 @@ func TestGetVideoLikedCountByVideoIdLogic_GetVideoLikedCountByVideoId(t *testing
 			err:  errors.Wrapf(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "get video like count with empty video_id"),
 		},
 		{
-			name: "get_video_liked_count_by_video_id_with_redis",
-			req:  &pb.GetVideoLikedCountByVideoIdReq{VideoId: 10},
-			err:  nil,
-		},
-		{
 			name: "get_video_liked_count_by_video_id_with_database_error",
 			req:  &pb.GetVideoLikedCountByVideoIdReq{VideoId: 10},
-			err:  dbError,
+			err: errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+				"查询视频点赞数失败, err: %v, video_id: %d", dbError, 10),
+		},
+		{
+			name: "get_video_liked_count_by_video_id_with_no_record",
+			req:  &pb.GetVideoLikedCountByVideoIdReq{VideoId: 10},
+			err:  nil,
 		},
 		{
 			name: "get_video_liked_count_by_video_id_with_database_record",

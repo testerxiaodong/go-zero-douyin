@@ -6,7 +6,6 @@ import (
 	"github.com/pkg/errors"
 	pbSocial "go-zero-douyin/apps/social/cmd/rpc/pb"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
-	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xerr"
 	"sync"
 
@@ -40,7 +39,7 @@ func (l *FeedLogic) Feed(req *types.VideoFeedReq) (resp *types.VideoFeedResp, er
 	}
 
 	// 调用videorpc
-	feedResp, err := l.svcCtx.VideoRpc.VideoFeed(l.ctx, &pb.VideoFeedReq{LastTimeStamp: utils.FromInt64TimeStampToProtobufTimestamp(req.LastTimeStamp), SectionId: req.SectionId})
+	feedResp, err := l.svcCtx.VideoRpc.VideoFeed(l.ctx, &pb.VideoFeedReq{LastTimeStamp: req.LastTimeStamp, SectionId: req.SectionId})
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %v", req)
 	}

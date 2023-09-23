@@ -35,7 +35,8 @@ func (l *UserLikeVideoIdListLogic) UserLikeVideoIdList(req *types.GetUserLikeVid
 	}
 
 	// 调用likerpc
-	idList, err := l.svcCtx.SocialRpc.GetUserLikeVideoIdList(l.ctx, &pb.GetUserLikeVideoIdListReq{UserId: req.UserId})
+	idList, err := l.svcCtx.SocialRpc.GetUserLikeVideoIdList(l.ctx,
+		&pb.GetUserLikeVideoIdListReq{UserId: req.UserId, Page: req.Page, PageSize: req.PageSize})
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %v", req)
 	}

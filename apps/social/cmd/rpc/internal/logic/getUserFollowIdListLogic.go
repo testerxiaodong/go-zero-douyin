@@ -2,11 +2,8 @@ package logic
 
 import (
 	"context"
+	"github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
-	"github.com/spf13/cast"
-	"github.com/zeromicro/go-zero/core/contextx"
-	"github.com/zeromicro/go-zero/core/stores/redis"
-	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
 
@@ -39,114 +36,22 @@ func (l *GetUserFollowIdListLogic) GetUserFollowIdList(in *pb.GetUserFollowIdLis
 	if in.GetUserId() == 0 {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "get user follow id list with empty user_id")
 	}
-
-	// 查询redis
-	existsResult, err := l.svcCtx.Redis.Exists(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserFollowUserPrefix, in.GetUserId()))
+	if in.GetPage() > 5 {
+		return nil, errors.Wrap(xerr.NewErrMsg("系统不允许超过五页"), "关注列表业务校验")
+	}
+	builder := l.svcCtx.FollowModel.SelectBuilder().Where(squirrel.Eq{"follower_id": in.GetUserId()}).Where(squirrel.Eq{"status": xconst.FollowStateYes})
+	follows, err := l.svcCtx.FollowModel.FindPageListByPage(l.ctx, builder, in.GetPage(), in.GetPageSize(), "create_time DESC")
 	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrMsg("get redis user follow id list key exist failed"), "err: %v, follower_id: %d", err, in.GetUserId())
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+			"查询用户关注列表失败, err: %v, user_id: %d", err, in.GetUserId())
 	}
-
-	// redis中有数据，直接返回
-	if existsResult == true {
-		idList, err := l.svcCtx.Redis.Smembers(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserFollowUserPrefix, in.GetUserId()))
-		if err != nil {
-			// 查询失败，记录日志
-			logx.WithContext(l.ctx).Errorf("get redis user follow id list failed, err: %v, follower_id: %d", err, in.GetUserId())
-		}
-		if len(idList) > 0 {
-			resp := &pb.GetUserFollowIdListResp{UserIdList: make([]int64, 0)}
-			for _, idStr := range idList {
-				idInt64 := cast.ToInt64(idStr)
-				resp.UserIdList = append(resp.UserIdList, idInt64)
-			}
-			// 更新缓存失效时间
-			err := l.svcCtx.Redis.Expire(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserFollowUserPrefix, in.GetUserId()), xconst.RedisExpireTime)
-			if err != nil {
-				logx.WithContext(l.ctx).Errorf("set redis user follow id list key expire time failed, err: %v, follower_id: %d", err, in.GetUserId())
-			}
-			// 返回数据
-			return resp, nil
-		}
+	if len(follows) == 0 {
+		return &pb.GetUserFollowIdListResp{}, nil
 	}
-
-	// 从mysql中获取数据
-	key := cast.ToString(in.GetUserId())
-	idList, err := l.svcCtx.SingleFlight.Do(key, func() (any, error) {
-		return l.svcCtx.FollowDo.GetUserFollowIdList(l.ctx, in.GetUserId())
-	})
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "get user follow id list from mysql failed, err: %v", err)
+	ids := make([]int64, 0)
+	// 拼接响应
+	for _, follow := range follows {
+		ids = append(ids, follow.UserId)
 	}
-
-	// 类型断言
-	idInt64List, ok := idList.([]int64)
-	if !ok {
-		return nil, errors.Wrapf(xerr.NewErrMsg("type assert failed, int64Slice"), "data: %v", idList)
-	}
-
-	// 异步构建缓存
-	if len(idInt64List) > 0 {
-		buildCache := func() {
-			l.BuildUserFollowIdListCache(in.GetUserId())
-		}
-		tsg := utils.NewTestGo()
-		tsg.RunSafe(buildCache)
-	}
-
-	return &pb.GetUserFollowIdListResp{UserIdList: idInt64List}, nil
-}
-
-func (l *GetUserFollowIdListLogic) BuildUserFollowIdListCache(followId int64) {
-	// 获取分布式锁键
-	lockKey := utils.GetRedisLockKeyWithPrefix(xconst.RedisBuildUserFollowCountCacheLockPrefix, followId)
-	lock := l.svcCtx.Redis.NewRedisLock(lockKey)
-	lock.SetExpire(1)
-
-	// 复制ctx，防止异步调用时logic.ctx结束
-	ctx := contextx.ValueOnlyFrom(l.ctx)
-
-	// 获取分布式锁
-	acquire, err := lock.Acquire()
-	if err != nil {
-		logx.WithContext(ctx).Errorf("获取分布式锁失败，lockKey: %s, err: %v", lockKey, err)
-		return
-	}
-
-	// 延迟释放分布式锁
-	defer func(lock *redis.RedisLock) {
-		_, err := lock.Release()
-		if err != nil {
-			logx.WithContext(ctx).Errorf("释放分布式锁失败，lockKey: %s, err: %v", lockKey, err)
-		}
-	}(lock)
-
-	// 更新缓存
-	if acquire {
-		// 从数据库中查询视频点赞用户列表
-		ids, err := l.svcCtx.FollowDo.GetUserFollowIdList(ctx, followId)
-		if err != nil {
-			logx.WithContext(ctx).Errorf("find user follow id list failed, err: %v", err)
-		}
-		if len(ids) > 0 {
-			idList := make([]interface{}, 0, len(ids))
-			for _, id := range ids {
-				idList = append(idList, id)
-			}
-
-			// 设置缓存
-			_, err := l.svcCtx.Redis.Sadd(ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserFollowUserPrefix, followId), idList...)
-			if err != nil {
-				logx.WithContext(ctx).Errorf("add redis user follow id list cache  failed, err: %v", err)
-				return
-			}
-
-			// 设置缓存失效时间
-			err = l.svcCtx.Redis.Expire(ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserFollowUserPrefix, followId), xconst.RedisExpireTime)
-			if err != nil {
-				logx.WithContext(ctx).Errorf("set redis user follow id list cache key expire time failed, err: %v", err)
-				return
-			}
-		}
-		return
-	}
+	return &pb.GetUserFollowIdListResp{UserIdList: ids}, nil
 }

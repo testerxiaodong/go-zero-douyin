@@ -27,9 +27,9 @@ func TestGetAllSectionLogic_GetAllSection(t *testing.T) {
 	mockVideoRpc.EXPECT().GetAllSection(gomock.Any(), gomock.Any()).Return(nil, videoRpcError)
 
 	// videoRpc调用成功的mock
-	expectedValue := &pb.SectionInfo{Id: utils.NewRandomInt64(1, 10), Name: utils.NewRandomString(10)}
+	expectedValue := &pb.Section{Id: utils.NewRandomInt64(1, 10), Name: utils.NewRandomString(10)}
 	mockVideoRpc.EXPECT().GetAllSection(gomock.Any(), gomock.Any()).
-		Return(&pb.GetAllSectionResp{Sections: []*pb.SectionInfo{expectedValue}}, nil)
+		Return(&pb.GetAllSectionResp{Sections: []*pb.Section{expectedValue}}, nil)
 
 	// 表格驱动测试
 	testCases := []struct {

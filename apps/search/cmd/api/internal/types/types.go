@@ -2,18 +2,18 @@
 package types
 
 type Video struct {
-	Id           int64    `json:"id"`
-	OwnerId      int64    `json:"owner_id"`
-	OwnerName    string   `json:"owner_name"`
-	SectionId    int64    `json:"section_id"`
-	Tags         []string `json:"tags"`
-	Title        string   `json:"title"`
-	PlayUrl      string   `json:"play_url"`
-	CoverUrl     string   `json:"cover_url"`
-	CommentCount int64    `json:"comment_count"`
-	LikeCount    int64    `json:"like_count"`
-	CreateTime   int64    `json:"create_time"`
-	UpdateTime   int64    `json:"update_time"`
+	Id           int64  `json:"id"`
+	OwnerId      int64  `json:"owner_id"`
+	OwnerName    string `json:"owner_name"`
+	SectionId    int64  `json:"section_id"`
+	TagIds       string `json:"tag_ids"`
+	Title        string `json:"title"`
+	PlayUrl      string `json:"play_url"`
+	CoverUrl     string `json:"cover_url"`
+	CommentCount int64  `json:"comment_count"`
+	LikeCount    int64  `json:"like_count"`
+	CreateTime   string `json:"create_time"`
+	UpdateTime   string `json:"update_time"`
 }
 
 type User struct {

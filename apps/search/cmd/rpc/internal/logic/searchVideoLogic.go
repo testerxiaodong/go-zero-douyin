@@ -52,6 +52,7 @@ func (l *SearchVideoLogic) SearchVideo(in *pb.SearchVideoReq) (*pb.SearchVideoRe
 	if searchResult.TotalHits() == 0 {
 		return &pb.SearchVideoResp{}, nil
 	}
+	l.Logger.Errorf("data: %v", searchResult)
 	// 有数据，拼接响应
 	resp := &pb.SearchVideoResp{Videos: make([]*pb.Video, 0, searchResult.TotalHits())}
 	resp.Total = searchResult.TotalHits()

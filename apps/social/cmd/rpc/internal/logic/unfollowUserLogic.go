@@ -2,16 +2,13 @@ package logic
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/pkg/errors"
-	"go-zero-douyin/common/message"
-	"go-zero-douyin/common/utils"
-	"go-zero-douyin/common/xconst"
-	"go-zero-douyin/common/xerr"
-	"gorm.io/gorm"
-
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"go-zero-douyin/apps/social/cmd/rpc/internal/model"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/social/cmd/rpc/pb"
+	"go-zero-douyin/common/xconst"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -39,71 +36,63 @@ func (l *UnfollowUserLogic) UnfollowUser(in *pb.UnfollowUserReq) (*pb.UnfollowUs
 	if in.GetUserId() == 0 || in.GetFollowerId() == 0 {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "unfollow user with empty follower_id or user_id")
 	}
-
 	// 不能对自己操作
 	if in.GetUserId() == in.GetFollowerId() {
 		return nil, errors.Wrapf(xerr.NewErrMsg("不能对自己操作"), "req: %v", in)
 	}
-
-	// 查询数据库
-	follow, err := l.svcCtx.FollowDo.GetFollowByFollowerIdAndUserId(l.ctx, in.GetFollowerId(), in.GetUserId())
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "find follow record by follower_id and user_id failed, err: %v, follower_id: %d, user_id: %d", err, in.GetFollowerId(), in.GetUserId())
+	// 查询关注记录
+	record, err := l.svcCtx.FollowModel.FindOneByUserIdFollowerId(l.ctx, in.GetUserId(), in.GetFollowerId())
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+			"查询关注记录失败, err: %v, user_id: %v, follower_id: %d", err, in.GetUserId(), in.GetFollowerId())
 	}
-
-	// 没有记录，直接返回删除成功
-	if follow == nil {
+	// 没有记录，返回错误信息
+	if record == nil {
+		return nil, errors.Wrapf(xerr.NewErrMsg("未关注过该用户"),
+			"user_id: %v, follower_id: %d", in.GetUserId(), in.GetFollowerId())
+	}
+	// 记录存在且为未关注状态，直接返回
+	if record != nil && record.Status == xconst.FollowStateNo {
 		return &pb.UnfollowUserResp{}, nil
 	}
-
-	// 删除数据库记录，取消关注
-	_, err = l.svcCtx.FollowDo.DeleteFollow(l.ctx, follow)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_DELETE_ERR), "delete follow record failed, err: %v, follower_id: %d, user_id: %d", err, in.GetFollowerId(), in.GetUserId())
-	}
-
-	// 删除用户关注id集合缓存
-	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserFollowUserPrefix, in.GetFollowerId())); err != nil {
-		// 删除失败，发布异步处理消息
-		userFollowUserMessage := message.UserFollowUserMessage{FollowerId: in.GetFollowerId()}
-
-		userFollowUserBody, err := json.Marshal(userFollowUserMessage)
-		if err != nil {
-			panic(err)
+	// 记录存在且为已关注状态，修改状态，更新粉丝数/关注数
+	if record != nil && record.Status == xconst.FollowStateYes {
+		if err := l.svcCtx.FollowModel.Trans(l.ctx, func(context context.Context, session sqlx.Session) error {
+			// 修改状态
+			record.Status = xconst.FollowStateNo
+			err := l.svcCtx.FollowModel.UpdateWithVersion(l.ctx, session, record)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR),
+					"更新关注状态失败, err: %v, user_id: %d, follower_id: %d", err, in.GetUserId(), in.GetFollowerId())
+			}
+			// 更新粉丝数：-1
+			followerCount, err := l.svcCtx.FollowCountModel.FindOneByUserId(l.ctx, in.GetUserId())
+			if err != nil && !errors.Is(err, model.ErrNotFound) {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+					"查询用户粉丝/关注数失败, err: %v, user_id: %d", err, in.GetUserId())
+			}
+			followerCount.FollowerCount -= 1
+			err = l.svcCtx.FollowCountModel.UpdateWithVersion(l.ctx, session, followerCount)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR),
+					"更新用户粉丝数失败, err: %v, user_id: %d", err, in.GetUserId())
+			}
+			// 更新关注数：-1
+			followCount, err := l.svcCtx.FollowCountModel.FindOneByUserId(l.ctx, in.GetFollowerId())
+			if err != nil && !errors.Is(err, model.ErrNotFound) {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+					"查询用户粉丝/关注数失败, err: %v, user_id: %d", err, in.GetFollowerId())
+			}
+			followCount.FollowCount -= 1
+			err = l.svcCtx.FollowCountModel.UpdateWithVersion(l.ctx, session, followCount)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR),
+					"更新用户关注数失败, err: %v, user_id: %d", err, in.GetFollowerId())
+			}
+			return nil
+		}); err != nil {
+			return nil, err
 		}
-
-		err = l.svcCtx.Rabbit.Send("", "UserFollowUserMq", userFollowUserBody)
-		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrMsg("发布userFollowUserMessage失败"), "err: %v", err)
-		}
 	}
-
-	// 删除用户粉丝id集合缓存
-	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserFollowedByUserPrefix, in.GetUserId())); err != nil {
-		// 删除失败，发布异步处理消息
-		userFollowedByUserMessage := message.UserFollowedByUserMessage{UserId: in.GetUserId()}
-
-		userFollowedByUserBody, err := json.Marshal(userFollowedByUserMessage)
-		if err != nil {
-			panic(err)
-		}
-
-		err = l.svcCtx.Rabbit.Send("", "UserFollowedByUserMq", userFollowedByUserBody)
-		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrMsg("发布userFollowedByUserMessage失败"), "err: %v", err)
-		}
-	}
-	// 发布更新es用户的消息
-	userMsg, _ := json.Marshal(message.MysqlUserUpdateMessage{UserId: in.GetUserId()})
-	err = l.svcCtx.Rabbit.Send("", "MysqlUserUpdateMq", userMsg)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
-	}
-	followerMsg, _ := json.Marshal(message.MysqlUserUpdateMessage{UserId: in.GetFollowerId()})
-	err = l.svcCtx.Rabbit.Send("", "MysqlUserUpdateMq", followerMsg)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
-	}
-
 	return &pb.UnfollowUserResp{}, nil
 }

@@ -35,7 +35,7 @@ func PublishHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l.VideoCover = file
 		l.VideoCoverHeader = header
 		// 调用logic方法
-		resp, err := l.Publish(&req)
-		httpResponse.ApiResult(r, w, resp, err)
+		err = l.Publish(&req)
+		httpResponse.ApiResult(r, w, nil, err)
 	}
 }

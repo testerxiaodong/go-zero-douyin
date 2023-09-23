@@ -74,11 +74,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/delete",
 				Handler: video.DeleteVideoHandler(serverCtx),
 			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/sync",
-				Handler: video.SyncVideoToEsByIdHandler(serverCtx),
-			},
 		},
 		rest.WithJwt(serverCtx.Config.JwtAuth.AccessSecret),
 		rest.WithPrefix("/video/v1"),

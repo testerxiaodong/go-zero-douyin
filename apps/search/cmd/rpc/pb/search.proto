@@ -9,31 +9,16 @@ message Video {
   int64 id = 1;
   string title = 2;
   int64 section_id = 3;
-  repeated string tags = 4;
+  string tag_ids = 4;
   int64 owner_id = 5;
   string owner_name = 6;
   string play_url = 7;
   string cover_url = 8;
   int64 comment_count = 9;
   int64 like_count = 10;
-  int64 create_time = 11;
-  int64 update_time = 12;
+  string create_time = 11;
+  string update_time = 12;
   string suggestion = 13;
-}
-
-message SyncVideoInfoReq {
-  Video video = 1;
-}
-
-message SyncVideoInfoResp {
-
-}
-
-message DeleteVideoDocumentReq {
-  int64 id = 1;
-}
-
-message DeleteVideoDocumentResp {
 }
 
 message SearchVideoReq {
@@ -71,20 +56,6 @@ message User {
   string suggestion = 5;
 }
 
-message SyncUserInfoReq {
-  User user = 1;
-}
-
-message SyncUserInfoResp {
-}
-
-message DeleteUserDocumentReq {
-  int64 id = 1;
-}
-
-message DeleteUserDocumentResp {
-}
-
 message SearchUserReq {
   string keyword = 1;
   int64 page = 2;
@@ -104,12 +75,8 @@ message SearchUserResp {
 
 service search {
   // 视频相关功能
-  rpc SyncVideoInfo (SyncVideoInfoReq) returns (SyncVideoInfoResp);
-  rpc DeleteVideo (DeleteVideoDocumentReq) returns (DeleteVideoDocumentResp);
   rpc SearchVideo (SearchVideoReq) returns (SearchVideoResp);
   rpc CompleteVideo (CompleteVideoReq) returns (CompleteVideoResp);
   // 用户相关功能
-  rpc SyncUserInfo (SyncUserInfoReq) returns (SyncUserInfoResp);
-  rpc DeleteUser (DeleteUserDocumentReq) returns (DeleteUserDocumentResp);
   rpc SearchUser (SearchUserReq) returns (SearchUserResp);
 }

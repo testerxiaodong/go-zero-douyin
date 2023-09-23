@@ -3,14 +3,15 @@ package logic
 import (
 	"context"
 	"github.com/pkg/errors"
-	"go-zero-douyin/common/xerr"
-	"gorm.io/gorm"
-
+	"go-zero-douyin/apps/video/cmd/rpc/internal/model"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
+
+var ErrTagNotFound = xerr.NewErrMsg("视频标签不存在")
 
 type GetTagByIdLogic struct {
 	ctx    context.Context
@@ -38,8 +39,8 @@ func (l *GetTagByIdLogic) GetTagById(in *pb.GetTagByIdReq) (*pb.GetTagByIdResp, 
 	}
 
 	// 查询数据库
-	tag, err := l.svcCtx.TagDo.GetTagById(l.ctx, in.GetId())
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	tag, err := l.svcCtx.TagModel.FindOne(l.ctx, in.GetId())
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 			"通过id从数据库中获取标签信息失败, err: %v, id: %d", err, in.GetId())
 	}
@@ -50,7 +51,8 @@ func (l *GetTagByIdLogic) GetTagById(in *pb.GetTagByIdReq) (*pb.GetTagByIdResp, 
 
 	// 返回数据
 	return &pb.GetTagByIdResp{
-		TagInfo: &pb.TagInfo{
-			Id:   tag.ID,
-			Name: tag.Name}}, nil
+		Tag: &pb.Tag{
+			Id:   tag.Id,
+			Name: tag.Name},
+	}, nil
 }

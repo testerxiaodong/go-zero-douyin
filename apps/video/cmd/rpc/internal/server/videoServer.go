@@ -38,11 +38,6 @@ func (s *VideoServer) UserVideoList(ctx context.Context, in *pb.UserVideoListReq
 	return l.UserVideoList(in)
 }
 
-func (s *VideoServer) GetAllVideo(ctx context.Context, in *pb.GetAllVideoReq) (*pb.GetAllVideoResp, error) {
-	l := logic.NewGetAllVideoLogic(ctx, s.svcCtx)
-	return l.GetAllVideo(in)
-}
-
 func (s *VideoServer) DeleteVideo(ctx context.Context, in *pb.DeleteVideoReq) (*pb.DeleteVideoResp, error) {
 	l := logic.NewDeleteVideoLogic(ctx, s.svcCtx)
 	return l.DeleteVideo(in)

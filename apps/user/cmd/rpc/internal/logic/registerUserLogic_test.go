@@ -13,7 +13,6 @@ import (
 	"go-zero-douyin/apps/user/cmd/rpc/pb"
 	"go-zero-douyin/common/xerr"
 	globalMock "go-zero-douyin/mock"
-	"gorm.io/gorm"
 	"testing"
 )
 
@@ -22,38 +21,31 @@ func TestRegisterUserLogic_RegisterUser(t *testing.T) {
 
 	defer ctl.Finish()
 
-	mockUserDo := mock.NewMockUserDo(ctl)
-	mockSender := globalMock.NewMockSender(ctl)
-	serviceContext := &svc.ServiceContext{UserDo: mockUserDo, Config: config.Config{JwtAuth: struct {
+	mockUserModel := mock.NewMockuserModel(ctl)
+	serviceContext := &svc.ServiceContext{UserModel: mockUserModel, Config: config.Config{JwtAuth: struct {
 		AccessSecret string
 		AccessExpire int64
-	}{AccessSecret: "test", AccessExpire: 600}}, Rabbit: mockSender}
+	}{AccessSecret: "test", AccessExpire: 600}}}
 
 	registerUserLogic := logic.NewRegisterUserLogic(context.Background(), serviceContext)
 
 	// 查询用户是否存在时失败mock
 	dbSearchError := errors.New("search database error")
-	mockUserDo.EXPECT().GetUserByUsername(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
+	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
 
 	// 用户已存在mock
-	mockUserDo.EXPECT().GetUserByUsername(gomock.Any(), gomock.Any()).Return(&model.User{Username: "test", Password: "test", ID: 1}, nil)
+	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(&model.User{Username: "test", Password: "test", Id: 1}, nil)
 
 	// 插入用户失败mock
 	dbInsertError := errors.New("insert database error")
-	mockUserDo.EXPECT().GetUserByUsername(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockUserDo.EXPECT().InsertUser(gomock.Any(), gomock.Any()).Return(dbInsertError)
+	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockUserModel.EXPECT().Insert(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, dbInsertError)
 
-	// 插入用户成功mock，但发送消息失败mock
-	senderError := errors.New("sender error")
-	mockUserDo.EXPECT().GetUserByUsername(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockUserDo.EXPECT().InsertUser(gomock.Any(), gomock.Any()).Return(nil)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
-
+	mockResult := globalMock.NewMockResult(ctl)
 	// 成功mock
-	mockUserDo.EXPECT().GetUserByUsername(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockUserDo.EXPECT().InsertUser(gomock.Any(), gomock.Any()).Return(nil)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-
+	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockUserModel.EXPECT().Insert(gomock.Any(), gomock.Any(), gomock.Any()).Return(mockResult, nil)
+	mockResult.EXPECT().LastInsertId().Return(int64(10), nil)
 	// 表格驱动测试
 	testCases := []struct {
 		name string
@@ -89,11 +81,6 @@ func TestRegisterUserLogic_RegisterUser(t *testing.T) {
 			name: "register_with_insert_database_error",
 			req:  &pb.RegisterUserReq{Username: "test", Password: "test"},
 			err:  errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "insert user failed, username: %s, password: %s", "test", "test"),
-		},
-		{
-			name: "register_with_sender_error",
-			req:  &pb.RegisterUserReq{Username: "test", Password: "test"},
-			err:  errors.Wrapf(xerr.NewErrCode(xerr.RPC_INSERT_ERR), "发送es用户文档更新消息失败, err: %v", senderError),
 		},
 		{
 			name: "register_success",

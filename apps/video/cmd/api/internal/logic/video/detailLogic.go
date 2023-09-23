@@ -53,7 +53,7 @@ func (l *DetailLogic) Detail(req *types.VideoDetailReq) (resp *types.VideoDetail
 			Id:           videoInfo.Video.Id,
 			Title:        videoInfo.Video.Title,
 			SectionId:    videoInfo.Video.SectionId,
-			Tags:         videoInfo.Video.Tags,
+			TagIds:       videoInfo.Video.TagIds,
 			OwnerId:      videoInfo.Video.OwnerId,
 			PlayUrl:      videoInfo.Video.PlayUrl,
 			CoverUrl:     videoInfo.Video.CoverUrl,

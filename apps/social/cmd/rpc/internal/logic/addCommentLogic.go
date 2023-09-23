@@ -2,12 +2,10 @@ package logic
 
 import (
 	"context"
-	"encoding/json"
+	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/model"
-	"go-zero-douyin/common/message"
-	"go-zero-douyin/common/utils"
-	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
 
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
@@ -43,34 +41,42 @@ func (l *AddCommentLogic) AddComment(in *pb.AddCommentReq) (*pb.AddCommentResp, 
 
 	// 复制数据
 	comment := &model.Comment{}
-	comment.UserID = in.GetUserId()
-	comment.VideoID = in.GetVideoId()
-	comment.Content = in.GetContent()
-
-	// 插入评论
-	err := l.svcCtx.CommentDo.InsertComment(l.ctx, comment)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "insert comment failed: %v", err)
-	}
-
-	// 删除缓存
-	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoCommentPrefix, in.GetVideoId())); err != nil {
-		// 删除缓存失败，发布消息异步处理
-		body, err := json.Marshal(message.VideoCommentMessage{VideoId: in.GetVideoId()})
+	_ = copier.Copy(comment, in)
+	// 插入评论，增加视频评论数
+	if err := l.svcCtx.CommentModel.Trans(l.ctx, func(context context.Context, session sqlx.Session) error {
+		// 插入评论记录
+		_, err := l.svcCtx.CommentModel.Insert(l.ctx, nil, comment)
 		if err != nil {
-			panic(err)
+			return errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "insert comment failed: %v", err)
 		}
-		err = l.svcCtx.Rabbit.Send("", "VideoCommentMq", body)
-		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "publish video comment count message failed: %v", err)
+		commentCountRecord, err := l.svcCtx.CommentCountModel.FindOneByVideoId(l.ctx, in.GetVideoId())
+		// 查询失败
+		if err != nil && !errors.Is(err, model.ErrNotFound) {
+			return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+				"查询视频的评论数失败, err: %v, video_id: %d", err, in.GetVideoId())
 		}
+		// 记录不存在，插入一条评论数为1的记录
+		if commentCountRecord == nil {
+			commentCount := &model.CommentCount{}
+			commentCount.VideoId = in.GetVideoId()
+			commentCount.CommentCount = 1
+			_, err = l.svcCtx.CommentCountModel.Insert(l.ctx, session, commentCount)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "插入视频评论数记录失败")
+			}
+		}
+		// 记录存在，更新记录的评论数：+1
+		if commentCountRecord != nil {
+			commentCountRecord.CommentCount += 1
+			err := l.svcCtx.CommentCountModel.UpdateWithVersion(l.ctx, session, commentCountRecord)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR), "更新视频评论数失败, err: %v, video_id: %d", err, in.GetVideoId())
+			}
+		}
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
-	// 发布更新es视频文档的消息
-	msg, _ := json.Marshal(message.MysqlVideoUpdateMessage{VideoId: in.GetVideoId()})
-	err = l.svcCtx.Rabbit.Send("", "MysqlVideoUpdateMq", msg)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
-	}
 	return &pb.AddCommentResp{}, nil
 }

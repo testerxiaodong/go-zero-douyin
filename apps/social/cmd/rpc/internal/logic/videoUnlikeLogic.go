@@ -2,16 +2,13 @@ package logic
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/pkg/errors"
-	"go-zero-douyin/common/message"
-	"go-zero-douyin/common/utils"
-	"go-zero-douyin/common/xconst"
-	"go-zero-douyin/common/xerr"
-	"gorm.io/gorm"
-
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"go-zero-douyin/apps/social/cmd/rpc/internal/model"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/social/cmd/rpc/pb"
+	"go-zero-douyin/common/xconst"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -39,57 +36,45 @@ func (l *VideoUnlikeLogic) VideoUnlike(in *pb.VideoUnlikeReq) (*pb.VideoUnlikeRe
 	if in.GetVideoId() == 0 || in.GetUserId() == 0 {
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "unlike video with empty video_id or user_id")
 	}
-
 	// 查询数据库
-	like, err := l.svcCtx.LikeDo.GetLikeByVideoIdAndUserId(l.ctx, in.GetVideoId(), in.GetUserId())
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "find video is liked by user failed, err: %v", err)
+	like, err := l.svcCtx.LikeModel.FindOneByVideoIdUserId(l.ctx, in.GetVideoId(), in.GetUserId())
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR),
+			"find video is liked by user failed, err: %v", err)
 	}
-
 	// 没有记录，直接返回
 	if like == nil {
+		return nil, errors.Wrapf(xerr.NewErrMsg("用户尚未点赞"), "video_id: %d", in.GetVideoId())
+	}
+	// 有记录，但点赞状态为已取消，直接返回
+	if like != nil && like.Status == xconst.LikeStateNo {
 		return &pb.VideoUnlikeResp{}, nil
 	}
-
-	// 删除点赞记录
-	_, err = l.svcCtx.LikeDo.DeleteLike(l.ctx, like)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_DELETE_ERR), "delete user like video record failed, err: %v", err)
-	}
-
-	// 删除用户点赞视频id集合缓存
-	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserLikeVideoPrefix, in.GetUserId())); err != nil {
-		// 删除缓存失败，发布消息异步处理
-		userVideoBody, err := json.Marshal(message.UserLikeVideoMessage{UserId: in.GetUserId()})
-		if err != nil {
-			panic(err)
-		}
-		err = l.svcCtx.Rabbit.Send("", "UserLikeVideoMq", userVideoBody)
-		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrMsg("publish user like video message failed"), "video_id: %d", in.GetVideoId())
-		}
-	}
-
-	// 删除视频被点赞用户id集合缓存
-	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoLikedByUserPrefix, in.GetVideoId())); err != nil {
-		// 删除缓存失败，发布消息异步处理
-		videoUserBody, err := json.Marshal(message.VideoLikedByUserMessage{VideoId: in.GetVideoId()})
-		if err != nil {
-			panic(err)
-		}
-
-		err = l.svcCtx.Rabbit.Send("", "VideoLikedByUserMq", videoUserBody)
-		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrMsg("publish video liked by user message failed"), "user_id: %d", in.GetUserId())
+	// 有记录且点赞状态为已点赞，更改状态，更改视频点赞数
+	if like != nil && like.Status == xconst.LikeStateYes {
+		if err := l.svcCtx.LikeModel.Trans(l.ctx, func(context context.Context, session sqlx.Session) error {
+			// 更新点赞状态
+			like.Status = xconst.DelStateNo
+			err := l.svcCtx.LikeModel.UpdateWithVersion(l.ctx, session, like)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR), "更新视频点赞状态失败")
+			}
+			// 更新点赞数
+			likeCount, err := l.svcCtx.LikeCountModel.FindOneByVideoId(l.ctx, in.GetVideoId())
+			if err != nil && !errors.Is(err, model.ErrNotFound) {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+					"查询视频点赞数失败, err: %v, video_id: %d", err, in.GetVideoId())
+			}
+			likeCount.LikeCount -= 1
+			err = l.svcCtx.LikeCountModel.UpdateWithVersion(l.ctx, session, likeCount)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR),
+					"更新视频点赞数失败, err: %v, video_id: %d", err, in.GetVideoId())
+			}
+			return nil
+		}); err != nil {
+			return nil, err
 		}
 	}
-
-	// 发布更新es视频的消息
-	msg, _ := json.Marshal(message.MysqlVideoUpdateMessage{VideoId: in.GetVideoId()})
-	err = l.svcCtx.Rabbit.Send("", "MysqlVideoUpdateMq", msg)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
-	}
-
 	return &pb.VideoUnlikeResp{}, nil
 }

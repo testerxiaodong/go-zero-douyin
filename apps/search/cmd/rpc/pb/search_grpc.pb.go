@@ -19,12 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Search_SyncVideoInfo_FullMethodName = "/pb.search/SyncVideoInfo"
-	Search_DeleteVideo_FullMethodName   = "/pb.search/DeleteVideo"
 	Search_SearchVideo_FullMethodName   = "/pb.search/SearchVideo"
 	Search_CompleteVideo_FullMethodName = "/pb.search/CompleteVideo"
-	Search_SyncUserInfo_FullMethodName  = "/pb.search/SyncUserInfo"
-	Search_DeleteUser_FullMethodName    = "/pb.search/DeleteUser"
 	Search_SearchUser_FullMethodName    = "/pb.search/SearchUser"
 )
 
@@ -33,13 +29,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SearchClient interface {
 	// 视频相关功能
-	SyncVideoInfo(ctx context.Context, in *SyncVideoInfoReq, opts ...grpc.CallOption) (*SyncVideoInfoResp, error)
-	DeleteVideo(ctx context.Context, in *DeleteVideoDocumentReq, opts ...grpc.CallOption) (*DeleteVideoDocumentResp, error)
 	SearchVideo(ctx context.Context, in *SearchVideoReq, opts ...grpc.CallOption) (*SearchVideoResp, error)
 	CompleteVideo(ctx context.Context, in *CompleteVideoReq, opts ...grpc.CallOption) (*CompleteVideoResp, error)
 	// 用户相关功能
-	SyncUserInfo(ctx context.Context, in *SyncUserInfoReq, opts ...grpc.CallOption) (*SyncUserInfoResp, error)
-	DeleteUser(ctx context.Context, in *DeleteUserDocumentReq, opts ...grpc.CallOption) (*DeleteUserDocumentResp, error)
 	SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error)
 }
 
@@ -49,24 +41,6 @@ type searchClient struct {
 
 func NewSearchClient(cc grpc.ClientConnInterface) SearchClient {
 	return &searchClient{cc}
-}
-
-func (c *searchClient) SyncVideoInfo(ctx context.Context, in *SyncVideoInfoReq, opts ...grpc.CallOption) (*SyncVideoInfoResp, error) {
-	out := new(SyncVideoInfoResp)
-	err := c.cc.Invoke(ctx, Search_SyncVideoInfo_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *searchClient) DeleteVideo(ctx context.Context, in *DeleteVideoDocumentReq, opts ...grpc.CallOption) (*DeleteVideoDocumentResp, error) {
-	out := new(DeleteVideoDocumentResp)
-	err := c.cc.Invoke(ctx, Search_DeleteVideo_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *searchClient) SearchVideo(ctx context.Context, in *SearchVideoReq, opts ...grpc.CallOption) (*SearchVideoResp, error) {
@@ -87,24 +61,6 @@ func (c *searchClient) CompleteVideo(ctx context.Context, in *CompleteVideoReq, 
 	return out, nil
 }
 
-func (c *searchClient) SyncUserInfo(ctx context.Context, in *SyncUserInfoReq, opts ...grpc.CallOption) (*SyncUserInfoResp, error) {
-	out := new(SyncUserInfoResp)
-	err := c.cc.Invoke(ctx, Search_SyncUserInfo_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *searchClient) DeleteUser(ctx context.Context, in *DeleteUserDocumentReq, opts ...grpc.CallOption) (*DeleteUserDocumentResp, error) {
-	out := new(DeleteUserDocumentResp)
-	err := c.cc.Invoke(ctx, Search_DeleteUser_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *searchClient) SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error) {
 	out := new(SearchUserResp)
 	err := c.cc.Invoke(ctx, Search_SearchUser_FullMethodName, in, out, opts...)
@@ -119,13 +75,9 @@ func (c *searchClient) SearchUser(ctx context.Context, in *SearchUserReq, opts .
 // for forward compatibility
 type SearchServer interface {
 	// 视频相关功能
-	SyncVideoInfo(context.Context, *SyncVideoInfoReq) (*SyncVideoInfoResp, error)
-	DeleteVideo(context.Context, *DeleteVideoDocumentReq) (*DeleteVideoDocumentResp, error)
 	SearchVideo(context.Context, *SearchVideoReq) (*SearchVideoResp, error)
 	CompleteVideo(context.Context, *CompleteVideoReq) (*CompleteVideoResp, error)
 	// 用户相关功能
-	SyncUserInfo(context.Context, *SyncUserInfoReq) (*SyncUserInfoResp, error)
-	DeleteUser(context.Context, *DeleteUserDocumentReq) (*DeleteUserDocumentResp, error)
 	SearchUser(context.Context, *SearchUserReq) (*SearchUserResp, error)
 	mustEmbedUnimplementedSearchServer()
 }
@@ -134,23 +86,11 @@ type SearchServer interface {
 type UnimplementedSearchServer struct {
 }
 
-func (UnimplementedSearchServer) SyncVideoInfo(context.Context, *SyncVideoInfoReq) (*SyncVideoInfoResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SyncVideoInfo not implemented")
-}
-func (UnimplementedSearchServer) DeleteVideo(context.Context, *DeleteVideoDocumentReq) (*DeleteVideoDocumentResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteVideo not implemented")
-}
 func (UnimplementedSearchServer) SearchVideo(context.Context, *SearchVideoReq) (*SearchVideoResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchVideo not implemented")
 }
 func (UnimplementedSearchServer) CompleteVideo(context.Context, *CompleteVideoReq) (*CompleteVideoResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CompleteVideo not implemented")
-}
-func (UnimplementedSearchServer) SyncUserInfo(context.Context, *SyncUserInfoReq) (*SyncUserInfoResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SyncUserInfo not implemented")
-}
-func (UnimplementedSearchServer) DeleteUser(context.Context, *DeleteUserDocumentReq) (*DeleteUserDocumentResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
 func (UnimplementedSearchServer) SearchUser(context.Context, *SearchUserReq) (*SearchUserResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchUser not implemented")
@@ -166,42 +106,6 @@ type UnsafeSearchServer interface {
 
 func RegisterSearchServer(s grpc.ServiceRegistrar, srv SearchServer) {
 	s.RegisterService(&Search_ServiceDesc, srv)
-}
-
-func _Search_SyncVideoInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncVideoInfoReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SearchServer).SyncVideoInfo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Search_SyncVideoInfo_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SearchServer).SyncVideoInfo(ctx, req.(*SyncVideoInfoReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Search_DeleteVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteVideoDocumentReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SearchServer).DeleteVideo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Search_DeleteVideo_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SearchServer).DeleteVideo(ctx, req.(*DeleteVideoDocumentReq))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Search_SearchVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -240,42 +144,6 @@ func _Search_CompleteVideo_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Search_SyncUserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncUserInfoReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SearchServer).SyncUserInfo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Search_SyncUserInfo_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SearchServer).SyncUserInfo(ctx, req.(*SyncUserInfoReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Search_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteUserDocumentReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SearchServer).DeleteUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Search_DeleteUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SearchServer).DeleteUser(ctx, req.(*DeleteUserDocumentReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Search_SearchUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SearchUserReq)
 	if err := dec(in); err != nil {
@@ -302,28 +170,12 @@ var Search_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*SearchServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SyncVideoInfo",
-			Handler:    _Search_SyncVideoInfo_Handler,
-		},
-		{
-			MethodName: "DeleteVideo",
-			Handler:    _Search_DeleteVideo_Handler,
-		},
-		{
 			MethodName: "SearchVideo",
 			Handler:    _Search_SearchVideo_Handler,
 		},
 		{
 			MethodName: "CompleteVideo",
 			Handler:    _Search_CompleteVideo_Handler,
-		},
-		{
-			MethodName: "SyncUserInfo",
-			Handler:    _Search_SyncUserInfo_Handler,
-		},
-		{
-			MethodName: "DeleteUser",
-			Handler:    _Search_DeleteUser_Handler,
 		},
 		{
 			MethodName: "SearchUser",

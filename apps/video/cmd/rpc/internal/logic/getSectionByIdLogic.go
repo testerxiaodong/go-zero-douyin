@@ -3,14 +3,15 @@ package logic
 import (
 	"context"
 	"github.com/pkg/errors"
-	"go-zero-douyin/common/xerr"
-	"gorm.io/gorm"
-
+	"go-zero-douyin/apps/video/cmd/rpc/internal/model"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
+
+var ErrSectionNotFound = xerr.NewErrMsg("视频分区不存在")
 
 type GetSectionByIdLogic struct {
 	ctx    context.Context
@@ -38,8 +39,8 @@ func (l *GetSectionByIdLogic) GetSectionById(in *pb.GetSectionByIdReq) (*pb.GetS
 	}
 
 	// 查询数据库
-	section, err := l.svcCtx.SectionDo.GetSectionById(l.ctx, in.GetId())
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	section, err := l.svcCtx.SectionModel.FindOne(l.ctx, in.GetId())
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 			"通过id从数据库中获取分区信息失败, err: %v, id: %d", err, in.GetId())
 	}
@@ -50,7 +51,8 @@ func (l *GetSectionByIdLogic) GetSectionById(in *pb.GetSectionByIdReq) (*pb.GetS
 
 	// 返回数据
 	return &pb.GetSectionByIdResp{
-		SectionInfo: &pb.SectionInfo{
-			Id:   section.ID,
-			Name: section.Name}}, nil
+		Section: &pb.Section{
+			Id:   section.Id,
+			Name: section.Name},
+	}, nil
 }

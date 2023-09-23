@@ -2,7 +2,11 @@ Name: social-rpc
 ListenOn: 0.0.0.0:1104
 
 # 修改下面数据源
-DataSource: root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local
+DB:
+  DataSource: root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local
+
+Cache:
+  - Host: 127.0.0.1:6379
 
 Log:
   ServiceName: social-rpc
@@ -29,8 +33,3 @@ RabbitSenderConf:
   Host: 127.0.0.1
   Port: 5672
   ContentType: text/plain
-
-# redis
-RedisCache:
-  Host: 127.0.0.1:6379
-  Type: node

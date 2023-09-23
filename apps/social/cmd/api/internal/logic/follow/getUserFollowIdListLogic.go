@@ -35,7 +35,8 @@ func (l *GetUserFollowIdListLogic) GetUserFollowIdList(req *types.GetUserFollowI
 	}
 
 	// 调用 social rpc
-	idListResp, err := l.svcCtx.SocialRpc.GetUserFollowIdList(l.ctx, &pb.GetUserFollowIdListReq{UserId: req.UserId})
+	idListResp, err := l.svcCtx.SocialRpc.GetUserFollowIdList(l.ctx,
+		&pb.GetUserFollowIdListReq{UserId: req.UserId, Page: req.Page, PageSize: req.PageSize})
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %v", req)
 	}

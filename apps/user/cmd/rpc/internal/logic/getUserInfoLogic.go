@@ -3,11 +3,10 @@ package logic
 import (
 	"context"
 	"github.com/pkg/errors"
-	"go-zero-douyin/common/xerr"
-	"gorm.io/gorm"
-
+	"go-zero-douyin/apps/user/cmd/rpc/internal/model"
 	"go-zero-douyin/apps/user/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/user/cmd/rpc/pb"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,26 +31,23 @@ func (l *GetUserInfoLogic) GetUserInfo(in *pb.GetUserInfoReq) (*pb.GetUserInfoRe
 	// todo: add your logic here and delete this line
 	// 参数校验
 	if in == nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "GetUserInfo empty param")
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "获取用户信息时参数为nil")
 	}
-
-	// 查询用户
-	user, err := l.svcCtx.UserDo.GetUserById(l.ctx, in.GetId())
-
-	// 数据库查询出错处理
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "Get user by id failed, user_id: %d", in.GetId())
+	if in.GetId() == 0 {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "获取用户信息时id为空")
 	}
-
-	// 用户不存在处理
+	// 查询用户信息
+	user, err := l.svcCtx.UserModel.FindOne(l.ctx, in.GetId())
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "从数据库查询用户信息失败 user_id:%d , err:%v", in.GetId(), err)
+	}
 	if user == nil {
-		return nil, errors.Wrapf(ErrUserNotFound, "user_id: %d", in.GetId())
+		return nil, errors.Wrapf(ErrUserNotFound, "id:%d", in.GetId())
 	}
-
 	// 返回数据
 	return &pb.GetUserInfoResp{
 		User: &pb.UserInfo{
-			Id:       user.ID,
+			Id:       user.Id,
 			Username: user.Username,
 		},
 	}, nil

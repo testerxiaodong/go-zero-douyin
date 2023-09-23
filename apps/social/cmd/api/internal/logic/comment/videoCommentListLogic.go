@@ -35,7 +35,8 @@ func (l *VideoCommentListLogic) VideoCommentList(req *types.GetVideoCommentListR
 	}
 
 	// 调用commentrpc
-	comments, err := l.svcCtx.SocialRpc.GetVideoCommentListById(l.ctx, &pb.GetCommentListByIdReq{Id: req.VideoId})
+	comments, err := l.svcCtx.SocialRpc.GetVideoCommentListById(l.ctx,
+		&pb.GetCommentListByIdReq{Id: req.VideoId, Page: req.Page, PageSize: req.PageSize})
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %v", req)
 	}

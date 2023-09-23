@@ -11,54 +11,31 @@ import (
 	"go-zero-douyin/apps/video/cmd/rpc/mock"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/xerr"
-	globalMock "go-zero-douyin/mock"
-	"gorm.io/gorm"
 	"testing"
 )
 
 func TestNewAddSectionLogic(t *testing.T) {
 	ctl := gomock.NewController(t)
-
-	mockSectionDo := mock.NewMockSectionDo(ctl)
-
-	mockRedis := globalMock.NewMockRedisCache(ctl)
-
-	mockRabbit := globalMock.NewMockSender(ctl)
-
-	serviceContext := &svc.ServiceContext{SectionDo: mockSectionDo, Redis: mockRedis, Rabbit: mockRabbit}
-
+	defer ctl.Finish()
+	mockSectionDo := mock.NewMocksectionModel(ctl)
+	serviceContext := &svc.ServiceContext{SectionModel: mockSectionDo}
 	addSectionLogic := logic.NewAddSectionLogic(context.Background(), serviceContext)
 
 	// 查询分区失败的mock
 	dbSearchError := errors.New("SectionDo.GetSectionByName error")
-	mockSectionDo.EXPECT().GetSectionByName(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
+	mockSectionDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
 
 	// 分区已存在mock
-	mockSectionDo.EXPECT().GetSectionByName(gomock.Any(), gomock.Any()).Return(&model.Section{ID: 1, Name: "test"}, nil)
+	mockSectionDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(&model.Section{Id: 1, Name: "test"}, nil)
 
 	// 插入失败的mock
 	dbInsertError := errors.New("SectionDo.InsertSection error")
-	mockSectionDo.EXPECT().GetSectionByName(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockSectionDo.EXPECT().InsertSection(gomock.Any(), gomock.Any()).Return(dbInsertError)
+	mockSectionDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockSectionDo.EXPECT().Insert(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, dbInsertError)
 
-	// 删除缓存失败，且发送消息失败的mock
-	redisDeleteError := errors.New("redis delete error")
-	senderError := errors.New("send message error")
-	mockSectionDo.EXPECT().GetSectionByName(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockSectionDo.EXPECT().InsertSection(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisDeleteError)
-	mockRabbit.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
-
-	// 删除缓存失败，但发送消息成功的mock
-	mockSectionDo.EXPECT().GetSectionByName(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockSectionDo.EXPECT().InsertSection(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisDeleteError)
-	mockRabbit.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-
-	// 删除缓存成功的mock
-	mockSectionDo.EXPECT().GetSectionByName(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockSectionDo.EXPECT().InsertSection(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
+	// 插入成功的mock
+	mockSectionDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockSectionDo.EXPECT().Insert(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 
 	// 表格驱动测试
 	testCases := []struct {
@@ -90,16 +67,6 @@ func TestNewAddSectionLogic(t *testing.T) {
 			name: "add_section_with_database_insert_error",
 			req:  &pb.AddSectionReq{Name: "test"},
 			err:  errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "数据库新增分区失败, err: %v, name: %s", dbInsertError, "test"),
-		},
-		{
-			name: "add_section_with_sender_error",
-			req:  &pb.AddSectionReq{Name: "test"},
-			err:  errors.Wrapf(xerr.NewErrMsg("发布删除分区缓存信息失败"), "err: %v", senderError),
-		},
-		{
-			name: "add_section_with_redis_delete_error",
-			req:  &pb.AddSectionReq{Name: "test"},
-			err:  nil,
 		},
 		{
 			name: "add_section_success",

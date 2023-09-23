@@ -39,11 +39,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/update",
 				Handler: user.UpdateHandler(serverCtx),
 			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/sync",
-				Handler: user.SyncUserToEsByIdHandler(serverCtx),
-			},
 		},
 		rest.WithJwt(serverCtx.Config.JwtAuth.AccessSecret),
 		rest.WithPrefix("/user/v1"),

@@ -42,7 +42,3 @@ type UpdateUserReq struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required,password"`
 }
-
-type SyncUserToEsByIdReq struct {
-	UserId int64 `json:"user_id" validate:"required"`
-}

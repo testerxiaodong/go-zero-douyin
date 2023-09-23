@@ -23,16 +23,6 @@ func NewSearchServer(svcCtx *svc.ServiceContext) *SearchServer {
 }
 
 // 视频相关功能
-func (s *SearchServer) SyncVideoInfo(ctx context.Context, in *pb.SyncVideoInfoReq) (*pb.SyncVideoInfoResp, error) {
-	l := logic.NewSyncVideoInfoLogic(ctx, s.svcCtx)
-	return l.SyncVideoInfo(in)
-}
-
-func (s *SearchServer) DeleteVideo(ctx context.Context, in *pb.DeleteVideoDocumentReq) (*pb.DeleteVideoDocumentResp, error) {
-	l := logic.NewDeleteVideoLogic(ctx, s.svcCtx)
-	return l.DeleteVideo(in)
-}
-
 func (s *SearchServer) SearchVideo(ctx context.Context, in *pb.SearchVideoReq) (*pb.SearchVideoResp, error) {
 	l := logic.NewSearchVideoLogic(ctx, s.svcCtx)
 	return l.SearchVideo(in)
@@ -44,16 +34,6 @@ func (s *SearchServer) CompleteVideo(ctx context.Context, in *pb.CompleteVideoRe
 }
 
 // 用户相关功能
-func (s *SearchServer) SyncUserInfo(ctx context.Context, in *pb.SyncUserInfoReq) (*pb.SyncUserInfoResp, error) {
-	l := logic.NewSyncUserInfoLogic(ctx, s.svcCtx)
-	return l.SyncUserInfo(in)
-}
-
-func (s *SearchServer) DeleteUser(ctx context.Context, in *pb.DeleteUserDocumentReq) (*pb.DeleteUserDocumentResp, error) {
-	l := logic.NewDeleteUserLogic(ctx, s.svcCtx)
-	return l.DeleteUser(in)
-}
-
 func (s *SearchServer) SearchUser(ctx context.Context, in *pb.SearchUserReq) (*pb.SearchUserResp, error) {
 	l := logic.NewSearchUserLogic(ctx, s.svcCtx)
 	return l.SearchUser(in)

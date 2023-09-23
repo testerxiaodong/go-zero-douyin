@@ -13,34 +13,20 @@ const (
 	UNKONWN int64 = 9999
 )
 
-// RedisKeyPrefix
+// DelStateNo 数据库软删除
 const (
-	RedisVideoCommentPrefix       = "video_id:comment_count:"
-	RedisUserLikeVideoPrefix      = "user_id:video_id:"
-	RedisVideoLikedByUserPrefix   = "video_id:user_id:"
-	RedisUserFollowUserPrefix     = "follower_id:user_id:"
-	RedisUserFollowedByUserPrefix = "user_id:follower_id:"
-)
-
-// RedisKey
-const (
-	RedisVideoTag     = "video_tag"
-	RedisVideoSection = "video_section"
-)
-
-// RedisLockKeyPrefix
-const (
-	RedisBuildVideoSectionCacheLockKey         = "build_video_section"
-	RedisBuildVideoTagCacheLockKey             = "build_video_Tag"
-	RedisBuildVideoCommentCountCacheLockPrefix = "build_video_comment_count_key_"
-	RedisBuildUserLikeVideoCacheLockPrefix     = "build_user_like_video_id_list_key_"
-	RedisBuildVideoLikedByUserCacheLockPrefix  = "build_video_liked_by_user_key_"
-	RedisBuildUserFollowCountCacheLockPrefix   = "build_user_follow_count_key_"
-	RedisBuildUserFollowerCountCacheLockPrefix = "build_user_follower_count_key_"
+	DelStateNo  int64 = 0 //未删除
+	DelStateYes int64 = 1 //已删除
 )
 
 const (
-	RedisExpireTime = 600
+	FollowStateNo  int64 = 0
+	FollowStateYes int64 = 1
+)
+
+const (
+	LikeStateNo  int64 = 0
+	LikeStateYes int64 = 1
 )
 
 const (

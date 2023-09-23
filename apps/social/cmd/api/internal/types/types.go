@@ -14,7 +14,9 @@ type AddCommentReq struct {
 }
 
 type GetVideoCommentListReq struct {
-	VideoId int64 `json:"video_id"`
+	VideoId  int64 `json:"video_id" validate:"required"`
+	Page     int64 `json:"page,optional"`
+	PageSize int64 `json:"page_size,optional"`
 }
 
 type GetVideoCommentListResp struct {
@@ -34,7 +36,9 @@ type VideoUnlikeReq struct {
 }
 
 type GetUserLikeVideoIdListReq struct {
-	UserId int64 `json:"user_id"`
+	UserId   int64 `json:"user_id" validate:"required"`
+	Page     int64 `json:"page,optional"`
+	PageSize int64 `json:"page_size,optional"`
 }
 
 type GetUserLikeVideoIdListResp struct {
@@ -66,7 +70,9 @@ type GetUserFollowerCountResp struct {
 }
 
 type GetUserFollowIdListReq struct {
-	UserId int64 `json:"user_id"`
+	UserId   int64 `json:"user_id" validate:"required"`
+	Page     int64 `json:"page,optional"`
+	PageSize int64 `json:"page_size,optional"`
 }
 
 type GetUserFollowIdListResp struct {
@@ -74,7 +80,9 @@ type GetUserFollowIdListResp struct {
 }
 
 type GetUserFollowerIdListReq struct {
-	UserId int64 `json:"user_id"`
+	UserId   int64 `json:"user_id" validate:"required"`
+	Page     int64 `json:"page,optional"`
+	PageSize int64 `json:"page_size,optional"`
 }
 
 type GetUserFollowerIdListResp struct {

@@ -11,7 +11,7 @@ import (
 	"go-zero-douyin/apps/video/cmd/rpc/mock"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/utils"
-	"gorm.io/gorm"
+	"go-zero-douyin/common/xerr"
 	"strings"
 	"testing"
 )
@@ -21,47 +21,54 @@ func TestGetVideoByIdLogic_GetVideoById(t *testing.T) {
 
 	defer ctl.Finish()
 
-	mockVideoDo := mock.NewMockVideoDo(ctl)
+	mockVideoDo := mock.NewMockvideoModel(ctl)
 
-	serviceContext := &svc.ServiceContext{VideoDo: mockVideoDo}
+	serviceContext := &svc.ServiceContext{VideoModel: mockVideoDo}
 
 	getVideoByIdLogic := logic.NewGetVideoByIdLogic(context.Background(), serviceContext)
 
 	mockVideo := NewRandomVideo()
 
 	// 查询数据库失败mock
-	mockVideoDo.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(nil, errors.New("search database error"))
+	dbError := errors.New("search database error")
+	mockVideoDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(nil, dbError)
 
 	// 视频不存在mock
-	mockVideoDo.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
+	mockVideoDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
 
 	// 查询视频成功mock
-	mockVideoDo.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(mockVideo, nil)
+	mockVideoDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(mockVideo, nil)
 
 	// 表格驱动测试
 	testCases := []struct {
 		name string
 		req  *pb.GetVideoByIdReq
+		err  error
 	}{
 		{
 			name: "get_video_with_empty_param",
 			req:  nil,
+			err:  errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "Get video by id with empty param"),
 		},
 		{
 			name: "get_video_with_empty_id",
 			req:  &pb.GetVideoByIdReq{Id: 0},
+			err:  errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "Get video by id with empty id"),
 		},
 		{
 			name: "get_video_with_search_database_error",
 			req:  &pb.GetVideoByIdReq{Id: 1},
+			err:  errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "find video by id failed: %v", dbError),
 		},
 		{
 			name: "get_video_with_no_database_record",
 			req:  &pb.GetVideoByIdReq{Id: 1},
+			err:  errors.Wrapf(logic.ErrVideoNotFound, "video_id: %d", 1),
 		},
 		{
 			name: "get_video_success",
 			req:  &pb.GetVideoByIdReq{Id: 1},
+			err:  nil,
 		},
 	}
 
@@ -70,16 +77,16 @@ func TestGetVideoByIdLogic_GetVideoById(t *testing.T) {
 			infoResp, err := getVideoByIdLogic.GetVideoById(tc.req)
 			if err == nil {
 				assert.NotEmpty(t, infoResp)
-				assert.Equal(t, infoResp.GetVideo().GetId(), mockVideo.ID)
+				assert.Equal(t, infoResp.GetVideo().GetId(), mockVideo.Id)
 				assert.Equal(t, infoResp.GetVideo().GetTitle(), mockVideo.Title)
-				assert.Equal(t, infoResp.GetVideo().GetSectionId(), mockVideo.SectionID)
-				assert.Equal(t, infoResp.GetVideo().GetTags(), strings.Split(mockVideo.TagIds, ","))
-				assert.Equal(t, infoResp.GetVideo().GetOwnerId(), mockVideo.OwnerID)
+				assert.Equal(t, infoResp.GetVideo().GetSectionId(), mockVideo.SectionId)
+				assert.Equal(t, infoResp.GetVideo().GetTagIds(), mockVideo.TagIds)
+				assert.Equal(t, infoResp.GetVideo().GetOwnerId(), mockVideo.OwnerId)
 				assert.Equal(t, infoResp.GetVideo().GetOwnerName(), mockVideo.OwnerName)
-				assert.Equal(t, infoResp.GetVideo().GetPlayUrl(), mockVideo.PlayURL)
-				assert.Equal(t, infoResp.GetVideo().GetCoverUrl(), mockVideo.CoverURL)
+				assert.Equal(t, infoResp.GetVideo().GetPlayUrl(), mockVideo.PlayUrl)
+				assert.Equal(t, infoResp.GetVideo().GetCoverUrl(), mockVideo.CoverUrl)
 			} else {
-				assert.Empty(t, infoResp)
+				assert.Equal(t, tc.err.Error(), err.Error())
 			}
 		})
 	}
@@ -87,14 +94,14 @@ func TestGetVideoByIdLogic_GetVideoById(t *testing.T) {
 
 func NewRandomVideo() *model.Video {
 	video := &model.Video{}
-	video.ID = utils.NewRandomInt64(1, 10)
+	video.Id = utils.NewRandomInt64(1, 10)
 	video.Title = utils.NewRandomString(10)
-	video.SectionID = utils.NewRandomInt64(1, 10)
+	video.SectionId = utils.NewRandomInt64(1, 10)
 	video.TagIds = strings.Join([]string{"11", "22"}, ",")
-	video.OwnerID = utils.NewRandomInt64(1, 10)
+	video.OwnerId = utils.NewRandomInt64(1, 10)
 	video.OwnerName = utils.NewRandomString(10)
-	video.PlayURL = utils.NewRandomString(10)
-	video.CoverURL = utils.NewRandomString(10)
+	video.PlayUrl = utils.NewRandomString(10)
+	video.CoverUrl = utils.NewRandomString(10)
 
 	return video
 }
