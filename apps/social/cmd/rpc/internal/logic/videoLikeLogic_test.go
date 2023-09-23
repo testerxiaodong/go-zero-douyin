@@ -10,76 +10,47 @@ import (
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/social/cmd/rpc/mock"
 	"go-zero-douyin/apps/social/cmd/rpc/pb"
+	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
-	gloabelMock "go-zero-douyin/mock"
-	"gorm.io/gorm"
 	"testing"
 )
 
 func TestVideoLikeLogic_VideoLike(t *testing.T) {
 	ctl := gomock.NewController(t)
-
-	mockLikeDo := mock.NewMockLikeDo(ctl)
-
-	mockSender := gloabelMock.NewMockSender(ctl)
-
-	mockRedis := gloabelMock.NewMockRedisCache(ctl)
-
-	serviceContext := &svc.ServiceContext{LikeDo: mockLikeDo, Redis: mockRedis, Rabbit: mockSender}
-
+	defer ctl.Finish()
+	mockLikeDo := mock.NewMocklikeModel(ctl)
+	serviceContext := &svc.ServiceContext{LikeModel: mockLikeDo}
 	videoLikeLogic := logic.NewVideoLikeLogic(context.Background(), serviceContext)
 
 	// 查询数据库失败mock
 	dbSearchError := errors.New("LikeDo.GetLikeByVideoIdAndUserId error")
-	mockLikeDo.EXPECT().GetLikeByVideoIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
+	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, dbSearchError)
 
-	// 查询数据库成功，数据存在的mock
-	mockLikeDo.EXPECT().GetLikeByVideoIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(&model.Like{}, nil)
+	// 查询数据库成功，数据存在且状态为已点赞的mock
+	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(&model.Like{Status: xconst.LikeStateYes}, nil)
 
-	// 查询数据库成功，数据不存在，但插入数据库失败mock
-	dbInsertError := errors.New("LikeDo.InsertLike error")
-	mockLikeDo.EXPECT().GetLikeByVideoIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockLikeDo.EXPECT().InsertLike(gomock.Any(), gomock.Any()).Return(dbInsertError)
+	// 查询数据库成功，数据存在且状态为未点赞，事务失败的mock
+	transError := errors.New("LikeModel.Trans error")
+	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(&model.Like{Status: xconst.LikeStateNo}, nil)
+	mockLikeDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(transError)
 
-	// 查询数据库成功，数据不存在，插入数据成功，删除关注缓存失败，发布关注消息失败
-	redisError := errors.New("redis delete error")
-	senderError := errors.New("rabbitmq sender error")
-	mockLikeDo.EXPECT().GetLikeByVideoIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockLikeDo.EXPECT().InsertLike(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
+	// 查询数据库成功，数据存在且状态为未点赞，事务成功的mock
+	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(&model.Like{Status: xconst.LikeStateNo}, nil)
+	mockLikeDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(nil)
 
-	// 查询数据库成功，数据不存在，插入数据成功，删除关注缓存失败，发布关注消息成功，删除粉丝缓存失败，发送粉丝消息失败的mock
-	mockLikeDo.EXPECT().GetLikeByVideoIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockLikeDo.EXPECT().InsertLike(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
+	// 查询数据库成功，数据不存在，事务失败的mock
+	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, model.ErrNotFound)
+	mockLikeDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(transError)
 
-	// 查询数据库成功，数据不存在，插入数据成功，删除关注缓存失败，发布关注消息成功，删除粉丝缓存失败，发送粉丝消息成功的mock
-	mockLikeDo.EXPECT().GetLikeByVideoIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockLikeDo.EXPECT().InsertLike(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
-
-	// 查询数据库成功，数据不存在，插入数据成功，删除关注缓存失败，发布关注消息成功，删除粉丝缓存成功的mock
-	mockLikeDo.EXPECT().GetLikeByVideoIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockLikeDo.EXPECT().InsertLike(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
-
-	// 查询数据库成功，数据不存在，插入数据成功，删除关注缓存成功，删除粉丝缓存成功的mock
-	mockLikeDo.EXPECT().GetLikeByVideoIdAndUserId(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockLikeDo.EXPECT().InsertLike(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	// 查询数据库成功，数据不存在，事务成功的mock
+	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, model.ErrNotFound)
+	mockLikeDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(nil)
 
 	// 表格驱动测试
 	testCases := []struct {
@@ -100,42 +71,31 @@ func TestVideoLikeLogic_VideoLike(t *testing.T) {
 		{
 			name: "video_like_with_database_search_error",
 			req:  &pb.VideoLikeReq{VideoId: 2, UserId: 1},
-			err:  errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "find video is already liked by user failed, err: %v", dbSearchError),
+			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR),
+				"find video is already liked by user failed, err: %v", dbSearchError),
 		},
 		{
-			name: "video_like_with_database_record_exist",
+			name: "video_like_with_database_record_like",
 			req:  &pb.VideoLikeReq{VideoId: 2, UserId: 1},
 			err:  nil,
 		},
 		{
-			name: "video_like_with_database_insert_error",
+			name: "video_like_with_database_record_unlike_trans_error",
 			req:  &pb.VideoLikeReq{VideoId: 2, UserId: 1},
-			err:  errors.Wrapf(xerr.NewErrCode(xerr.RPC_INSERT_ERR), "insert video like failed, err: %v", dbInsertError),
+			err:  transError,
 		},
 		{
-			name: "video_like_with_follow_rabbit_error",
+			name: "video_like_with_database_record_unlike_trans_success",
 			req:  &pb.VideoLikeReq{VideoId: 2, UserId: 1},
-			err:  errors.Wrapf(xerr.NewErrMsg("publish user like video message failed"), "video_id: %d", 2),
+			err:  nil,
 		},
 		{
-			name: "video_like_with_follower_rabbit_error",
+			name: "video_like_with_database_no_record_trans_error",
 			req:  &pb.VideoLikeReq{VideoId: 2, UserId: 1},
-			err:  errors.Wrapf(xerr.NewErrMsg("publish video liked by user message failed"), "user_id: %d", 1),
+			err:  transError,
 		},
 		{
-			name: "video_like_with_redis_error1",
-			req:  &pb.VideoLikeReq{VideoId: 2, UserId: 1},
-			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
-				"req: %v, err: %v", &pb.VideoLikeReq{VideoId: 2, UserId: 1}, senderError),
-		},
-		{
-			name: "video_like_with_redis_error2",
-			req:  &pb.VideoLikeReq{VideoId: 2, UserId: 1},
-			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
-				"req: %v, err: %v", &pb.VideoLikeReq{VideoId: 2, UserId: 1}, senderError),
-		},
-		{
-			name: "video_like_success",
+			name: "video_like_with_database_no_record_trans_success",
 			req:  &pb.VideoLikeReq{VideoId: 2, UserId: 1},
 			err:  nil,
 		},

@@ -1,21 +1,20 @@
 package svc
 
 import (
-	"github.com/zeromicro/go-queue/rabbitmq"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-douyin/apps/user/cmd/rpc/internal/config"
-	"go-zero-douyin/apps/user/cmd/rpc/internal/dao"
+	"go-zero-douyin/apps/user/cmd/rpc/internal/model"
 )
 
 type ServiceContext struct {
-	Config config.Config
-	UserDo dao.UserDo
-	Rabbit rabbitmq.Sender
+	Config    config.Config
+	UserModel model.UserModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
+	sqlConn := sqlx.NewMysql(c.DB.DataSource)
 	return &ServiceContext{
-		Config: c,
-		UserDo: dao.NewUserRepository(c.DataSource),
-		Rabbit: rabbitmq.MustNewSender(c.RabbitSenderConf),
+		Config:    c,
+		UserModel: model.NewUserModel(sqlConn, c.Cache),
 	}
 }

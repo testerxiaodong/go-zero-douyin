@@ -1,3 +1,4 @@
+
 type (
 	{{.lowerStartCamelObject}}Model interface{
 		{{.method}}

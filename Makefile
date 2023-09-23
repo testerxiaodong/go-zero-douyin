@@ -5,6 +5,7 @@ mock:
 	mockgen -source=./common/rabbitmq/sender.go -destination=./mock/sender_mock.go -package=mock
 	mockgen -source=./common/elasticService/elasticsearch.go -destination=./mock/elasticsearch_mock.go -package=mock
 	mockgen -source=./common/asynq/asynq.go -destination=./mock/asynq_mock.go -package=mock
+	mockgen -source=./common/sql/result.go -destination=./mock/result_mock.go -package=mock
 
 user-api:
 	docker build -t user-api:v1.0 -f ./apps/user/cmd/api/Dockerfile .; \

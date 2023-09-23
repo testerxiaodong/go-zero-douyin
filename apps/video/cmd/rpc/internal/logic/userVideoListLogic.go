@@ -2,12 +2,11 @@ package logic
 
 import (
 	"context"
+	"github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
-	"go-zero-douyin/common/xerr"
-	"strings"
-
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -37,7 +36,8 @@ func (l *UserVideoListLogic) UserVideoList(in *pb.UserVideoListReq) (*pb.UserVid
 	}
 
 	// 查询数据库数据
-	videos, err := l.svcCtx.VideoDo.GetVideoListByUserId(l.ctx, in.GetUserId())
+	builder := l.svcCtx.VideoModel.SelectBuilder().Where(squirrel.Eq{"owner_id": in.GetUserId()})
+	videos, total, err := l.svcCtx.VideoModel.FindPageListByPageWithTotal(l.ctx, builder, in.GetPage(), in.GetPageSize(), "create_time DESC")
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "Get user video list by user_id failed, err: %v", err)
 	}
@@ -49,19 +49,19 @@ func (l *UserVideoListLogic) UserVideoList(in *pb.UserVideoListReq) (*pb.UserVid
 
 	// 拼接数据
 	resp := &pb.UserVideoListResp{Videos: make([]*pb.VideoInfo, 0)}
+	resp.Total = total
 	for _, video := range videos {
-		tags := strings.Split(video.TagIds, ",")
 		single := &pb.VideoInfo{}
-		single.Id = video.ID
-		single.OwnerId = video.OwnerID
+		single.Id = video.Id
+		single.OwnerId = video.OwnerId
 		single.OwnerName = video.OwnerName
-		single.SectionId = video.SectionID
-		single.Tags = tags
+		single.SectionId = video.SectionId
+		single.TagIds = video.TagIds
 		single.Title = video.Title
-		single.PlayUrl = video.PlayURL
-		single.CoverUrl = video.CoverURL
-		single.CreateTime = video.CreateTime
-		single.UpdateTime = video.UpdateTime
+		single.PlayUrl = video.PlayUrl
+		single.CoverUrl = video.CoverUrl
+		single.CreateTime = video.CreateTime.Unix()
+		single.UpdateTime = video.UpdateTime.Unix()
 		resp.Videos = append(resp.Videos, single)
 	}
 	return resp, nil

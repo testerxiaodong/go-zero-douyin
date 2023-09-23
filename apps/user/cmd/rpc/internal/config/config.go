@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/zeromicro/go-queue/rabbitmq"
+	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/zrpc"
 )
 
@@ -11,6 +11,8 @@ type Config struct {
 		AccessSecret string
 		AccessExpire int64
 	}
-	DataSource       string
-	RabbitSenderConf rabbitmq.RabbitSenderConf
+	DB struct {
+		DataSource string
+	}
+	Cache cache.CacheConf
 }

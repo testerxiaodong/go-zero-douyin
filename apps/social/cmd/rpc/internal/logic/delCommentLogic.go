@@ -2,16 +2,12 @@ package logic
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/pkg/errors"
-	"go-zero-douyin/common/message"
-	"go-zero-douyin/common/utils"
-	"go-zero-douyin/common/xconst"
-	"go-zero-douyin/common/xerr"
-	"gorm.io/gorm"
-
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"go-zero-douyin/apps/social/cmd/rpc/internal/model"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/social/cmd/rpc/pb"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -41,45 +37,43 @@ func (l *DelCommentLogic) DelComment(in *pb.DelCommentReq) (*pb.DelCommentResp, 
 	}
 
 	// 查询数据库
-	comment, err := l.svcCtx.CommentDo.GetCommentById(l.ctx, in.GetCommentId())
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	comment, err := l.svcCtx.CommentModel.FindOne(l.ctx, in.GetCommentId())
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "find comment by id failed, err: %v", err)
 	}
 
 	// 评论不存在
 	if comment == nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "comment not found, id: %d", in.GetCommentId())
+		return nil, errors.Wrapf(xerr.NewErrMsg("评论不存在"), "comment not found, id: %d", in.GetCommentId())
 	}
 
 	// 评论非该用户发布
-	if comment.UserID != in.GetUserId() {
+	if comment.UserId != in.GetUserId() {
 		return nil, errors.Wrapf(xerr.NewErrMsg("评论非该用户发布，无法删除"), "comment_id: %d", in.GetCommentId())
 	}
 
 	// 删除评论
-	_, err = l.svcCtx.CommentDo.DeleteComment(l.ctx, comment)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_DELETE_ERR), "del comment failed, err: %v", err)
-	}
-
-	// 删除缓存
-	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoCommentPrefix, comment.VideoID)); err != nil {
-		// 删除缓存失败，发布消息异步处理
-		body, err := json.Marshal(message.VideoCommentMessage{VideoId: comment.VideoID})
+	if err := l.svcCtx.CommentModel.Trans(l.ctx, func(context context.Context, session sqlx.Session) error {
+		// 删除评论
+		err = l.svcCtx.CommentModel.DeleteSoft(l.ctx, nil, comment)
 		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "marshal video comment count message failed: %v", err)
+			return errors.Wrapf(xerr.NewErrCode(xerr.DB_DELETE_ERR), "del comment failed, err: %v", err)
 		}
-		err = l.svcCtx.Rabbit.Send("", "VideoCommentMq", body)
+		// 更新评论数：-1
+		commentCount, err := l.svcCtx.CommentCountModel.FindOneByVideoId(l.ctx, comment.VideoId)
+		if err != nil && !errors.Is(err, model.ErrNotFound) {
+			return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+				"查询视频评论数记录失败, err: %v, video_id: %d", err, comment.VideoId)
+		}
+		commentCount.CommentCount -= 1
+		err = l.svcCtx.CommentCountModel.UpdateWithVersion(l.ctx, session, commentCount)
 		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "publish video comment count message failed: %v", err)
+			return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR),
+				"更新视频评论数失败, err: %v, video_id: %d", err, comment.VideoId)
 		}
-	}
-
-	// 发布更新es视频文档的消息
-	msg, _ := json.Marshal(message.MysqlVideoUpdateMessage{VideoId: comment.VideoID})
-	err = l.svcCtx.Rabbit.Send("", "MysqlVideoUpdateMq", msg)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
 	return &pb.DelCommentResp{}, nil

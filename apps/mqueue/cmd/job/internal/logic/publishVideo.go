@@ -33,13 +33,13 @@ func (l *PublishVideoHandler) ProcessTask(ctx context.Context, t *asynq.Task) er
 	}
 
 	_, err := l.svcCtx.VideoRpc.PublishVideo(ctx, &pb.PublishVideoReq{
-		Title: p.Title,
+		Title:     p.Title,
 		SectionId: p.SectionID,
-		Tags: p.TagIds,
-		OwnerId: p.OwnerId,
+		TagIds:    p.TagIds,
+		OwnerId:   p.OwnerId,
 		OwnerName: p.OwnerName,
-		PlayUrl: p.PlayUrl,
-		CoverUrl: p.CoverUrl,
+		PlayUrl:   p.PlayUrl,
+		CoverUrl:  p.CoverUrl,
 	})
 	if err != nil {
 		return err

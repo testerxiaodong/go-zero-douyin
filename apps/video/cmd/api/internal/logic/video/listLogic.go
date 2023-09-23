@@ -36,7 +36,8 @@ func (l *ListLogic) List(req *types.UserVideoListReq) (resp *types.UserVideoList
 	}
 
 	// 调用videoRpc
-	videoList, err := l.svcCtx.VideoRpc.UserVideoList(l.ctx, &pb.UserVideoListReq{UserId: req.UserId})
+	videoList, err := l.svcCtx.VideoRpc.UserVideoList(l.ctx,
+		&pb.UserVideoListReq{UserId: req.UserId, Page: req.Page, PageSize: req.PageSize})
 	if err != nil {
 		return nil, errors.Wrapf(err, "req: %v", req)
 	}

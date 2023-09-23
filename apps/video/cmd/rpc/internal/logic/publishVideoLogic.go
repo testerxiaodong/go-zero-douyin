@@ -7,13 +7,10 @@ import (
 	"github.com/pkg/errors"
 	"go-zero-douyin/apps/mqueue/cmd/job/jobtype"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/model"
-	"go-zero-douyin/common/message"
-	"go-zero-douyin/common/utils"
-	"go-zero-douyin/common/xerr"
-	"strings"
-
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
+	"go-zero-douyin/common/utils"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -45,7 +42,7 @@ func (l *PublishVideoLogic) PublishVideo(in *pb.PublishVideoReq) (*pb.PublishVid
 			OwnerId:   in.GetOwnerId(),
 			OwnerName: in.GetOwnerName(),
 			SectionID: in.GetSectionId(),
-			TagIds:    in.GetTags(),
+			TagIds:    in.GetTagIds(),
 			PlayUrl:   in.GetPlayUrl(),
 			CoverUrl:  in.GetCoverUrl(),
 		}); err != nil {
@@ -62,40 +59,20 @@ func (l *PublishVideoLogic) PublishVideo(in *pb.PublishVideoReq) (*pb.PublishVid
 	// 非延迟任务，直接插入数据
 	video := &model.Video{
 		Title:     in.GetTitle(),
-		OwnerID:   in.GetOwnerId(),
+		OwnerId:   in.GetOwnerId(),
 		OwnerName: in.GetOwnerName(),
-		SectionID: in.GetSectionId(),
-		TagIds:    strings.Join(in.GetTags(), ","),
-		PlayURL:   in.GetPlayUrl(),
-		CoverURL:  in.GetCoverUrl(),
+		SectionId: in.GetSectionId(),
+		TagIds:    in.GetTagIds(),
+		PlayUrl:   in.GetPlayUrl(),
+		CoverUrl:  in.GetCoverUrl(),
 	}
-	err := l.svcCtx.VideoDo.InsertVideo(l.ctx, video)
+	_, err := l.svcCtx.VideoModel.Insert(l.ctx, nil, video)
 
 	// 插入失败
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "insert video failed, err: %v", err)
 	}
 
-	// 发布更新es视频文档的消息
-	msg, _ := json.Marshal(message.MysqlVideoUpdateMessage{VideoId: video.ID})
-	err = l.svcCtx.Rabbit.Send("", "MysqlVideoUpdateMq", msg)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
-	}
-
 	// 返回信息
-	return &pb.PublishVideoResp{
-		Video: &pb.VideoInfo{
-			Id:         video.ID,
-			Title:      video.Title,
-			SectionId:  video.SectionID,
-			Tags:       strings.Split(video.TagIds, ","),
-			OwnerId:    video.OwnerID,
-			OwnerName:  video.OwnerName,
-			PlayUrl:    video.PlayURL,
-			CoverUrl:   video.CoverURL,
-			CreateTime: video.CreateTime,
-			UpdateTime: video.UpdateTime,
-		},
-	}, nil
+	return &pb.PublishVideoResp{}, nil
 }

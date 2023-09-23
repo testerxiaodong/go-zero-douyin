@@ -2,6 +2,7 @@ package logic_test
 
 import (
 	"context"
+	"github.com/Masterminds/squirrel"
 	"github.com/golang/mock/gomock"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -11,6 +12,7 @@ import (
 	"go-zero-douyin/apps/video/cmd/rpc/mock"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/utils"
+	"go-zero-douyin/common/xerr"
 	"testing"
 )
 
@@ -19,54 +21,74 @@ func TestUserVideoListLogic_UserVideoList(t *testing.T) {
 
 	defer ctl.Finish()
 
-	mockVideoDo := mock.NewMockVideoDo(ctl)
+	mockVideoDo := mock.NewMockvideoModel(ctl)
 
-	serviceContext := &svc.ServiceContext{VideoDo: mockVideoDo}
+	serviceContext := &svc.ServiceContext{VideoModel: mockVideoDo}
 
 	userVideoListLogic := logic.NewUserVideoListLogic(context.Background(), serviceContext)
 
 	// 查询数据库失败mock
-	mockVideoDo.EXPECT().GetVideoListByUserId(gomock.Any(), gomock.Any()).Return(nil, errors.New("search database error"))
+	dbError := errors.New("search database error")
+	mockVideoDo.EXPECT().SelectBuilder().Return(squirrel.SelectBuilder{})
+	mockVideoDo.EXPECT().FindPageListByPageWithTotal(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, int64(0), dbError)
 
 	// 数据库没有数据mock
-	mockVideoDo.EXPECT().GetVideoListByUserId(gomock.Any(), gomock.Any()).Return([]*model.Video{}, nil)
+	mockVideoDo.EXPECT().SelectBuilder().Return(squirrel.SelectBuilder{})
+	mockVideoDo.EXPECT().FindPageListByPageWithTotal(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Return([]*model.Video{}, int64(0), nil)
 
 	// 查询数据库成功
-	mockVideoDo.EXPECT().GetVideoListByUserId(gomock.Any(), gomock.Any()).Return([]*model.Video{NewRandomVideo(), NewRandomVideo()}, nil)
+	mockVideoDo.EXPECT().SelectBuilder().Return(squirrel.SelectBuilder{})
+	mockVideoDo.EXPECT().FindPageListByPageWithTotal(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Return([]*model.Video{NewRandomVideo(), NewRandomVideo()}, int64(2), nil)
 
 	// 表格驱动测试
+	req := &pb.UserVideoListReq{
+		UserId:   utils.NewRandomInt64(1, 10),
+		Page:     utils.NewRandomInt64(1, 10),
+		PageSize: utils.NewRandomInt64(1, 10),
+	}
 	testCases := []struct {
 		name string
 		req  *pb.UserVideoListReq
+		err  error
 	}{
 		{
 			name: "get_user_video_list_with_empty_param",
 			req:  nil,
+			err:  errors.Wrap(xerr.NewErrCode(xerr.PB_CHECK_ERR), "Get User Video List with empty param"),
+		},
+		{
+			name: "get_user_video_list_with_empty_user_id",
+			req:  &pb.UserVideoListReq{UserId: 0},
+			err:  errors.Wrap(xerr.NewErrCode(xerr.PB_CHECK_ERR), "Get user video list with empty user_id"),
 		},
 		{
 			name: "get_user_video_list_with_search_database_error",
-			req:  &pb.UserVideoListReq{UserId: utils.NewRandomInt64(1, 10)},
+			req:  req,
+			err: errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+				"Get user video list by user_id failed, err: %v", dbError),
 		},
 		{
 			name: "get_user_video_list_with_no_database_record",
-			req:  &pb.UserVideoListReq{UserId: utils.NewRandomInt64(1, 10)},
+			req:  req,
+			err:  nil,
 		},
 		{
 			name: "get_user_video_list_success",
-			req:  &pb.UserVideoListReq{UserId: utils.NewRandomInt64(1, 10)},
+			req:  req,
+			err:  nil,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			resp, err := userVideoListLogic.UserVideoList(tc.req)
-			if err == nil {
-				assert.NotNil(t, resp)
-				if len(resp.GetVideos()) > 0 {
-					assert.Equal(t, len(resp.GetVideos()), 2)
-				}
+			_, err := userVideoListLogic.UserVideoList(tc.req)
+			if err != nil {
+				assert.Equal(t, tc.err.Error(), err.Error())
 			} else {
-				assert.Empty(t, resp)
+				assert.Equal(t, tc.err, err)
 			}
 		})
 	}

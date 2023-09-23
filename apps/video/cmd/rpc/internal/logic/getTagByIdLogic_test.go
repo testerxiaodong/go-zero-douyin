@@ -6,33 +6,31 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/logic"
+	"go-zero-douyin/apps/video/cmd/rpc/internal/model"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/mock"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/xerr"
-	"gorm.io/gorm"
 	"testing"
 )
 
 func TestNewGetTagByIdLogic(t *testing.T) {
 	ctl := gomock.NewController(t)
-
-	mockTagDo := mock.NewMockTagDo(ctl)
-
-	serviceContext := &svc.ServiceContext{TagDo: mockTagDo}
-
+	defer ctl.Finish()
+	mockTagDo := mock.NewMocktagModel(ctl)
+	serviceContext := &svc.ServiceContext{TagModel: mockTagDo}
 	getTagByIdLogic := logic.NewGetTagByIdLogic(context.Background(), serviceContext)
 
 	// 查询数据库失败的mock
 	dbSearchError := errors.New("TagDo.GetTagById error")
-	mockTagDo.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
+	mockTagDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
 
 	// 查询数据库成功但没有数据的mock
-	mockTagDo.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
+	mockTagDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
 
 	// 查询数据库成功且有数据的mock
 	expectedValue := NewRandTag()
-	mockTagDo.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(expectedValue, nil)
+	mockTagDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(expectedValue, nil)
 
 	// 表格驱动测试
 	testCases := []struct {
@@ -75,8 +73,8 @@ func TestNewGetTagByIdLogic(t *testing.T) {
 				assert.Equal(t, tc.err.Error(), err.Error())
 			} else {
 				assert.Equal(t, tc.err, err)
-				assert.Equal(t, resp.GetTagInfo().GetId(), expectedValue.ID)
-				assert.Equal(t, resp.GetTagInfo().GetName(), expectedValue.Name)
+				assert.Equal(t, resp.GetTag().GetId(), expectedValue.Id)
+				assert.Equal(t, resp.GetTag().GetName(), expectedValue.Name)
 			}
 		})
 	}

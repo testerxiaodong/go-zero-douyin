@@ -2,17 +2,13 @@ package logic
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/pkg/errors"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/model"
-	"go-zero-douyin/common/message"
-	"go-zero-douyin/common/utils"
-	"go-zero-douyin/common/xconst"
-	"go-zero-douyin/common/xerr"
-	"gorm.io/gorm"
-
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/social/cmd/rpc/pb"
+	"go-zero-douyin/common/xconst"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -39,7 +35,8 @@ func (l *FollowUserLogic) FollowUser(in *pb.FollowUserReq) (*pb.FollowUserResp, 
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "follow user with empty param")
 	}
 	if in.GetUserId() == 0 || in.GetFollowerId() == 0 {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "follow user with empty follower_id or user_id")
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR),
+			"follow user with empty follower_id or user_id")
 	}
 
 	// 用户不能关注自己
@@ -48,65 +45,120 @@ func (l *FollowUserLogic) FollowUser(in *pb.FollowUserReq) (*pb.FollowUserResp, 
 	}
 
 	// 查询数据库
-	follow, err := l.svcCtx.FollowDo.GetFollowByFollowerIdAndUserId(l.ctx, in.GetFollowerId(), in.GetUserId())
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "search user is alreaddy follow user from db failed, err: %v, follower_id: %d user_id: %d", err, in.GetFollowerId(), in.GetUserId())
+	follow, err := l.svcCtx.FollowModel.FindOneByUserIdFollowerId(l.ctx, in.GetUserId(), in.GetFollowerId())
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+			"search user is alreaddy follow user from db failed, err: %v, follower_id: %d user_id: %d",
+			err, in.GetFollowerId(), in.GetUserId())
 	}
-
-	// 已关注，直接返回成功，不做任何处理
-	if follow != nil {
+	// 有记录，且关注状态为已关注，直接返回
+	if follow != nil && follow.Status == xconst.FollowStateYes {
 		return &pb.FollowUserResp{}, nil
 	}
-
-	// 未关注，插入关注记录
-	newFollow := &model.Follow{}
-	newFollow.FollowerID = in.GetFollowerId()
-	newFollow.UserID = in.GetUserId()
-	err = l.svcCtx.FollowDo.InsertFollow(l.ctx, newFollow)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "insert follow record failed, err: %v follower_id: %d user_id: %d", err, in.GetFollowerId(), in.GetUserId())
-	}
-
-	// 删除用户关注id集合缓存
-	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserFollowUserPrefix, in.GetFollowerId())); err != nil {
-		// 删除失败，发布异步处理消息
-		userFollowUserMessage := message.UserFollowUserMessage{FollowerId: in.GetFollowerId()}
-
-		userFollowUserBody, err := json.Marshal(userFollowUserMessage)
-		if err != nil {
-			panic(err)
-		}
-
-		err = l.svcCtx.Rabbit.Send("", "UserFollowUserMq", userFollowUserBody)
-		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrMsg("发布userFollowUserMessage失败"), "err: %v", err)
-		}
-	}
-	// 删除用户粉丝id集合缓存
-	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserFollowedByUserPrefix, in.GetUserId())); err != nil {
-		// 删除失败，发布异步处理消息
-		userFollowedByUserMessage := message.UserFollowedByUserMessage{UserId: in.GetUserId()}
-
-		userFollowedByUserBody, err := json.Marshal(userFollowedByUserMessage)
-		if err != nil {
-			panic(err)
-		}
-
-		err = l.svcCtx.Rabbit.Send("", "UserFollowedByUserMq", userFollowedByUserBody)
-		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrMsg("发布userFollowedByUserMessage失败"), "err: %v", err)
+	// 有记录，且关注状态为已取消关注，关注状态更新，关注数粉丝数更新
+	if follow != nil && follow.Status == xconst.FollowStateNo {
+		if err := l.svcCtx.FollowModel.Trans(l.ctx, func(context context.Context, session sqlx.Session) error {
+			// 更新关注状态
+			follow.Status = xconst.FollowStateYes
+			err := l.svcCtx.FollowModel.UpdateWithVersion(l.ctx, session, follow)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR),
+					"更新关注状态失败, err: %v, user_id: %d, follower_id: %d", err, in.GetUserId(), in.GetFollowerId())
+			}
+			// 查询粉丝数与关注数
+			followerCountRecord, err := l.svcCtx.FollowCountModel.FindOneByUserId(l.ctx, in.GetUserId())
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+					"查询用户粉丝数失败, err: %v, user_id: %d", err, in.GetUserId())
+			}
+			followerCountRecord.FollowerCount += 1
+			err = l.svcCtx.FollowCountModel.UpdateWithVersion(l.ctx, session, followerCountRecord)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR),
+					"更新用户粉丝数失败, err: %v, user_id: %v", err, in.GetUserId())
+			}
+			followCountRecord, err := l.svcCtx.FollowCountModel.FindOneByUserId(l.ctx, in.GetFollowerId())
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+					"查询用户关注数失败, err: %v, user_id: %v", err, in.GetFollowerId())
+			}
+			followCountRecord.FollowCount += 1
+			err = l.svcCtx.FollowCountModel.UpdateWithVersion(l.ctx, session, followCountRecord)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR),
+					"更新用户关注数失败, err: %v, user_id: %v", err, in.GetFollowerId())
+			}
+			return nil
+		}); err != nil {
+			return nil, err
 		}
 	}
-	// 发布更新es用户的消息
-	userMsg, _ := json.Marshal(message.MysqlUserUpdateMessage{UserId: in.GetUserId()})
-	err = l.svcCtx.Rabbit.Send("", "MysqlUserUpdateMq", userMsg)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
+	// 没有记录，插入记录，更新关注数粉丝数
+	if follow == nil {
+		if err := l.svcCtx.FollowModel.Trans(l.ctx, func(context context.Context, session sqlx.Session) error {
+			// 插入记录
+			newFollow := &model.Follow{}
+			newFollow.FollowerId = in.GetFollowerId()
+			newFollow.UserId = in.GetUserId()
+			newFollow.Status = xconst.FollowStateYes
+			_, err := l.svcCtx.FollowModel.Insert(l.ctx, session, newFollow)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR),
+					"插入关注记录失败, err: %v, user_id: %d, follower_id: %d", err, in.GetUserId(), in.GetFollowerId())
+			}
+			// 更新被关注用户粉丝数
+			followerCountRecord, err := l.svcCtx.FollowCountModel.FindOneByUserId(l.ctx, in.GetUserId())
+			if err != nil && !errors.Is(err, model.ErrNotFound) {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+					"根据用户id查询粉丝关注数失败, err: %v, user_id: %v", err, in.GetUserId())
+			}
+			if followerCountRecord == nil {
+				// 粉丝数关注数记录不存在，则插入一条
+				followCount := &model.FollowCount{}
+				followCount.UserId = in.GetUserId()
+				followCount.FollowCount = 0
+				followCount.FollowerCount = 1
+				_, err = l.svcCtx.FollowCountModel.Insert(l.ctx, session, followCount)
+				if err != nil {
+					return errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "插入用户粉丝数关注数记录失败, err: %v, user_id: %v", err, in.GetUserId())
+				}
+			} else {
+				// 粉丝数关注数记录存在，更新
+				followerCountRecord.FollowerCount += 1
+				err = l.svcCtx.FollowCountModel.UpdateWithVersion(l.ctx, session, followerCountRecord)
+				if err != nil {
+					return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR), "更新用户粉丝数失败, err: %v, user_id: %d", err, in.GetUserId())
+				}
+			}
+			// 更新关注用户关注数
+			followCountRecord, err := l.svcCtx.FollowCountModel.FindOneByUserId(l.ctx, in.GetFollowerId())
+			if err != nil && !errors.Is(err, model.ErrNotFound) {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+					"根据用户id查询粉丝关注数失败, err: %v, user_id: %v", err, in.GetFollowerId())
+			}
+			if followCountRecord == nil {
+				// 粉丝数关注数记录不存在，则插入一条
+				followCount := &model.FollowCount{}
+				followCount.UserId = in.GetFollowerId()
+				followCount.FollowCount = 1
+				followCount.FollowerCount = 0
+				_, err = l.svcCtx.FollowCountModel.Insert(l.ctx, session, followCount)
+				if err != nil {
+					return errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "插入用户粉丝数关注数记录失败, err: %v, user_id: %v", err, in.GetFollowerId())
+				}
+			} else {
+				// 粉丝数关注数记录存在，更新
+				followCountRecord.FollowCount += 1
+				err = l.svcCtx.FollowCountModel.UpdateWithVersion(l.ctx, session, followCountRecord)
+				if err != nil {
+					return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR), "更新用户粉丝数失败, err: %v, user_id: %d", err, in.GetFollowerId())
+				}
+			}
+			return nil
+		}); err != nil {
+			return nil, err
+		}
 	}
-	followerMsg, _ := json.Marshal(message.MysqlUserUpdateMessage{UserId: in.GetFollowerId()})
-	err = l.svcCtx.Rabbit.Send("", "MysqlUserUpdateMq", followerMsg)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
-	}
+
 	return &pb.FollowUserResp{}, nil
 }

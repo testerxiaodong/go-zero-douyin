@@ -227,6 +227,8 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    volumes:
+      - ./data/flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     restart: always
     networks:
       - douyin_net
@@ -243,6 +245,8 @@ services:
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
       - TZ=Asia/Shanghai
+    volumes:
+      - ./data/flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     restart: always
     networks:
       - douyin_net

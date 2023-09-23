@@ -6,33 +6,31 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/logic"
+	"go-zero-douyin/apps/video/cmd/rpc/internal/model"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/mock"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/xerr"
-	"gorm.io/gorm"
 	"testing"
 )
 
 func TestGetSectionByIdLogic_GetSectionById(t *testing.T) {
 	ctl := gomock.NewController(t)
-
-	mockSectionDo := mock.NewMockSectionDo(ctl)
-
-	serviceContext := &svc.ServiceContext{SectionDo: mockSectionDo}
-
+	defer ctl.Finish()
+	mockSectionDo := mock.NewMocksectionModel(ctl)
+	serviceContext := &svc.ServiceContext{SectionModel: mockSectionDo}
 	getSectionByIdLogic := logic.NewGetSectionByIdLogic(context.Background(), serviceContext)
 
 	// 查询数据库失败的mock
 	dbSearchError := errors.New("SectionDo.GetSectionById error")
-	mockSectionDo.EXPECT().GetSectionById(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
+	mockSectionDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
 
 	// 查询数据库成功但没有数据的mock
-	mockSectionDo.EXPECT().GetSectionById(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
+	mockSectionDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
 
 	// 查询数据库成功且有数据的mock
 	expectedValue := NewRandSection()
-	mockSectionDo.EXPECT().GetSectionById(gomock.Any(), gomock.Any()).Return(expectedValue, nil)
+	mockSectionDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(expectedValue, nil)
 
 	// 表格驱动测试
 	testCases := []struct {
@@ -75,8 +73,8 @@ func TestGetSectionByIdLogic_GetSectionById(t *testing.T) {
 				assert.Equal(t, tc.err.Error(), err.Error())
 			} else {
 				assert.Equal(t, tc.err, err)
-				assert.Equal(t, resp.GetSectionInfo().GetId(), expectedValue.ID)
-				assert.Equal(t, resp.GetSectionInfo().GetName(), expectedValue.Name)
+				assert.Equal(t, resp.GetSection().GetId(), expectedValue.Id)
+				assert.Equal(t, resp.GetSection().GetName(), expectedValue.Name)
 			}
 		})
 	}

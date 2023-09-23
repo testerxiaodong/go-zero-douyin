@@ -6,12 +6,14 @@ rpc:
 	sed -i "" 's/,omitempty//g' ./rpc/pb/*.pb.go
 
 gen:
-	go run ../gen/generate.go
+	goctl model mysql datasource -url="root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin" -table="video"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
+	goctl model mysql datasource -url="root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin" -table="tag"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
+	goctl model mysql datasource -url="root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin" -table="section"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
 
 mock:
-	mockgen -source=./rpc/internal/dao/videoRepository.go -destination=./rpc/mock/videoDo_mock.go -package=mock
-	mockgen -source=./rpc/internal/dao/sectionRepository.go -destination=./rpc/mock/sectionDo_mock.go -package=mock
-	mockgen -source=./rpc/internal/dao/tagRepository.go -destination=./rpc/mock/tagDo_mock.go -package=mock
+	mockgen -source=./rpc/internal/model/videoModel_gen.go -destination=./rpc/mock/videoModel_mock.go -package=mock
+	mockgen -source=./rpc/internal/model/tagModel_gen.go -destination=./rpc/mock/tagModel_mock.go -package=mock
+	mockgen -source=./rpc/internal/model/sectionModel_gen.go -destination=./rpc/mock/sectionModel_mock.go -package=mock
 	mockgen -source=./rpc/video/video.go -destination=./rpc/mock/video_rpc_mock.go -package=mock
 
 dockerfile-api:

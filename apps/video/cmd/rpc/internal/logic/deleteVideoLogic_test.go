@@ -11,49 +11,35 @@ import (
 	"go-zero-douyin/apps/video/cmd/rpc/mock"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/xerr"
-	globalMock "go-zero-douyin/mock"
-	"gorm.io/gen"
-	"gorm.io/gorm"
 	"testing"
 )
 
 func TestDeleteVideoLogic_DeleteVideo(t *testing.T) {
 	ctl := gomock.NewController(t)
-
 	defer ctl.Finish()
-
-	mockVideoDo := mock.NewMockVideoDo(ctl)
-	mockSender := globalMock.NewMockSender(ctl)
-
-	serviceContext := &svc.ServiceContext{VideoDo: mockVideoDo, Rabbit: mockSender}
+	mockVideoDo := mock.NewMockvideoModel(ctl)
+	serviceContext := &svc.ServiceContext{VideoModel: mockVideoDo}
 
 	deleteVideoLogic := logic.NewDeleteVideoLogic(context.Background(), serviceContext)
 
 	// 通过id查询视频失败mock
 	dbSearchError := errors.New("search database error")
-	mockVideoDo.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
+	mockVideoDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
 
 	// 视频不存在mock
-	mockVideoDo.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
+	mockVideoDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
 
 	// 视频非该用户发布mock
-	mockVideoDo.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(&model.Video{ID: 1, OwnerID: 1}, nil)
+	mockVideoDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(&model.Video{Id: 1, OwnerId: 1}, nil)
 
 	// 视频存在，且是该用户发布，但删除视频失败mock
 	dbDeleteError := errors.New("delete database error")
-	mockVideoDo.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(&model.Video{ID: 1, OwnerID: 2}, nil)
-	mockVideoDo.EXPECT().DeleteVideo(gomock.Any(), gomock.Any()).Return(gen.ResultInfo{}, dbDeleteError)
-
-	// 视频存在，且是该用户发布，且视频删除成功mock，但发布消息失败的mock
-	senderError := errors.New("sender error")
-	mockVideoDo.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(&model.Video{ID: 1, OwnerID: 2}, nil)
-	mockVideoDo.EXPECT().DeleteVideo(gomock.Any(), gomock.Any()).Return(gen.ResultInfo{}, nil)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
+	mockVideoDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(&model.Video{Id: 1, OwnerId: 2}, nil)
+	mockVideoDo.EXPECT().DeleteSoft(gomock.Any(), gomock.Any(), gomock.Any()).Return(dbDeleteError)
 
 	// 成功的mock
-	mockVideoDo.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(&model.Video{ID: 1, OwnerID: 2}, nil)
-	mockVideoDo.EXPECT().DeleteVideo(gomock.Any(), gomock.Any()).Return(gen.ResultInfo{}, nil)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	mockVideoDo.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(&model.Video{Id: 1, OwnerId: 2}, nil)
+	mockVideoDo.EXPECT().DeleteSoft(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 	// 表格驱动测试
 	testCases := []struct {
@@ -95,11 +81,6 @@ func TestDeleteVideoLogic_DeleteVideo(t *testing.T) {
 			name: "delete_video_with_delete_video_error",
 			req:  &pb.DeleteVideoReq{VideoId: 2, UserId: 2},
 			err:  errors.Wrapf(xerr.NewErrCode(xerr.DB_DELETE_ERR), "delete video by id failed: %v", dbDeleteError),
-		},
-		{
-			name: "delete_video_with_sender_error",
-			req:  &pb.DeleteVideoReq{VideoId: 2, UserId: 2},
-			err:  errors.Wrapf(xerr.NewErrCode(xerr.RPC_DELETE_ERR), "req: %v, err: %v", &pb.DeleteVideoReq{VideoId: 2, UserId: 2}, senderError),
 		},
 		{
 			name: "delete_video_with_delete_video_success",

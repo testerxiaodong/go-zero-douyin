@@ -10,48 +10,23 @@ import (
 	"go-zero-douyin/apps/social/cmd/rpc/mock"
 	"go-zero-douyin/apps/social/cmd/rpc/pb"
 	"go-zero-douyin/common/xerr"
-	gloabelMock "go-zero-douyin/mock"
 	"testing"
 )
 
 func TestAddCommentLogic_AddComment(t *testing.T) {
 	ctl := gomock.NewController(t)
 	defer ctl.Finish()
-	mockCommentDo := mock.NewMockCommentDo(ctl)
-	mockSender := gloabelMock.NewMockSender(ctl)
-	mockRedis := gloabelMock.NewMockRedisCache(ctl)
-	serviceContext := &svc.ServiceContext{CommentDo: mockCommentDo, Redis: mockRedis,
-		Rabbit: mockSender}
-
+	mockCommentDo := mock.NewMockcommentModel(ctl)
+	mockCommentCountDo := mock.NewMockcommentCountModel(ctl)
+	serviceContext := &svc.ServiceContext{CommentModel: mockCommentDo, CommentCountModel: mockCommentCountDo}
 	addCommentLogic := logic.NewAddCommentLogic(context.Background(), serviceContext)
 
-	// CommentDo.InsertComment失败的mock
-	insertCommentError := errors.New("CommentDo.InsertComment error")
-	mockCommentDo.EXPECT().InsertComment(gomock.Any(), gomock.Any()).Return(insertCommentError)
+	// 事务失败的mock
+	TransError := errors.New("CommentDo.Trans error")
+	mockCommentDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(TransError)
 
-	// 插入数据库成功，但删除缓存失败，且发布消息失败mock
-	redisError := errors.New("redis delete error")
-	senderError := errors.New("rabbitmq sender error")
-	mockCommentDo.EXPECT().InsertComment(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
-
-	// 插入数据库成功，但删除缓存失败，且消息发布成功mock，但发送es消息失败的mock
-	mockCommentDo.EXPECT().InsertComment(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisError)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
-
-	// 插入数据库成功，删除缓存成功mock，但发送es消息失败
-	mockCommentDo.EXPECT().InsertComment(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
-
-	// 成功的mock
-	mockCommentDo.EXPECT().InsertComment(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
-	mockSender.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-
+	// 事务成功的mock
+	mockCommentDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(nil)
 	// 表格驱动测试
 	testCases := []struct {
 		name string
@@ -69,26 +44,9 @@ func TestAddCommentLogic_AddComment(t *testing.T) {
 			err:  errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "Add comment with empty video_id or user_id or content"),
 		},
 		{
-			name: "add_comment_with_database_error",
+			name: "add_comment_with_trans_error",
 			req:  &pb.AddCommentReq{VideoId: 1, UserId: 1, Content: "test"},
-			err:  errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "insert comment failed: %v", insertCommentError),
-		},
-		{
-			name: "add_comment_with_rabbit_error",
-			req:  &pb.AddCommentReq{VideoId: 1, UserId: 1, Content: "test"},
-			err:  errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "publish video comment count message failed: %v", senderError),
-		},
-		{
-			name: "add_comment_with_redis_error",
-			req:  &pb.AddCommentReq{VideoId: 1, UserId: 1, Content: "test"},
-			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
-				"req: %v, err: %v", &pb.AddCommentReq{VideoId: 1, UserId: 1, Content: "test"}, senderError),
-		},
-		{
-			name: "add_comment_with_es_sender_error",
-			req:  &pb.AddCommentReq{VideoId: 1, UserId: 1, Content: "test"},
-			err: errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR),
-				"req: %v, err: %v", &pb.AddCommentReq{VideoId: 1, UserId: 1, Content: "test"}, senderError),
+			err:  TransError,
 		},
 		{
 			name: "add_comment_success",

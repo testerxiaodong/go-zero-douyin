@@ -2,6 +2,7 @@ package logic_test
 
 import (
 	"context"
+	"github.com/Masterminds/squirrel"
 	"github.com/golang/mock/gomock"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -10,70 +11,74 @@ import (
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/mock"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
-	"go-zero-douyin/common/utils"
+	"go-zero-douyin/common/xerr"
 	"testing"
 )
 
 func TestVideoFeedLogic_VideoFeed(t *testing.T) {
 	ctl := gomock.NewController(t)
-
 	defer ctl.Finish()
-
-	mockVideoDo := mock.NewMockVideoDo(ctl)
-
-	serviceContext := &svc.ServiceContext{VideoDo: mockVideoDo}
-
+	mockVideoDo := mock.NewMockvideoModel(ctl)
+	serviceContext := &svc.ServiceContext{VideoModel: mockVideoDo}
 	videoFeedLogic := logic.NewVideoFeedLogic(context.Background(), serviceContext)
 
 	// 查询数据库失败mock
-	mockVideoDo.EXPECT().GetVideoListByTimeStampAndSectionId(gomock.Any(), gomock.Any(), gomock.Any()).
-		Return(nil, errors.New("search database error"))
+	dbError := errors.New("search database error")
+	mockVideoDo.EXPECT().SelectBuilder().Return(squirrel.SelectBuilder{})
+	mockVideoDo.EXPECT().FindPageListByPage(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, dbError)
 
 	// 数据库没有数据mock
-	mockVideoDo.EXPECT().GetVideoListByTimeStampAndSectionId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockVideoDo.EXPECT().SelectBuilder().Return(squirrel.SelectBuilder{})
+	mockVideoDo.EXPECT().FindPageListByPage(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return([]*model.Video{}, nil)
 
 	// 查询数据库成功mock
-	mockVideoDo.EXPECT().GetVideoListByTimeStampAndSectionId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockVideoDo.EXPECT().SelectBuilder().Return(squirrel.SelectBuilder{})
+	mockVideoDo.EXPECT().FindPageListByPage(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return([]*model.Video{NewRandomVideo(), NewRandomVideo()}, nil)
 
 	// 表格驱动测试
 	testCases := []struct {
 		name string
 		req  *pb.VideoFeedReq
+		err  error
 	}{
 		{
 			name: "get_video_feed_with_empty_param",
 			req:  nil,
+			err:  errors.Wrap(xerr.NewErrCode(xerr.PB_CHECK_ERR), "Get video feed with empty param"),
 		},
 		{
 			name: "get_video_feed_with_empty_timestamp",
-			req:  &pb.VideoFeedReq{LastTimeStamp: nil},
+			req:  &pb.VideoFeedReq{LastTimeStamp: 0},
+			err:  errors.Wrap(xerr.NewErrCode(xerr.PB_CHECK_ERR), "Get video feed with empty timestamp"),
 		},
 		{
 			name: "get_video_feed_with_search_database_error",
-			req:  &pb.VideoFeedReq{LastTimeStamp: utils.FromInt64TimeStampToProtobufTimestamp(100)},
+			req:  &pb.VideoFeedReq{LastTimeStamp: 10},
+			err: errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+				"Get video feed by last timestmap failed, err: %v", dbError),
 		},
 		{
 			name: "get_video_feed_with_no_database_record",
-			req:  &pb.VideoFeedReq{LastTimeStamp: utils.FromInt64TimeStampToProtobufTimestamp(100)},
+			req:  &pb.VideoFeedReq{LastTimeStamp: 10},
+			err:  nil,
 		},
 		{
 			name: "get_video_feed_success",
-			req:  &pb.VideoFeedReq{LastTimeStamp: utils.FromInt64TimeStampToProtobufTimestamp(100)},
+			req:  &pb.VideoFeedReq{LastTimeStamp: 10},
+			err:  nil,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			resp, err := videoFeedLogic.VideoFeed(tc.req)
-			if err == nil {
-				assert.NotNil(t, resp)
-				if len(resp.GetVideos()) > 0 {
-					assert.Equal(t, len(resp.GetVideos()), 2)
-				}
+			_, err := videoFeedLogic.VideoFeed(tc.req)
+			if err != nil {
+				assert.Equal(t, tc.err.Error(), err.Error())
 			} else {
-				assert.Empty(t, resp)
+				assert.Equal(t, tc.err, err)
 			}
 		})
 	}

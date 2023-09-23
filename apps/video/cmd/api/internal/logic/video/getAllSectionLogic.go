@@ -35,7 +35,7 @@ func (l *GetAllSectionLogic) GetAllSection() (resp *types.GetAllSectionResp, err
 	}
 
 	// 拷贝响应
-	resp = &types.GetAllSectionResp{Sections: make([]*types.SectionInfo, 0)}
+	resp = &types.GetAllSectionResp{Sections: make([]*types.Section, 0)}
 	err = copier.Copy(resp, sections)
 	if err != nil {
 		return nil, errors.Wrapf(err, "data: %v", sections)

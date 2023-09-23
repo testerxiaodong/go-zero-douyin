@@ -11,54 +11,31 @@ import (
 	"go-zero-douyin/apps/video/cmd/rpc/mock"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/xerr"
-	globalMock "go-zero-douyin/mock"
-	"gorm.io/gorm"
 	"testing"
 )
 
 func TestAddTagLogic_AddTag(t *testing.T) {
 	ctl := gomock.NewController(t)
-
-	mockTagDo := mock.NewMockTagDo(ctl)
-
-	mockRedis := globalMock.NewMockRedisCache(ctl)
-
-	mockRabbit := globalMock.NewMockSender(ctl)
-
-	serviceContext := &svc.ServiceContext{TagDo: mockTagDo, Redis: mockRedis, Rabbit: mockRabbit}
-
+	defer ctl.Finish()
+	mockTagDo := mock.NewMocktagModel(ctl)
+	serviceContext := &svc.ServiceContext{TagModel: mockTagDo}
 	addTagLogic := logic.NewAddTagLogic(context.Background(), serviceContext)
 
-	// 查询分区失败的mock
+	// 查询标签失败的mock
 	dbSearchError := errors.New("TagDo.GetTagByName error")
-	mockTagDo.EXPECT().GetTagByName(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
+	mockTagDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
 
-	// 分区已存在mock
-	mockTagDo.EXPECT().GetTagByName(gomock.Any(), gomock.Any()).Return(&model.Tag{ID: 1, Name: "test"}, nil)
+	// 标签已存在mock
+	mockTagDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(&model.Tag{Id: 1, Name: "test"}, nil)
 
 	// 插入失败的mock
 	dbInsertError := errors.New("TagDo.InsertTag error")
-	mockTagDo.EXPECT().GetTagByName(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockTagDo.EXPECT().InsertTag(gomock.Any(), gomock.Any()).Return(dbInsertError)
+	mockTagDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockTagDo.EXPECT().Insert(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, dbInsertError)
 
-	// 删除缓存失败，且发送消息失败的mock
-	redisDeleteError := errors.New("redis delete error")
-	senderError := errors.New("send message error")
-	mockTagDo.EXPECT().GetTagByName(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockTagDo.EXPECT().InsertTag(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisDeleteError)
-	mockRabbit.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(senderError)
-
-	// 删除缓存失败，但发送消息成功的mock
-	mockTagDo.EXPECT().GetTagByName(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockTagDo.EXPECT().InsertTag(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(0, redisDeleteError)
-	mockRabbit.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-
-	// 删除缓存成功的mock
-	mockTagDo.EXPECT().GetTagByName(gomock.Any(), gomock.Any()).Return(nil, gorm.ErrRecordNotFound)
-	mockTagDo.EXPECT().InsertTag(gomock.Any(), gomock.Any()).Return(nil)
-	mockRedis.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(1, nil)
+	// 插入成功的mock
+	mockTagDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockTagDo.EXPECT().Insert(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 
 	// 表格驱动测试
 	testCases := []struct {
@@ -90,16 +67,6 @@ func TestAddTagLogic_AddTag(t *testing.T) {
 			name: "add_tag_with_database_insert_error",
 			req:  &pb.AddTagReq{Name: "test"},
 			err:  errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "数据库新增标签失败, err: %v, name: %s", dbInsertError, "test"),
-		},
-		{
-			name: "add_tag_with_sender_error",
-			req:  &pb.AddTagReq{Name: "test"},
-			err:  errors.Wrapf(xerr.NewErrMsg("发布删除标签缓存信息失败"), "err: %v", senderError),
-		},
-		{
-			name: "add_tag_with_redis_delete_error",
-			req:  &pb.AddTagReq{Name: "test"},
-			err:  nil,
 		},
 		{
 			name: "add_tag_success",

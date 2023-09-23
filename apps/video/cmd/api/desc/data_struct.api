@@ -14,7 +14,7 @@ type VideoInfo {
     OwnerId int64 `json:"owner_id"`
     OwnerName string `json:"owner_name"`
     SectionId int64 `json:"section_id"`
-    Tags  []string  `json:"tags"`
+    TagIds  string  `json:"tag_ids"`
     Title string `json:"title"`
     PlayUrl string `json:"play_url"`
     CoverUrl string `json:"cover_url"`
@@ -28,20 +28,8 @@ type (
     PublishVideoReq {
         Title string `form:"title" validate:"required"`
         SectionId int64 `form:"section_id" validate:"required"`
-        Tags  string `form:"tags" validate:"required"`
+        TagIds  string `form:"tag_ids" validate:"required"`
         PublishTime int64 `form:"publish_time,optional"`
-    }
-    PublishVideoResp {
-        Id int64 `json:"id"`
-        Title string `json:"title"`
-        SectionId int64 `json:"section_id"`
-        Tags []string  `json:"tags"`
-        OwnerId int64 `json:"owner_id"`
-        OwnerName string `json:"owner_name"`
-        PlayUrl string `json:"play_url"`
-        CoverUrl string `json:"cover_url"`
-        CreateTime int64 `json:"create_time"`
-        UpdateTime int64 `json:"update_time"`
     }
 )
 
@@ -58,6 +46,8 @@ type (
 type (
     UserVideoListReq {
         UserId int64 `json:"user_id" validate:"required"`
+        Page int64 `json:"page,optional"`
+        PageSize int64 `json:"page_size,optional"`
     }
     UserVideoListResp {
         Total int64 `json:"total"`
@@ -80,16 +70,10 @@ type (
     }
 )
 
-type (
-    syncVideoToEsByIdReq {
-        VideoId int64 `json:"video_id" validate:"required"`
-    }
-)
-
 // 分区相关结构体
 
 type (
-    SectionInfo {
+    Section {
     Id int64 `json:"id"`
     Name string `json:"name"`
     }
@@ -109,14 +93,14 @@ type (
 
 type (
     GetAllSectionResp {
-        Sections []*SectionInfo `json:"sections"`
+        Sections []*Section `json:"sections"`
     }
 )
 
 // 标签相关结构体
 
 type (
-    TagInfo {
+    Tag {
         Id int64 `json:"id"`
         Name string `json:"name"`
     }
@@ -136,6 +120,6 @@ type (
 
 type (
     GetAllTagResp {
-        Tags []*TagInfo `json:"tags"`
+        Tags []*Tag `json:"tags"`
     }
 )

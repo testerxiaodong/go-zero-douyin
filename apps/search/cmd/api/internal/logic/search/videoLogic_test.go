@@ -38,14 +38,14 @@ func TestVideoLogic_Video(t *testing.T) {
 		Id:           utils.NewRandomInt64(1, 10),
 		Title:        utils.NewRandomString(10),
 		SectionId:    utils.NewRandomInt64(1, 10),
-		Tags:         []string{"1", "2", "3"},
+		TagIds:       "1,2,3",
 		OwnerId:      utils.NewRandomInt64(1, 10),
 		PlayUrl:      utils.NewRandomString(10),
 		CoverUrl:     utils.NewRandomString(10),
 		CommentCount: utils.NewRandomInt64(1, 10),
 		LikeCount:    utils.NewRandomInt64(1, 10),
-		CreateTime:   utils.NewRandomInt64(1, 10),
-		UpdateTime:   utils.NewRandomInt64(1, 10),
+		CreateTime:   utils.NewRandomString(10),
+		UpdateTime:   utils.NewRandomString(10),
 	}}}
 	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
 	mockSearchRpc.EXPECT().SearchVideo(gomock.Any(), gomock.Any()).Return(resp, nil)

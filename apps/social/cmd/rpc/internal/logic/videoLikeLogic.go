@@ -2,17 +2,13 @@ package logic
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/pkg/errors"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/model"
-	"go-zero-douyin/common/message"
-	"go-zero-douyin/common/utils"
-	"go-zero-douyin/common/xconst"
-	"go-zero-douyin/common/xerr"
-	"gorm.io/gorm"
-
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/social/cmd/rpc/pb"
+	"go-zero-douyin/common/xconst"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -38,60 +34,87 @@ func (l *VideoLikeLogic) VideoLike(in *pb.VideoLikeReq) (*pb.VideoLikeResp, erro
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "like video with empty param")
 	}
 	if in.GetUserId() == 0 || in.GetVideoId() == 0 {
-		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "like video with empty user_id or video_id")
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR),
+			"like video with empty user_id or video_id")
 	}
-
-	// 查询是否已点赞
-	like, err := l.svcCtx.LikeDo.GetLikeByVideoIdAndUserId(l.ctx, in.GetVideoId(), in.GetUserId())
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "find video is already liked by user failed, err: %v", err)
+	// 查询记录是否存在
+	like, err := l.svcCtx.LikeModel.FindOneByVideoIdUserId(l.ctx, in.GetVideoId(), in.GetUserId())
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR),
+			"find video is already liked by user failed, err: %v", err)
 	}
-
-	// 已经点赞，直接返回
-	if like != nil {
+	// 记录存在，且状态为已点赞，直接返回
+	if like != nil && like.Status == xconst.LikeStateYes {
 		return &pb.VideoLikeResp{}, nil
 	}
-
-	// 插入数据库
-	newLike := &model.Like{}
-	newLike.VideoID = in.GetVideoId()
-	newLike.UserID = in.GetUserId()
-	err = l.svcCtx.LikeDo.InsertLike(l.ctx, newLike)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_INSERT_ERR), "insert video like failed, err: %v", err)
-	}
-
-	// 删除用户点赞视频id集合缓存
-	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserLikeVideoPrefix, in.GetUserId())); err != nil {
-		userVideoBody, err := json.Marshal(message.UserLikeVideoMessage{UserId: in.GetUserId()})
-		if err != nil {
-			panic(err)
-		}
-		err = l.svcCtx.Rabbit.Send("", "UserLikeVideoMq", userVideoBody)
-		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrMsg("publish user like video message failed"), "video_id: %d", in.GetVideoId())
-		}
-	}
-
-	// 删除视频被点赞用户id集合缓存
-	if _, err := l.svcCtx.Redis.Delete(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisVideoLikedByUserPrefix, in.GetVideoId())); err != nil {
-		videoUserBody, err := json.Marshal(message.VideoLikedByUserMessage{VideoId: in.GetVideoId()})
-		if err != nil {
-			panic(err)
-		}
-
-		err = l.svcCtx.Rabbit.Send("", "VideoLikedByUserMq", videoUserBody)
-		if err != nil {
-			return nil, errors.Wrapf(xerr.NewErrMsg("publish video liked by user message failed"), "user_id: %d", in.GetUserId())
+	// 记录存在，且状态为未点赞，更新状态，更新视频点赞数
+	if like != nil && like.Status == xconst.LikeStateNo {
+		if err := l.svcCtx.LikeModel.Trans(l.ctx, func(context context.Context, session sqlx.Session) error {
+			// 更新点赞状态
+			like.Status = xconst.LikeStateYes
+			err := l.svcCtx.LikeModel.UpdateWithVersion(l.ctx, session, like)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR), "更新")
+			}
+			// 更新视频点赞数
+			likeCount, err := l.svcCtx.LikeCountModel.FindOneByVideoId(l.ctx, in.GetVideoId())
+			if err != nil && !errors.Is(err, model.ErrNotFound) {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+					"查询视频点赞数失败, err: %v, video_id: %d", err, in.GetVideoId())
+			}
+			likeCount.LikeCount += 1
+			err = l.svcCtx.LikeCountModel.UpdateWithVersion(l.ctx, session, likeCount)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR),
+					"更新视频点赞数失败, err: %v, video_id: %d", err, in.GetVideoId())
+			}
+			return nil
+		}); err != nil {
+			return nil, err
 		}
 	}
-
-	// 发布更新es视频的消息
-	msg, _ := json.Marshal(message.MysqlVideoUpdateMessage{VideoId: in.GetVideoId()})
-	err = l.svcCtx.Rabbit.Send("", "MysqlVideoUpdateMq", msg)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_UPDATE_ERR), "req: %v, err: %v", in, err)
+	// 记录不存在，插入记录，更新点赞数
+	if like == nil {
+		if err := l.svcCtx.LikeModel.Trans(l.ctx, func(context context.Context, session sqlx.Session) error {
+			// 插入记录
+			newLike := &model.Like{}
+			newLike.UserId = in.GetUserId()
+			newLike.VideoId = in.GetVideoId()
+			newLike.Status = xconst.LikeStateYes
+			_, err := l.svcCtx.LikeModel.Insert(l.ctx, session, newLike)
+			if err != nil {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR),
+					"插入点赞记录失败, err: %v, user_id: %d, video_id: %d", err, in.GetUserId(), in.GetVideoId())
+			}
+			// 更新点赞数
+			likeCount, err := l.svcCtx.LikeCountModel.FindOneByVideoId(l.ctx, in.GetVideoId())
+			if err != nil && !errors.Is(err, model.ErrNotFound) {
+				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+					"查询视频点赞数失败, err: %v, video_id: %d", err, in.GetVideoId())
+			}
+			// 记录不存在，插入一条记录
+			if likeCount == nil {
+				newLikeCount := &model.LikeCount{}
+				newLikeCount.LikeCount = 1
+				newLikeCount.VideoId = in.GetVideoId()
+				_, err = l.svcCtx.LikeCountModel.Insert(l.ctx, session, newLikeCount)
+				if err != nil {
+					return errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR),
+						"插入视频点赞数记录失败, err: %v, video_id: %d", err, in.GetVideoId())
+				}
+			} else {
+				// 记录存在，更新点赞数+1
+				likeCount.LikeCount += 1
+				err := l.svcCtx.LikeCountModel.UpdateWithVersion(l.ctx, session, likeCount)
+				if err != nil {
+					return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR),
+						"更新视频点赞数失败, err; %v, video_id: %d", err, in.GetVideoId())
+				}
+			}
+			return nil
+		}); err != nil {
+			return nil, err
+		}
 	}
-
 	return &pb.VideoLikeResp{}, nil
 }

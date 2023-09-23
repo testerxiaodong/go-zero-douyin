@@ -2,38 +2,25 @@
 package types
 
 type VideoInfo struct {
-	Id           int64    `json:"id"`
-	OwnerId      int64    `json:"owner_id"`
-	OwnerName    string   `json:"owner_name"`
-	SectionId    int64    `json:"section_id"`
-	Tags         []string `json:"tags"`
-	Title        string   `json:"title"`
-	PlayUrl      string   `json:"play_url"`
-	CoverUrl     string   `json:"cover_url"`
-	CommentCount int64    `json:"comment_count"`
-	LikeCount    int64    `json:"like_count"`
-	CreateTime   int64    `json:"create_time"`
-	UpdateTime   int64    `json:"update_time"`
+	Id           int64  `json:"id"`
+	OwnerId      int64  `json:"owner_id"`
+	OwnerName    string `json:"owner_name"`
+	SectionId    int64  `json:"section_id"`
+	TagIds       string `json:"tag_ids"`
+	Title        string `json:"title"`
+	PlayUrl      string `json:"play_url"`
+	CoverUrl     string `json:"cover_url"`
+	CommentCount int64  `json:"comment_count"`
+	LikeCount    int64  `json:"like_count"`
+	CreateTime   int64  `json:"create_time"`
+	UpdateTime   int64  `json:"update_time"`
 }
 
 type PublishVideoReq struct {
 	Title       string `form:"title" validate:"required"`
 	SectionId   int64  `form:"section_id" validate:"required"`
-	Tags        string `form:"tags" validate:"required"`
+	TagIds      string `form:"tag_ids" validate:"required"`
 	PublishTime int64  `form:"publish_time,optional"`
-}
-
-type PublishVideoResp struct {
-	Id         int64    `json:"id"`
-	Title      string   `json:"title"`
-	SectionId  int64    `json:"section_id"`
-	Tags       []string `json:"tags"`
-	OwnerId    int64    `json:"owner_id"`
-	OwnerName  string   `json:"owner_name"`
-	PlayUrl    string   `json:"play_url"`
-	CoverUrl   string   `json:"cover_url"`
-	CreateTime int64    `json:"create_time"`
-	UpdateTime int64    `json:"update_time"`
 }
 
 type VideoFeedReq struct {
@@ -46,7 +33,9 @@ type VideoFeedResp struct {
 }
 
 type UserVideoListReq struct {
-	UserId int64 `json:"user_id" validate:"required"`
+	UserId   int64 `json:"user_id" validate:"required"`
+	Page     int64 `json:"page,optional"`
+	PageSize int64 `json:"page_size,optional"`
 }
 
 type UserVideoListResp struct {
@@ -66,11 +55,7 @@ type DeleteVideoReq struct {
 	VideoId int64 `json:"video_id" validate:"required"`
 }
 
-type SyncVideoToEsByIdReq struct {
-	VideoId int64 `json:"video_id" validate:"required"`
-}
-
-type SectionInfo struct {
+type Section struct {
 	Id   int64  `json:"id"`
 	Name string `json:"name"`
 }
@@ -84,10 +69,10 @@ type DelSectionReq struct {
 }
 
 type GetAllSectionResp struct {
-	Sections []*SectionInfo `json:"sections"`
+	Sections []*Section `json:"sections"`
 }
 
-type TagInfo struct {
+type Tag struct {
 	Id   int64  `json:"id"`
 	Name string `json:"name"`
 }
@@ -101,5 +86,5 @@ type DelTagReq struct {
 }
 
 type GetAllTagResp struct {
-	Tags []*TagInfo `json:"tags"`
+	Tags []*Tag `json:"tags"`
 }

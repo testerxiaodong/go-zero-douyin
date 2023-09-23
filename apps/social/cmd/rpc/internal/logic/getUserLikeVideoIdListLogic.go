@@ -2,11 +2,8 @@ package logic
 
 import (
 	"context"
+	"github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
-	"github.com/spf13/cast"
-	"github.com/zeromicro/go-zero/core/contextx"
-	"github.com/zeromicro/go-zero/core/stores/redis"
-	"go-zero-douyin/common/utils"
 	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
 
@@ -39,114 +36,19 @@ func (l *GetUserLikeVideoIdListLogic) GetUserLikeVideoIdList(in *pb.GetUserLikeV
 	if in.GetUserId() == 0 {
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "get user like video id list with empty user_id")
 	}
-
-	// 查询redis
-	result, err := l.svcCtx.Redis.Exists(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserLikeVideoPrefix, in.GetUserId()))
+	builder := l.svcCtx.LikeModel.SelectBuilder().Where(squirrel.Eq{"user_id": in.GetUserId()}).Where(squirrel.Eq{"status": xconst.LikeStateYes})
+	likes, err := l.svcCtx.LikeModel.FindPageListByPage(l.ctx, builder, in.GetPage(), in.GetPageSize(), "create_time DESC")
 	if err != nil {
-		// 查询失败，记录日志
-		logx.WithContext(l.ctx).Errorf("get redis user like video id list key exist failed, err: %v, user_id: %d", err, in.GetUserId())
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
+			"查询用户点赞视频列表失败, err: %v, user_id: %d", err, in.GetUserId())
 	}
-	// redis中key存在，直接返回redis数据
-	if result == true {
-		idSet, err := l.svcCtx.Redis.Smembers(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserLikeVideoPrefix, in.GetUserId()))
-		if err != nil {
-			// 查询失败，记录日志
-			logx.WithContext(l.ctx).Errorf("get redis user like video id list failed, err: %v, user_id: %d", err, in.GetUserId())
-		}
-		if len(idSet) > 0 {
-			resp := &pb.GetUserLikeVideoIdListResp{VideoIdList: make([]int64, 0)}
-			for _, idStr := range idSet {
-				idInt64 := cast.ToInt64(idStr)
-				resp.VideoIdList = append(resp.VideoIdList, idInt64)
-			}
-			// 更新缓存失效时间
-			err := l.svcCtx.Redis.Expire(l.ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserLikeVideoPrefix, in.GetUserId()), xconst.RedisExpireTime)
-			if err != nil {
-				// 设置缓存失效时间失败，记录日志
-				logx.WithContext(l.ctx).Errorf("Set redis user like video id list key expire time failed, err: %v, user_id: %d", err, in.GetUserId())
-			}
-			return resp, nil
-		}
+	if len(likes) == 0 {
+		return &pb.GetUserLikeVideoIdListResp{}, nil
 	}
-
-	// 查询mysql
-	key := cast.ToString(in.GetUserId())
-	idList, err := l.svcCtx.SingleFlight.Do(key, func() (any, error) {
-		return l.svcCtx.LikeDo.GetUserLikeVideoIdList(l.ctx, in.GetUserId())
-	})
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "get user like video id list from mysql failed, err: %v", err)
+	ids := make([]int64, 0)
+	// 拼接响应
+	for _, like := range likes {
+		ids = append(ids, like.VideoId)
 	}
-
-	// 类型断言
-	idInt64List, ok := idList.([]int64)
-	if !ok {
-		return nil, errors.Wrapf(xerr.NewErrMsg("type assert failed, int64Slice"), "data: %v", idList)
-	}
-
-	// 异步构建缓存
-	if len(idInt64List) > 0 {
-		buildCache := func() {
-			l.BuildUserLikeVideoCache(in.GetUserId())
-		}
-		tsg := utils.NewTestGo()
-		tsg.RunSafe(buildCache)
-	}
-
-	return &pb.GetUserLikeVideoIdListResp{VideoIdList: idInt64List}, nil
-}
-
-func (l *GetUserLikeVideoIdListLogic) BuildUserLikeVideoCache(userId int64) {
-	// 获取分布式锁键
-	lockKey := utils.GetRedisLockKeyWithPrefix(xconst.RedisBuildUserLikeVideoCacheLockPrefix, userId)
-	lock := l.svcCtx.Redis.NewRedisLock(lockKey)
-	lock.SetExpire(1)
-
-	// 复制ctx，防止异步调用时logic.ctx结束
-	ctx := contextx.ValueOnlyFrom(l.ctx)
-
-	// 获取分布式锁
-	acquire, err := lock.Acquire()
-	if err != nil {
-		logx.WithContext(ctx).Errorf("获取分布式锁失败，lockKey: %s, err: %v", lockKey, err)
-		return
-	}
-
-	// 延迟释放分布式锁
-	defer func(lock *redis.RedisLock) {
-		_, err := lock.Release()
-		if err != nil {
-			logx.WithContext(ctx).Errorf("释放分布式锁失败，lockKey: %s, err: %v", lockKey, err)
-		}
-	}(lock)
-
-	// 更新缓存
-	if acquire {
-		// 从数据库中查询视频点赞用户列表
-		ids, err := l.svcCtx.LikeDo.GetUserLikeVideoIdList(ctx, userId)
-		if err != nil {
-			logx.WithContext(ctx).Errorf("find user like video id list failed, err: %v", err)
-		}
-		if len(ids) > 0 {
-			idList := make([]interface{}, 0, len(ids))
-			for _, id := range ids {
-				idList = append(idList, id)
-			}
-
-			// 设置缓存
-			_, err := l.svcCtx.Redis.Sadd(ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserLikeVideoPrefix, userId), idList...)
-			if err != nil {
-				logx.WithContext(ctx).Errorf("add redis video liked by user cache  failed, err: %v", err)
-				return
-			}
-
-			// 设置缓存失效时间
-			err = l.svcCtx.Redis.Expire(ctx, utils.GetRedisKeyWithPrefix(xconst.RedisUserLikeVideoPrefix, userId), xconst.RedisExpireTime)
-			if err != nil {
-				logx.WithContext(ctx).Errorf("set video liked by user redis key expire time failed, err: %v", err)
-				return
-			}
-		}
-		return
-	}
+	return &pb.GetUserLikeVideoIdListResp{VideoIdList: ids}, nil
 }

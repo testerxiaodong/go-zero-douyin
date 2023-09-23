@@ -1,31 +1,30 @@
 package svc
 
 import (
-	"github.com/zeromicro/go-queue/rabbitmq"
-	"github.com/zeromicro/go-zero/core/syncx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/config"
-	"go-zero-douyin/apps/social/cmd/rpc/internal/dao"
-	"go-zero-douyin/common/cache"
+	"go-zero-douyin/apps/social/cmd/rpc/internal/model"
 )
 
 type ServiceContext struct {
-	Config       config.Config
-	CommentDo    dao.CommentDo
-	FollowDo     dao.FollowDo
-	LikeDo       dao.LikeDo
-	Rabbit       rabbitmq.Sender
-	Redis        cache.RedisCache
-	SingleFlight syncx.SingleFlight
+	Config            config.Config
+	CommentModel      model.CommentModel
+	CommentCountModel model.CommentCountModel
+	FollowModel       model.FollowModel
+	FollowCountModel  model.FollowCountModel
+	LikeModel         model.LikeModel
+	LikeCountModel    model.LikeCountModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
+	sqlConn := sqlx.NewMysql(c.DB.DataSource)
 	return &ServiceContext{
-		Config:       c,
-		CommentDo:    dao.NewCommentRepository(c.DataSource),
-		FollowDo:     dao.NewFollowRepository(c.DataSource),
-		LikeDo:       dao.NewLikeRepository(c.DataSource),
-		Rabbit:       rabbitmq.MustNewSender(c.RabbitSenderConf),
-		Redis:        cache.NewRedisClient(c.RedisCache),
-		SingleFlight: syncx.NewSingleFlight(),
+		Config:            c,
+		CommentModel:      model.NewCommentModel(sqlConn, c.Cache),
+		CommentCountModel: model.NewCommentCountModel(sqlConn, c.Cache),
+		FollowModel:       model.NewFollowModel(sqlConn, c.Cache),
+		FollowCountModel:  model.NewFollowCountModel(sqlConn, c.Cache),
+		LikeModel:         model.NewLikeModel(sqlConn, c.Cache),
+		LikeCountModel:    model.NewLikeCountModel(sqlConn, c.Cache),
 	}
 }

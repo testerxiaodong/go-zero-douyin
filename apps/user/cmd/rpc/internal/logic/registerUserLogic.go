@@ -2,17 +2,12 @@ package logic
 
 import (
 	"context"
-	"encoding/json"
-	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
 	"go-zero-douyin/apps/user/cmd/rpc/internal/model"
-	"go-zero-douyin/common/message"
-	"go-zero-douyin/common/utils"
-	"go-zero-douyin/common/xerr"
-	"gorm.io/gorm"
-
 	"go-zero-douyin/apps/user/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/user/cmd/rpc/pb"
+	"go-zero-douyin/common/utils"
+	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -43,9 +38,9 @@ func (l *RegisterUserLogic) RegisterUser(in *pb.RegisterUserReq) (*pb.RegisterUs
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "Register user error param")
 	}
 
-	user, err := l.svcCtx.UserDo.GetUserByUsername(l.ctx, in.GetUsername())
+	user, err := l.svcCtx.UserModel.FindOneByUsername(l.ctx, in.GetUsername())
 	// 查询数据库时出现错误
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "find user by username failed, username: %s, err: %v", in.GetUsername(), err)
 	}
 	// 用户已存在
@@ -53,28 +48,21 @@ func (l *RegisterUserLogic) RegisterUser(in *pb.RegisterUserReq) (*pb.RegisterUs
 		return nil, errors.Wrapf(ErrUserAlreadyRegister, "register user exists username: %s", in.GetUsername())
 	}
 	// 插入用户
-	u := &model.User{}
-	// 深拷贝
-	_ = copier.Copy(u, in)
+	newUser := &model.User{}
+	newUser.Username = in.GetUsername()
 	// 密码加密
-	u.Password = utils.Md5ByString(in.GetPassword())
-
+	newUser.Password = utils.Md5ByString(in.GetPassword())
 	// 插入用户
-	err = l.svcCtx.UserDo.InsertUser(l.ctx, u)
+	insertResult, err := l.svcCtx.UserModel.Insert(l.ctx, nil, newUser)
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "insert user failed, username: %s, password: %s", in.GetUsername(), in.GetPassword())
 	}
+	uid, _ := insertResult.LastInsertId()
 	// 生成token
 	generateTokenLogic := NewGenerateTokenLogic(l.ctx, l.svcCtx)
-	tokenResp, err := generateTokenLogic.GenerateToken(&pb.GenerateTokenReq{UserId: u.ID})
+	tokenResp, err := generateTokenLogic.GenerateToken(&pb.GenerateTokenReq{UserId: uid})
 	if err != nil {
-		return nil, errors.Wrapf(ErrGenerateTokenError, "Generate token failed, user_id: %d", u.ID)
-	}
-	// 发送中间件消息异步创建es文档
-	msg, _ := json.Marshal(message.MysqlUserUpdateMessage{UserId: u.ID})
-	err = l.svcCtx.Rabbit.Send("", "MysqlUserUpdateMq", msg)
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_INSERT_ERR), "发送es用户文档更新消息失败, err: %v", err)
+		return nil, errors.Wrapf(ErrGenerateTokenError, "Generate token failed, user_id: %d", uid)
 	}
 	return &pb.RegisterUserResp{
 		AccessToken:  tokenResp.AccessToken,

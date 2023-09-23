@@ -35,7 +35,7 @@ func (l *GetAllTagLogic) GetAllTag() (resp *types.GetAllTagResp, err error) {
 	}
 
 	// 拷贝响应
-	resp = &types.GetAllTagResp{Tags: make([]*types.TagInfo, 0)}
+	resp = &types.GetAllTagResp{Tags: make([]*types.Tag, 0)}
 	err = copier.Copy(resp, tags)
 	if err != nil {
 		return nil, errors.Wrapf(err, "data: %v", tags)

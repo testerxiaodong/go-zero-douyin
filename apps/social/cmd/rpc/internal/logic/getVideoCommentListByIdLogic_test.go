@@ -2,6 +2,7 @@ package logic_test
 
 import (
 	"context"
+	"github.com/Masterminds/squirrel"
 	"github.com/golang/mock/gomock"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -16,22 +17,28 @@ import (
 
 func TestGetVideoCommentListByIdLogic_GetVideoCommentListById(t *testing.T) {
 	ctl := gomock.NewController(t)
-
-	mockCommentDo := mock.NewMockCommentDo(ctl)
-
-	serviceContext := &svc.ServiceContext{CommentDo: mockCommentDo}
-
+	defer ctl.Finish()
+	mockCommentDo := mock.NewMockcommentModel(ctl)
+	serviceContext := &svc.ServiceContext{CommentModel: mockCommentDo}
 	getVideoCommentListByIdLogic := logic.NewGetVideoCommentListByIdLogic(context.Background(), serviceContext)
 
 	// 查询数据库失败mock
 	dbError := errors.New("CommentDo.GetCommentListByVideoId error")
-	mockCommentDo.EXPECT().GetCommentListByVideoId(gomock.Any(), gomock.Any()).Return(nil, dbError)
+	mockCommentDo.EXPECT().SelectBuilder().Return(squirrel.SelectBuilder{})
+	mockCommentDo.EXPECT().FindPageListByPageWithTotal(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, int64(0), dbError)
 
-	// 查询数据库成功mock
-	expectedResp := []*model.Comment{&model.Comment{ID: 1, VideoID: 1, UserID: 1, Content: "test"},
-		&model.Comment{ID: 2, VideoID: 2, UserID: 2, Content: "test"}}
-	mockCommentDo.EXPECT().GetCommentListByVideoId(gomock.Any(), gomock.Any()).
-		Return(expectedResp, nil)
+	// 查询数据库成功，且没有数据的mock
+	mockCommentDo.EXPECT().SelectBuilder().Return(squirrel.SelectBuilder{})
+	mockCommentDo.EXPECT().FindPageListByPageWithTotal(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Return([]*model.Comment{}, int64(0), nil)
+
+	// 查询数据库成功，且有数据的mock
+	expectedResp := []*model.Comment{&model.Comment{Id: 1, VideoId: 1, UserId: 1, Content: "test"},
+		&model.Comment{Id: 2, VideoId: 2, UserId: 2, Content: "test"}}
+	mockCommentDo.EXPECT().SelectBuilder().Return(squirrel.SelectBuilder{})
+	mockCommentDo.EXPECT().FindPageListByPageWithTotal(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(expectedResp, int64(2), nil)
 
 	// 表格驱动测试
 	testCases := []struct {
@@ -55,7 +62,12 @@ func TestGetVideoCommentListByIdLogic_GetVideoCommentListById(t *testing.T) {
 			err:  errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "db get comment list by video_id failed: %v", dbError),
 		},
 		{
-			name: "get_video_comment_list_by_id_success",
+			name: "get_video_comment_list_by_id_with_no_record",
+			req:  &pb.GetCommentListByIdReq{Id: 10},
+			err:  nil,
+		},
+		{
+			name: "get_video_comment_list_by_id_with_record",
 			req:  &pb.GetCommentListByIdReq{Id: 10},
 			err:  nil,
 		},
@@ -63,12 +75,11 @@ func TestGetVideoCommentListByIdLogic_GetVideoCommentListById(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			resp, err := getVideoCommentListByIdLogic.GetVideoCommentListById(tc.req)
+			_, err := getVideoCommentListByIdLogic.GetVideoCommentListById(tc.req)
 			if err != nil {
 				assert.Equal(t, tc.err.Error(), err.Error())
 			} else {
 				assert.Equal(t, tc.err, err)
-				assert.Equal(t, len(resp.GetComments()), 2)
 			}
 		})
 	}

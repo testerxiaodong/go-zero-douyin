@@ -6,10 +6,10 @@ rpc:
 	sed -i "" 's/,omitempty//g' ./rpc/pb/*.pb.go
 
 gen:
-	go run ../gen/generate.go --home=../../../deploy/goctl
+	goctl model mysql datasource -url="root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin" -table="user"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
 
 mock:
-	mockgen -source=./rpc/internal/dao/userRepository.go -destination=./rpc/mock/userDo_mock.go -package=mock
+	mockgen -source=./rpc/internal/model/userModel_gen.go -destination=./rpc/mock/userModel_mock.go -package=mock
 	mockgen -source=./rpc/user/user.go -destination=./rpc/mock/user_rpc_mock.go -package=mock
 
 dockerfile-api:

@@ -64,13 +64,9 @@ service video {
 
 	@doc "发布视频"
 	@handler publish
-	post /publish (PublishVideoReq) returns (PublishVideoResp)
+	post /publish (PublishVideoReq)
 
 	@doc "删除视频"
 	@handler deleteVideo
 	post  /delete (DeleteVideoReq)
-
-	@doc "同步视频信息到es"
-	@handler syncVideoToEsById
-	post /sync (syncVideoToEsByIdReq)
 }

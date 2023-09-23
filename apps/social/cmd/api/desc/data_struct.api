@@ -25,7 +25,9 @@ type (
 
 type (
     GetVideoCommentListReq {
-        VideoId int64 `json:"video_id"`
+        VideoId int64 `json:"video_id" validate:"required"`
+        Page int64 `json:"page,optional"`
+        PageSize int64 `json:"page_size,optional"`
     }
     GetVideoCommentListResp {
         Comments []*Comment `json:"comments"`
@@ -53,7 +55,9 @@ type (
 
 type (
     GetUserLikeVideoIdListReq {
-        UserId int64 `json:"user_id"`
+        UserId int64 `json:"user_id" validate:"required"`
+        Page int64 `json:"page,optional"`
+        PageSize int64 `json:"page_size,optional"`
     }
     GetUserLikeVideoIdListResp {
         VideoIdList []int64 `json:"id_list"`
@@ -93,7 +97,9 @@ type (
 
 type (
     GetUserFollowIdListReq {
-        UserId int64 `json:"user_id"`
+        UserId int64 `json:"user_id" validate:"required"`
+        Page int64 `json:"page,optional"`
+        PageSize int64 `json:"page_size,optional"`
     }
     GetUserFollowIdListResp {
         UserIdList []int64 `json:"user_id_list"`
@@ -102,7 +108,9 @@ type (
 
 type (
     GetUserFollowerIdListReq {
-        UserId int64  `json:"user_id"`
+        UserId int64  `json:"user_id" validate:"required"`
+        Page int64 `json:"page,optional"`
+        PageSize int64 `json:"page_size,optional"`
     }
     GetUserFollowerIdListResp {
         UserIdList []int64 `json:"user_id_list"`

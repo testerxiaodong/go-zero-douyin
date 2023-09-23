@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	userMock "go-zero-douyin/apps/user/cmd/rpc/mock"
+	userPb "go-zero-douyin/apps/user/cmd/rpc/pb"
 	"go-zero-douyin/apps/video/cmd/api/internal/logic/video"
 	"go-zero-douyin/apps/video/cmd/api/internal/svc"
 	"go-zero-douyin/apps/video/cmd/api/internal/types"
@@ -28,11 +30,13 @@ func TestPublishLogic_Publish(t *testing.T) {
 
 	// 构造需要mock的接口
 	mockVideoRpc := mock.NewMockVideo(ctl)
+	mockUserRpc := userMock.NewMockUser(ctl)
 	mockValidator := gloablMock.NewMockValidator(ctl)
 	mockOssClient := gloablMock.NewMockOssClient(ctl)
 
 	// 创建publishLogic对象
-	serviceContext := &svc.ServiceContext{Validator: mockValidator, VideoRpc: mockVideoRpc, OssClient: mockOssClient}
+	serviceContext := &svc.ServiceContext{Validator: mockValidator, VideoRpc: mockVideoRpc,
+		OssClient: mockOssClient, UserRpc: mockUserRpc}
 	publishLogic := video.NewPublishLogic(context.Background(), serviceContext)
 
 	// mock具体的接口方法，实现测试逻辑
@@ -45,6 +49,8 @@ func TestPublishLogic_Publish(t *testing.T) {
 	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
 	sectionNotExistError := errors.New("分区不存在")
 	mockVideoRpc.EXPECT().GetSectionById(gomock.Any(), gomock.Any()).Return(nil, sectionNotExistError)
+	mockUserRpc.EXPECT().GetUserInfo(gomock.Any(), gomock.Any()).
+		Return(&userPb.GetUserInfoResp{User: &userPb.UserInfo{Id: 1, Username: "test"}}, nil)
 	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
 	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
 
@@ -52,6 +58,8 @@ func TestPublishLogic_Publish(t *testing.T) {
 	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
 	tagNotExistError := errors.New("标签不存在")
 	mockVideoRpc.EXPECT().GetSectionById(gomock.Any(), gomock.Any()).Return(&pb.GetSectionByIdResp{}, nil)
+	mockUserRpc.EXPECT().GetUserInfo(gomock.Any(), gomock.Any()).
+		Return(&userPb.GetUserInfoResp{User: &userPb.UserInfo{Id: 1, Username: "test"}}, nil)
 	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, tagNotExistError)
 	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
 
@@ -59,6 +67,8 @@ func TestPublishLogic_Publish(t *testing.T) {
 	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
 	ossUploadFileError := xerr.NewErrMsg("系统错误：文件上传失败")
 	mockVideoRpc.EXPECT().GetSectionById(gomock.Any(), gomock.Any()).Return(&pb.GetSectionByIdResp{}, nil)
+	mockUserRpc.EXPECT().GetUserInfo(gomock.Any(), gomock.Any()).
+		Return(&userPb.GetUserInfoResp{User: &userPb.UserInfo{Id: 1, Username: "test"}}, nil)
 	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
 	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
 	mockOssClient.EXPECT().UploadFile(gomock.Any(), gomock.Any(), gomock.Any()).Return("", ossUploadFileError)
@@ -67,6 +77,8 @@ func TestPublishLogic_Publish(t *testing.T) {
 	// 参数校验成功，且OssClient.UploadFile调用成功,但VideoRpc.PublishVideo调用失败mock
 	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
 	mockVideoRpc.EXPECT().GetSectionById(gomock.Any(), gomock.Any()).Return(&pb.GetSectionByIdResp{}, nil)
+	mockUserRpc.EXPECT().GetUserInfo(gomock.Any(), gomock.Any()).
+		Return(&userPb.GetUserInfoResp{User: &userPb.UserInfo{Id: 1, Username: "test"}}, nil)
 	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
 	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
 	mockOssClient.EXPECT().UploadFile(gomock.Any(), gomock.Any(), gomock.Any()).Return("test", nil)
@@ -81,27 +93,21 @@ func TestPublishLogic_Publish(t *testing.T) {
 
 	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
 	mockVideoRpc.EXPECT().GetSectionById(gomock.Any(), gomock.Any()).Return(&pb.GetSectionByIdResp{}, nil)
+	mockUserRpc.EXPECT().GetUserInfo(gomock.Any(), gomock.Any()).
+		Return(&userPb.GetUserInfoResp{User: &userPb.UserInfo{Id: 1, Username: "test"}}, nil)
 	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
 	mockVideoRpc.EXPECT().GetTagById(gomock.Any(), gomock.Any()).Return(&pb.GetTagByIdResp{}, nil)
 	mockOssClient.EXPECT().UploadFile(gomock.Any(), gomock.Any(), gomock.Any()).Return("test", nil)
 	mockOssClient.EXPECT().UploadFile(gomock.Any(), gomock.Any(), gomock.Any()).Return("test", nil)
 	mockOssClient.EXPECT().GetOssFileFullAccessPath(gomock.Any()).Return("test")
 	mockOssClient.EXPECT().GetOssFileFullAccessPath(gomock.Any()).Return("test")
-
-	expectedPublishVideoResp := &pb.PublishVideoResp{Video: &pb.VideoInfo{
-		Id:       utils.NewRandomInt64(1, 10),
-		Title:    utils.NewRandomString(10),
-		OwnerId:  utils.NewRandomInt64(1, 10),
-		PlayUrl:  utils.NewRandomString(10),
-		CoverUrl: utils.NewRandomString(10),
-	}}
-	mockVideoRpc.EXPECT().PublishVideo(gomock.Any(), gomock.Any()).Return(expectedPublishVideoResp, nil)
+	mockVideoRpc.EXPECT().PublishVideo(gomock.Any(), gomock.Any()).Return(nil, nil)
 
 	// 表格驱动测试
 	param := &types.PublishVideoReq{
 		Title:     utils.NewRandomString(10),
 		SectionId: utils.NewRandomInt64(1, 10),
-		Tags:      "1,2",
+		TagIds:    "1,2",
 	}
 	testCases := []struct {
 		name string
@@ -143,16 +149,11 @@ func TestPublishLogic_Publish(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			publishLogic.VideoCoverHeader, publishLogic.VideoCover, publishLogic.VideoHeader, publishLogic.Video = setLogicFilePoint(t)
-			resp, err := publishLogic.Publish(tc.req)
+			err := publishLogic.Publish(tc.req)
 			if err != nil {
 				assert.Equal(t, err.Error(), tc.err.Error())
 			} else {
 				assert.Equal(t, err, tc.err)
-				assert.Equal(t, resp.Id, expectedPublishVideoResp.Video.Id)
-				assert.Equal(t, resp.Title, expectedPublishVideoResp.Video.Title)
-				assert.Equal(t, resp.OwnerId, expectedPublishVideoResp.Video.OwnerId)
-				assert.Equal(t, resp.PlayUrl, expectedPublishVideoResp.Video.PlayUrl)
-				assert.Equal(t, resp.CoverUrl, expectedPublishVideoResp.Video.CoverUrl)
 			}
 		})
 	}

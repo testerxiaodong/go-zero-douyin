@@ -13,32 +13,20 @@ import (
 )
 
 type (
-	CompleteVideoReq        = pb.CompleteVideoReq
-	CompleteVideoResp       = pb.CompleteVideoResp
-	DeleteUserDocumentReq   = pb.DeleteUserDocumentReq
-	DeleteUserDocumentResp  = pb.DeleteUserDocumentResp
-	DeleteVideoDocumentReq  = pb.DeleteVideoDocumentReq
-	DeleteVideoDocumentResp = pb.DeleteVideoDocumentResp
-	SearchUserReq           = pb.SearchUserReq
-	SearchUserResp          = pb.SearchUserResp
-	SearchVideoReq          = pb.SearchVideoReq
-	SearchVideoResp         = pb.SearchVideoResp
-	SyncUserInfoReq         = pb.SyncUserInfoReq
-	SyncUserInfoResp        = pb.SyncUserInfoResp
-	SyncVideoInfoReq        = pb.SyncVideoInfoReq
-	SyncVideoInfoResp       = pb.SyncVideoInfoResp
-	User                    = pb.User
-	Video                   = pb.Video
+	CompleteVideoReq  = pb.CompleteVideoReq
+	CompleteVideoResp = pb.CompleteVideoResp
+	SearchUserReq     = pb.SearchUserReq
+	SearchUserResp    = pb.SearchUserResp
+	SearchVideoReq    = pb.SearchVideoReq
+	SearchVideoResp   = pb.SearchVideoResp
+	User              = pb.User
+	Video             = pb.Video
 
 	Search interface {
 		// 视频相关功能
-		SyncVideoInfo(ctx context.Context, in *SyncVideoInfoReq, opts ...grpc.CallOption) (*SyncVideoInfoResp, error)
-		DeleteVideo(ctx context.Context, in *DeleteVideoDocumentReq, opts ...grpc.CallOption) (*DeleteVideoDocumentResp, error)
 		SearchVideo(ctx context.Context, in *SearchVideoReq, opts ...grpc.CallOption) (*SearchVideoResp, error)
 		CompleteVideo(ctx context.Context, in *CompleteVideoReq, opts ...grpc.CallOption) (*CompleteVideoResp, error)
 		// 用户相关功能
-		SyncUserInfo(ctx context.Context, in *SyncUserInfoReq, opts ...grpc.CallOption) (*SyncUserInfoResp, error)
-		DeleteUser(ctx context.Context, in *DeleteUserDocumentReq, opts ...grpc.CallOption) (*DeleteUserDocumentResp, error)
 		SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error)
 	}
 
@@ -54,16 +42,6 @@ func NewSearch(cli zrpc.Client) Search {
 }
 
 // 视频相关功能
-func (m *defaultSearch) SyncVideoInfo(ctx context.Context, in *SyncVideoInfoReq, opts ...grpc.CallOption) (*SyncVideoInfoResp, error) {
-	client := pb.NewSearchClient(m.cli.Conn())
-	return client.SyncVideoInfo(ctx, in, opts...)
-}
-
-func (m *defaultSearch) DeleteVideo(ctx context.Context, in *DeleteVideoDocumentReq, opts ...grpc.CallOption) (*DeleteVideoDocumentResp, error) {
-	client := pb.NewSearchClient(m.cli.Conn())
-	return client.DeleteVideo(ctx, in, opts...)
-}
-
 func (m *defaultSearch) SearchVideo(ctx context.Context, in *SearchVideoReq, opts ...grpc.CallOption) (*SearchVideoResp, error) {
 	client := pb.NewSearchClient(m.cli.Conn())
 	return client.SearchVideo(ctx, in, opts...)
@@ -75,16 +53,6 @@ func (m *defaultSearch) CompleteVideo(ctx context.Context, in *CompleteVideoReq,
 }
 
 // 用户相关功能
-func (m *defaultSearch) SyncUserInfo(ctx context.Context, in *SyncUserInfoReq, opts ...grpc.CallOption) (*SyncUserInfoResp, error) {
-	client := pb.NewSearchClient(m.cli.Conn())
-	return client.SyncUserInfo(ctx, in, opts...)
-}
-
-func (m *defaultSearch) DeleteUser(ctx context.Context, in *DeleteUserDocumentReq, opts ...grpc.CallOption) (*DeleteUserDocumentResp, error) {
-	client := pb.NewSearchClient(m.cli.Conn())
-	return client.DeleteUser(ctx, in, opts...)
-}
-
 func (m *defaultSearch) SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error) {
 	client := pb.NewSearchClient(m.cli.Conn())
 	return client.SearchUser(ctx, in, opts...)
