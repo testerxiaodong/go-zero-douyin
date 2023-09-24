@@ -5,6 +5,9 @@ rpc:
 	goctl rpc protoc ./rpc/pb/social.proto --go_out=./rpc --go-grpc_out=./rpc --zrpc_out=./rpc --style=goZero --home=../../../deploy/goctl
 	sed -i "" 's/,omitempty//g' ./rpc/pb/*.pb.go
 
+doc:
+	goctl api doc --dir=./api/desc --o=../../../docs/social
+
 gen:
 	goctl model mysql datasource -url="root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin" -table="comment"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
 	goctl model mysql datasource -url="root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin" -table="comment_count"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
@@ -28,4 +31,4 @@ dockerfile-api:
 dockerfile-rpc:
 	cd rpc && goctl docker -go social.go --version 1.19 --home=../../../deploy/goctl
 
-.PHONY: api rpc gen mock dockerfile-api dockerfile-rpc
+.PHONY: api rpc doc gen mock dockerfile-api dockerfile-rpc

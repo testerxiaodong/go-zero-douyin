@@ -2,14 +2,18 @@
 
 ### 项目介绍
 faker-douyin的go-zero版本，主要是想学习一下go-zero微服务框架。
-
-因为go-zero深度绑定了orm框架sqlx以及sqlc并帮助了用户处理了缓存击穿问题，与我在faker-douyin中通过rabbitmq处理缓存一致性问题时不一致
-
-~~准备先继续采用faker-douyin的处理方式，沿用gorm框架(因为代码生成的方式熟悉一点，而且不用手撸sql)，同时也参考了一些go-zero对于缓存的处理~~
-
-feature/sqlx+sqlc分支采用了sqlx+sqlc的方式，没有兜底缓存删除失败的情况(后续canal更新1.17之后会考虑)
-
+之前gorm用的多一点，采用gorm作为持久层框架。
+`feature/sqlx+sqlc`分支采用了sqlx+sqlc的方式，没有兜底缓存删除失败的情况(后续canal更新1.17之后会考虑)。
 弃用了rabbitmq，因为电脑容器太多，而且日志系统已经有kafka，后续有消息队列需求再使用kafka。
+
+### 项目目录介绍
+- apps: 微服务集合(api+rpc)
+- build: 自定义镜像
+- common: 工具集合
+- data: 项目运行数据(容器挂载点)
+- deploy: 项目部署配置文件
+- docs: 项目接口文档
+- mock: 第三方库的mock(单元测试)
 
 ### 项目预计用到技术
 - go-zero
@@ -27,14 +31,10 @@ feature/sqlx+sqlc分支采用了sqlx+sqlc的方式，没有兜底缓存删除失
 - grafana
 
 ### 项目功能点
-还是faker-douyin的老功能，不过这次我准备把视频数据上传到阿里云的oss服务，并且限制上传视频文件的大小。
-
-项目日志的记录直接使用go-zero绑定的logx，且集成了elk日志系统(filebeat->kafka->go-stash->es->kibana)。
-
-~~go-zero绑定的消息代理是kafka，不太熟悉，先继续用rabbitmq，做完之后再替换为kafka~~
-
+还是faker-douyin的老功能，不过这次把视频数据上传到阿里云的oss服务，并且限制上传视频文件的大小。
+项目日志的记录直接使用go-zero的logx，且集成了elk日志系统(filebeat->kafka->go-stash->es->kibana)。
+~~go-zero绑定的消息代理是kafka，不太熟悉，先继续用rabbitmq，做完之后再替换为kafka。~~
 放弃了用消息队列同步es数据的方式(耦合度高)，使用flink-cdc(flink sql)方案。
-
 使用asynq作为分布式任务队列，实现视频的延迟发布（延迟任务）。
 
 项目功能点：
@@ -63,6 +63,10 @@ feature/sqlx+sqlc分支采用了sqlx+sqlc的方式，没有兜底缓存删除失
 - 搜索
     - 搜索用户
     - 搜索视频
+    - 视频搜索自动补全
+
+### 单元测试
+![](./docs/unittest.png)
 
 ### TodoList
 - 基于gorse的推荐系统

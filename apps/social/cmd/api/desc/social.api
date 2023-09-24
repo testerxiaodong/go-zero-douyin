@@ -17,7 +17,7 @@ import "data_struct.api"
 )
 
 service social {
-	@doc "get video comment list"
+	@doc "获取视频评论列表"
 	@handler videoCommentList
 	get /comment/list (GetVideoCommentListReq) returns (GetVideoCommentListResp)
 }
@@ -29,11 +29,11 @@ service social {
 )
 
 service social {
-	@doc "add comment"
+	@doc "添加评论"
 	@handler addComment
 	post /comment/add (AddCommentReq)
 
-	@doc "del comment"
+	@doc "删除评论"
 	@handler delComment
 	post /comment/del (DelCommentReq)
 }
@@ -57,11 +57,11 @@ service social {
 )
 
 service social {
-	@doc "user like video"
+	@doc "视频点赞"
 	@handler addLike
 	post /like/add (VideoLikeReq)
 
-	@doc "user unlike video"
+	@doc "视频取消点赞"
 	@handler delLike
 	post /like/del (VideoUnlikeReq)
 }
@@ -97,11 +97,11 @@ service social {
 )
 
 service social {
-	@doc "user like video"
+	@doc "用户关注"
 	@handler addFollow
 	post /follow/add (UserFollowReq)
 
-	@doc "user unlike video"
+	@doc "用户取消关注"
 	@handler delFollow
 	post /follow/del (UserUnfollowReq)
 }

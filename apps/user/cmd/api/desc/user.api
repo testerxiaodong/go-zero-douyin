@@ -37,7 +37,7 @@ service user {
 )
 
 service user {
-	@doc "update user info"
+	@doc "更新用户信息"
 	@handler update
 	post /update (UpdateUserReq)
 }
