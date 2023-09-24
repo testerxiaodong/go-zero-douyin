@@ -1,10 +1,10 @@
 ## go-zero-douyin
 
 ### 项目介绍
-faker-douyin的go-zero版本，主要是想学习一下go-zero微服务框架。
-之前gorm用的多一点，采用gorm作为持久层框架。
-`feature/sqlx+sqlc`分支采用了sqlx+sqlc的方式，没有兜底缓存删除失败的情况(后续canal更新1.17之后会考虑)。
-弃用了rabbitmq，因为电脑容器太多，而且日志系统已经有kafka，后续有消息队列需求再使用kafka。
+`faker-douyin`的`go-zero`版本，主要是想学习一下`go-zero`微服务框架。
+之前`gorm`用的多一点，采用`gorm`作为持久层框架。
+`feature/sqlx+sqlc`分支采用了`sqlx+sqlc`的方式，没有兜底缓存删除失败的情况(后续canal更新1.17之后会考虑)。
+弃用了`rabbitmq`，因为电脑容器太多，而且日志系统已经有`kafka`，后续有消息队列需求再使用`kafka`。
 
 ### 项目目录介绍
 - apps: 微服务集合(api+rpc)
@@ -31,11 +31,11 @@ faker-douyin的go-zero版本，主要是想学习一下go-zero微服务框架。
 - grafana
 
 ### 项目功能点
-还是faker-douyin的老功能，不过这次把视频数据上传到阿里云的oss服务，并且限制上传视频文件的大小。
-项目日志的记录直接使用go-zero的logx，且集成了elk日志系统(filebeat->kafka->go-stash->es->kibana)。
-~~go-zero绑定的消息代理是kafka，不太熟悉，先继续用rabbitmq，做完之后再替换为kafka。~~
-放弃了用消息队列同步es数据的方式(耦合度高)，使用flink-cdc(flink sql)方案。
-使用asynq作为分布式任务队列，实现视频的延迟发布（延迟任务）。
+还是`faker-douyin`的老功能，不过这次把视频数据上传到阿里云的`Oss`服务，并且限制上传视频文件的大小。
+项目日志的记录直接使用`go-zero`的`logx`，且集成了`elk`日志系统(`filebeat->kafka->go-stash->es->kibana`)。
+~~`go-zero`绑定的消息代理是`kafka`，不太熟悉，先继续用`rabbitmq`，做完之后再替换为`kafka`。~~
+放弃了用消息队列同步es数据的方式(耦合度高)，使用`flink-cdc`(`flink sql`)方案。
+使用`asynq`作为分布式任务队列，实现视频的延迟发布（延迟任务）。
 
 项目功能点：
 - 用户
@@ -69,5 +69,5 @@ faker-douyin的go-zero版本，主要是想学习一下go-zero微服务框架。
 ![](./docs/unittest.png)
 
 ### TodoList
-- 基于gorse的推荐系统
+- 基于`gorse`的推荐系统
 
