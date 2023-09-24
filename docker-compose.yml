@@ -181,7 +181,7 @@ services:
     volumes:
       # 数据挂载 - Data mounting
       - ./data/mysql/data:/var/lib/mysql
-      - ./data/mysql/my.cnf:/etc/my.cnf
+      - ./deploy/mysql/conf/my.cnf:/etc/my.cnf
     privileged: true
     restart: always
     networks:
@@ -201,6 +201,32 @@ services:
     networks:
       - douyin_net
 
+  gorse:
+    image: zhenghaoz/gorse-in-one
+    container_name: gorse
+    restart: unless-stopped
+    ports:
+      - "8086:8086"   # gRPC port
+      - "8088:8088"   # HTTP port
+    environment:
+      TZ: Asia/Shanghai
+      # Use Redis as cache storage backend.
+      GORSE_CACHE_STORE: redis://redis:6379
+      # Use MySQL as data storage backend.
+      GORSE_DATA_STORE: mysql://root:my-secret-pw@tcp(mysql:3306)/gorse?parseTime=true
+    command: >
+      -c /etc/gorse/config.toml 
+      --log-path /var/log/gorse/master.log 
+      --cache-path /var/lib/gorse/master_cache.data
+    volumes:
+      # Mount the configuration file.
+      - ./deploy/gorse/config.toml:/etc/gorse/config.toml
+    depends_on:
+      - redis
+      - mysql
+    networks:
+      - douyin_net
+
   jobmanager:
     image: flink:latest
     container_name: jobmanager
@@ -213,7 +239,8 @@ services:
       - TZ=Asia/Shanghai
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
     volumes:
-      - ./data/flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
+      - ./data/flink/job-artifacts:/opt/flink/usrlib
+      - ./deploy/flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     restart: always
     networks:
       - douyin_net
@@ -231,7 +258,7 @@ services:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
       - TZ=Asia/Shanghai
     volumes:
-      - ./data/flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
+      - ./deploy/flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     restart: always
     networks:
       - douyin_net
