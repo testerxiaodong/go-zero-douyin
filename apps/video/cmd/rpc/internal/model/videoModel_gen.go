@@ -149,7 +149,7 @@ func (m *defaultVideoModel) UpdateWithVersion(ctx context.Context, session sqlx.
 }
 
 func (m *defaultVideoModel) DeleteSoft(ctx context.Context, session sqlx.Session, data *Video) error {
-	data.IsDelete = xconst.DelStateYes
+	data.IsDelete = data.Id
 	data.DeleteTime = time.Now()
 	if err := m.UpdateWithVersion(ctx, session, data); err != nil {
 		return errors.Wrapf(errors.New("delete soft failed "), "VideoModel delete err : %+v", err)

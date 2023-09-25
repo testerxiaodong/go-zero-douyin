@@ -111,19 +111,19 @@ func (mr *MocksectionModelMockRecorder) FindOne(ctx, id interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOne", reflect.TypeOf((*MocksectionModel)(nil).FindOne), ctx, id)
 }
 
-// FindOneByName mocks base method.
-func (m *MocksectionModel) FindOneByName(ctx context.Context, name string) (*model.Section, error) {
+// FindOneByNameIsDelete mocks base method.
+func (m *MocksectionModel) FindOneByNameIsDelete(ctx context.Context, name string, isDelete int64) (*model.Section, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindOneByName", ctx, name)
+	ret := m.ctrl.Call(m, "FindOneByNameIsDelete", ctx, name, isDelete)
 	ret0, _ := ret[0].(*model.Section)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindOneByName indicates an expected call of FindOneByName.
-func (mr *MocksectionModelMockRecorder) FindOneByName(ctx, name interface{}) *gomock.Call {
+// FindOneByNameIsDelete indicates an expected call of FindOneByNameIsDelete.
+func (mr *MocksectionModelMockRecorder) FindOneByNameIsDelete(ctx, name, isDelete interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOneByName", reflect.TypeOf((*MocksectionModel)(nil).FindOneByName), ctx, name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOneByNameIsDelete", reflect.TypeOf((*MocksectionModel)(nil).FindOneByNameIsDelete), ctx, name, isDelete)
 }
 
 // FindPageListByIdASC mocks base method.

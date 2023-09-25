@@ -26,15 +26,15 @@ var (
 	sectionRowsExpectAutoSet   = strings.Join(stringx.Remove(sectionFieldNames, "`id`", "`create_time`", "`update_time`"), ",")
 	sectionRowsWithPlaceHolder = strings.Join(stringx.Remove(sectionFieldNames, "`id`", "`create_time`", "`update_time`"), "=?,") + "=?"
 
-	cacheGoZeroDouyinSectionIdPrefix   = "cache:goZeroDouyin:section:id:"
-	cacheGoZeroDouyinSectionNamePrefix = "cache:goZeroDouyin:section:name:"
+	cacheGoZeroDouyinSectionIdPrefix           = "cache:goZeroDouyin:section:id:"
+	cacheGoZeroDouyinSectionNameIsDeletePrefix = "cache:goZeroDouyin:section:name:isDelete:"
 )
 
 type (
 	sectionModel interface {
 		Insert(ctx context.Context, session sqlx.Session, data *Section) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*Section, error)
-		FindOneByName(ctx context.Context, name string) (*Section, error)
+		FindOneByNameIsDelete(ctx context.Context, name string, isDelete int64) (*Section, error)
 		Update(ctx context.Context, session sqlx.Session, data *Section) (sql.Result, error)
 		UpdateWithVersion(ctx context.Context, session sqlx.Session, data *Section) error
 		Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
@@ -77,14 +77,14 @@ func (m *defaultSectionModel) Insert(ctx context.Context, session sqlx.Session, 
 	data.DeleteTime = time.Unix(0, 0)
 	data.IsDelete = xconst.DelStateNo
 	goZeroDouyinSectionIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinSectionIdPrefix, data.Id)
-	goZeroDouyinSectionNameKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinSectionNamePrefix, data.Name)
+	goZeroDouyinSectionNameIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinSectionNameIsDeletePrefix, data.Name, data.IsDelete)
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, sectionRowsExpectAutoSet)
 		if session != nil {
 			return session.ExecCtx(ctx, query, data.Name, data.DeleteTime, data.IsDelete, data.Version)
 		}
 		return conn.ExecCtx(ctx, query, data.Name, data.DeleteTime, data.IsDelete, data.Version)
-	}, goZeroDouyinSectionIdKey, goZeroDouyinSectionNameKey)
+	}, goZeroDouyinSectionIdKey, goZeroDouyinSectionNameIsDeleteKey)
 }
 
 func (m *defaultSectionModel) FindOne(ctx context.Context, id int64) (*Section, error) {
@@ -104,12 +104,12 @@ func (m *defaultSectionModel) FindOne(ctx context.Context, id int64) (*Section, 
 	}
 }
 
-func (m *defaultSectionModel) FindOneByName(ctx context.Context, name string) (*Section, error) {
-	goZeroDouyinSectionNameKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinSectionNamePrefix, name)
+func (m *defaultSectionModel) FindOneByNameIsDelete(ctx context.Context, name string, isDelete int64) (*Section, error) {
+	goZeroDouyinSectionNameIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinSectionNameIsDeletePrefix, name, isDelete)
 	var resp Section
-	err := m.QueryRowIndexCtx(ctx, &resp, goZeroDouyinSectionNameKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
-		query := fmt.Sprintf("select %s from %s where `name` = ? and is_delete = ? limit 1", sectionRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, name, xconst.DelStateNo); err != nil {
+	err := m.QueryRowIndexCtx(ctx, &resp, goZeroDouyinSectionNameIsDeleteKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
+		query := fmt.Sprintf("select %s from %s where `name` = ? and `is_delete` = ? and is_delete = ? limit 1", sectionRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, name, isDelete, xconst.DelStateNo); err != nil {
 			return nil, err
 		}
 		return resp.Id, nil
@@ -130,14 +130,14 @@ func (m *defaultSectionModel) Update(ctx context.Context, session sqlx.Session, 
 		return nil, err
 	}
 	goZeroDouyinSectionIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinSectionIdPrefix, data.Id)
-	goZeroDouyinSectionNameKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinSectionNamePrefix, data.Name)
+	goZeroDouyinSectionNameIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinSectionNameIsDeletePrefix, data.Name, data.IsDelete)
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sectionRowsWithPlaceHolder)
 		if session != nil {
 			return session.ExecCtx(ctx, query, newData.Name, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id)
 		}
 		return conn.ExecCtx(ctx, query, newData.Name, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id)
-	}, goZeroDouyinSectionIdKey, goZeroDouyinSectionNameKey)
+	}, goZeroDouyinSectionIdKey, goZeroDouyinSectionNameIsDeleteKey)
 }
 
 func (m *defaultSectionModel) UpdateWithVersion(ctx context.Context, session sqlx.Session, newData *Section) error {
@@ -153,14 +153,14 @@ func (m *defaultSectionModel) UpdateWithVersion(ctx context.Context, session sql
 		return err
 	}
 	goZeroDouyinSectionIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinSectionIdPrefix, data.Id)
-	goZeroDouyinSectionNameKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinSectionNamePrefix, data.Name)
+	goZeroDouyinSectionNameIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinSectionNameIsDeletePrefix, data.Name, data.IsDelete)
 	sqlResult, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ? and version = ? ", m.table, sectionRowsWithPlaceHolder)
 		if session != nil {
 			return session.ExecCtx(ctx, query, newData.Name, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id, oldVersion)
 		}
 		return conn.ExecCtx(ctx, query, newData.Name, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id, oldVersion)
-	}, goZeroDouyinSectionIdKey, goZeroDouyinSectionNameKey)
+	}, goZeroDouyinSectionIdKey, goZeroDouyinSectionNameIsDeleteKey)
 	if err != nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func (m *defaultSectionModel) UpdateWithVersion(ctx context.Context, session sql
 }
 
 func (m *defaultSectionModel) DeleteSoft(ctx context.Context, session sqlx.Session, data *Section) error {
-	data.IsDelete = xconst.DelStateYes
+	data.IsDelete = data.Id
 	data.DeleteTime = time.Now()
 	if err := m.UpdateWithVersion(ctx, session, data); err != nil {
 		return errors.Wrapf(errors.New("delete soft failed "), "SectionModel delete err : %+v", err)
@@ -384,14 +384,14 @@ func (m *defaultSectionModel) Delete(ctx context.Context, session sqlx.Session, 
 	}
 
 	goZeroDouyinSectionIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinSectionIdPrefix, id)
-	goZeroDouyinSectionNameKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinSectionNamePrefix, data.Name)
+	goZeroDouyinSectionNameIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinSectionNameIsDeletePrefix, data.Name, data.IsDelete)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		if session != nil {
 			return session.ExecCtx(ctx, query, id)
 		}
 		return conn.ExecCtx(ctx, query, id)
-	}, goZeroDouyinSectionIdKey, goZeroDouyinSectionNameKey)
+	}, goZeroDouyinSectionIdKey, goZeroDouyinSectionNameIsDeleteKey)
 	return err
 }
 func (m *defaultSectionModel) formatPrimary(primary interface{}) string {

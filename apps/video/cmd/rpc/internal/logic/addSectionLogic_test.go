@@ -23,18 +23,18 @@ func TestNewAddSectionLogic(t *testing.T) {
 
 	// 查询分区失败的mock
 	dbSearchError := errors.New("SectionDo.GetSectionByName error")
-	mockSectionDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
+	mockSectionDo.EXPECT().FindOneByNameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
 
 	// 分区已存在mock
-	mockSectionDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(&model.Section{Id: 1, Name: "test"}, nil)
+	mockSectionDo.EXPECT().FindOneByNameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).Return(&model.Section{Id: 1, Name: "test"}, nil)
 
 	// 插入失败的mock
 	dbInsertError := errors.New("SectionDo.InsertSection error")
-	mockSectionDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockSectionDo.EXPECT().FindOneByNameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
 	mockSectionDo.EXPECT().Insert(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, dbInsertError)
 
 	// 插入成功的mock
-	mockSectionDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockSectionDo.EXPECT().FindOneByNameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
 	mockSectionDo.EXPECT().Insert(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 
 	// 表格驱动测试

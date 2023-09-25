@@ -7,6 +7,7 @@ import (
 	"go-zero-douyin/apps/user/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/user/cmd/rpc/pb"
 	"go-zero-douyin/common/utils"
+	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -36,7 +37,7 @@ func (l *LoginLogic) Login(in *pb.LoginReq) (*pb.LoginResp, error) {
 	}
 
 	// 查询用户
-	user, err := l.svcCtx.UserModel.FindOneByUsername(l.ctx, in.GetUsername())
+	user, err := l.svcCtx.UserModel.FindOneByUsernameIsDelete(l.ctx, in.GetUsername(), xconst.DelStateNo)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "根据用户名查询用户失败, err: %v, username: %s", err, in.GetUsername())
 	}

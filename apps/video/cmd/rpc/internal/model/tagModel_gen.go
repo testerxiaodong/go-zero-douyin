@@ -26,15 +26,15 @@ var (
 	tagRowsExpectAutoSet   = strings.Join(stringx.Remove(tagFieldNames, "`id`", "`create_time`", "`update_time`"), ",")
 	tagRowsWithPlaceHolder = strings.Join(stringx.Remove(tagFieldNames, "`id`", "`create_time`", "`update_time`"), "=?,") + "=?"
 
-	cacheGoZeroDouyinTagIdPrefix   = "cache:goZeroDouyin:tag:id:"
-	cacheGoZeroDouyinTagNamePrefix = "cache:goZeroDouyin:tag:name:"
+	cacheGoZeroDouyinTagIdPrefix           = "cache:goZeroDouyin:tag:id:"
+	cacheGoZeroDouyinTagNameIsDeletePrefix = "cache:goZeroDouyin:tag:name:isDelete:"
 )
 
 type (
 	tagModel interface {
 		Insert(ctx context.Context, session sqlx.Session, data *Tag) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*Tag, error)
-		FindOneByName(ctx context.Context, name string) (*Tag, error)
+		FindOneByNameIsDelete(ctx context.Context, name string, isDelete int64) (*Tag, error)
 		Update(ctx context.Context, session sqlx.Session, data *Tag) (sql.Result, error)
 		UpdateWithVersion(ctx context.Context, session sqlx.Session, data *Tag) error
 		Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
@@ -77,14 +77,14 @@ func (m *defaultTagModel) Insert(ctx context.Context, session sqlx.Session, data
 	data.DeleteTime = time.Unix(0, 0)
 	data.IsDelete = xconst.DelStateNo
 	goZeroDouyinTagIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinTagIdPrefix, data.Id)
-	goZeroDouyinTagNameKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinTagNamePrefix, data.Name)
+	goZeroDouyinTagNameIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinTagNameIsDeletePrefix, data.Name, data.IsDelete)
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, tagRowsExpectAutoSet)
 		if session != nil {
 			return session.ExecCtx(ctx, query, data.Name, data.DeleteTime, data.IsDelete, data.Version)
 		}
 		return conn.ExecCtx(ctx, query, data.Name, data.DeleteTime, data.IsDelete, data.Version)
-	}, goZeroDouyinTagIdKey, goZeroDouyinTagNameKey)
+	}, goZeroDouyinTagIdKey, goZeroDouyinTagNameIsDeleteKey)
 }
 
 func (m *defaultTagModel) FindOne(ctx context.Context, id int64) (*Tag, error) {
@@ -104,12 +104,12 @@ func (m *defaultTagModel) FindOne(ctx context.Context, id int64) (*Tag, error) {
 	}
 }
 
-func (m *defaultTagModel) FindOneByName(ctx context.Context, name string) (*Tag, error) {
-	goZeroDouyinTagNameKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinTagNamePrefix, name)
+func (m *defaultTagModel) FindOneByNameIsDelete(ctx context.Context, name string, isDelete int64) (*Tag, error) {
+	goZeroDouyinTagNameIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinTagNameIsDeletePrefix, name, isDelete)
 	var resp Tag
-	err := m.QueryRowIndexCtx(ctx, &resp, goZeroDouyinTagNameKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
-		query := fmt.Sprintf("select %s from %s where `name` = ? and is_delete = ? limit 1", tagRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, name, xconst.DelStateNo); err != nil {
+	err := m.QueryRowIndexCtx(ctx, &resp, goZeroDouyinTagNameIsDeleteKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
+		query := fmt.Sprintf("select %s from %s where `name` = ? and `is_delete` = ? and is_delete = ? limit 1", tagRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, name, isDelete, xconst.DelStateNo); err != nil {
 			return nil, err
 		}
 		return resp.Id, nil
@@ -130,14 +130,14 @@ func (m *defaultTagModel) Update(ctx context.Context, session sqlx.Session, newD
 		return nil, err
 	}
 	goZeroDouyinTagIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinTagIdPrefix, data.Id)
-	goZeroDouyinTagNameKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinTagNamePrefix, data.Name)
+	goZeroDouyinTagNameIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinTagNameIsDeletePrefix, data.Name, data.IsDelete)
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, tagRowsWithPlaceHolder)
 		if session != nil {
 			return session.ExecCtx(ctx, query, newData.Name, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id)
 		}
 		return conn.ExecCtx(ctx, query, newData.Name, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id)
-	}, goZeroDouyinTagIdKey, goZeroDouyinTagNameKey)
+	}, goZeroDouyinTagIdKey, goZeroDouyinTagNameIsDeleteKey)
 }
 
 func (m *defaultTagModel) UpdateWithVersion(ctx context.Context, session sqlx.Session, newData *Tag) error {
@@ -153,14 +153,14 @@ func (m *defaultTagModel) UpdateWithVersion(ctx context.Context, session sqlx.Se
 		return err
 	}
 	goZeroDouyinTagIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinTagIdPrefix, data.Id)
-	goZeroDouyinTagNameKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinTagNamePrefix, data.Name)
+	goZeroDouyinTagNameIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinTagNameIsDeletePrefix, data.Name, data.IsDelete)
 	sqlResult, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ? and version = ? ", m.table, tagRowsWithPlaceHolder)
 		if session != nil {
 			return session.ExecCtx(ctx, query, newData.Name, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id, oldVersion)
 		}
 		return conn.ExecCtx(ctx, query, newData.Name, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id, oldVersion)
-	}, goZeroDouyinTagIdKey, goZeroDouyinTagNameKey)
+	}, goZeroDouyinTagIdKey, goZeroDouyinTagNameIsDeleteKey)
 	if err != nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func (m *defaultTagModel) UpdateWithVersion(ctx context.Context, session sqlx.Se
 }
 
 func (m *defaultTagModel) DeleteSoft(ctx context.Context, session sqlx.Session, data *Tag) error {
-	data.IsDelete = xconst.DelStateYes
+	data.IsDelete = data.Id
 	data.DeleteTime = time.Now()
 	if err := m.UpdateWithVersion(ctx, session, data); err != nil {
 		return errors.Wrapf(errors.New("delete soft failed "), "TagModel delete err : %+v", err)
@@ -384,14 +384,14 @@ func (m *defaultTagModel) Delete(ctx context.Context, session sqlx.Session, id i
 	}
 
 	goZeroDouyinTagIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinTagIdPrefix, id)
-	goZeroDouyinTagNameKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinTagNamePrefix, data.Name)
+	goZeroDouyinTagNameIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinTagNameIsDeletePrefix, data.Name, data.IsDelete)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		if session != nil {
 			return session.ExecCtx(ctx, query, id)
 		}
 		return conn.ExecCtx(ctx, query, id)
-	}, goZeroDouyinTagIdKey, goZeroDouyinTagNameKey)
+	}, goZeroDouyinTagIdKey, goZeroDouyinTagNameIsDeleteKey)
 	return err
 }
 func (m *defaultTagModel) formatPrimary(primary interface{}) string {

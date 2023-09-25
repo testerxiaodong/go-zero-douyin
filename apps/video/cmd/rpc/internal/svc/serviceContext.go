@@ -23,6 +23,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		VideoModel:   model.NewVideoModel(sqlConn, c.Cache),
 		TagModel:     model.NewTagModel(sqlConn, c.Cache),
 		SectionModel: model.NewSectionModel(sqlConn, c.Cache),
-		Asynq:        taskQueue.NewAsynq(asynq.NewClient(asynq.RedisClientOpt{Addr: c.Redis.Host})),
+		Asynq:        taskQueue.NewAsynq(asynq.NewClient(asynq.RedisClientOpt{Addr: c.RedisConf.Host})),
 	}
 }

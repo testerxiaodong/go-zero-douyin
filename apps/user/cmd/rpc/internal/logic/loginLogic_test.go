@@ -29,13 +29,17 @@ func TestLoginLogic_Login(t *testing.T) {
 	loginLogic := logic.NewLoginLogic(context.Background(), serviceContext)
 	dbError := errors.New("get user by username failed")
 	// 查询失败mock
-	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(nil, dbError)
+	mockUserModel.EXPECT().FindOneByUsernameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, dbError)
 	// 用户不存在mock
-	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockUserModel.EXPECT().FindOneByUsernameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, model.ErrNotFound)
 	// 密码不匹配mock
-	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(&model.User{Password: "test"}, nil)
+	mockUserModel.EXPECT().FindOneByUsernameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(&model.User{Password: "test"}, nil)
 	// 成功的mock
-	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(&model.User{Password: utils.Md5ByString("test")}, nil)
+	mockUserModel.EXPECT().FindOneByUsernameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(&model.User{Password: utils.Md5ByString("test")}, nil)
 
 	// 表格驱动测试
 	testCases := []struct {

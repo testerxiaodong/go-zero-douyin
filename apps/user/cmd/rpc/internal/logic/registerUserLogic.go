@@ -7,6 +7,7 @@ import (
 	"go-zero-douyin/apps/user/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/user/cmd/rpc/pb"
 	"go-zero-douyin/common/utils"
+	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -38,7 +39,7 @@ func (l *RegisterUserLogic) RegisterUser(in *pb.RegisterUserReq) (*pb.RegisterUs
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_CHECK_ERR), "Register user error param")
 	}
 
-	user, err := l.svcCtx.UserModel.FindOneByUsername(l.ctx, in.GetUsername())
+	user, err := l.svcCtx.UserModel.FindOneByUsernameIsDelete(l.ctx, in.GetUsername(), xconst.DelStateNo)
 	// 查询数据库时出现错误
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "find user by username failed, username: %s, err: %v", in.GetUsername(), err)

@@ -9,12 +9,12 @@ doc:
 	goctl api doc --dir=./api/desc --o=../../../docs/social
 
 gen:
-	goctl model mysql datasource -url="root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin" -table="comment"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
-	goctl model mysql datasource -url="root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin" -table="comment_count"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
-	goctl model mysql datasource -url="root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin" -table="like"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
-	goctl model mysql datasource -url="root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin" -table="like_count"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
-	goctl model mysql datasource -url="root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin" -table="follow"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
-	goctl model mysql datasource -url="root:my-secret-pw@tcp(127.0.0.1:3306)/go_zero_douyin" -table="follow_count"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
+	goctl model mysql datasource -url="root:my-secret-pw@tcp(192.168.2.169)/go_zero_douyin" -table="comment"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
+	goctl model mysql datasource -url="root:my-secret-pw@tcp(192.168.2.169)/go_zero_douyin" -table="comment_count"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
+	goctl model mysql datasource -url="root:my-secret-pw@tcp(192.168.2.169)/go_zero_douyin" -table="like"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
+	goctl model mysql datasource -url="root:my-secret-pw@tcp(192.168.2.169)/go_zero_douyin" -table="like_count"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
+	goctl model mysql datasource -url="root:my-secret-pw@tcp(192.168.2.169)/go_zero_douyin" -table="follow"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
+	goctl model mysql datasource -url="root:my-secret-pw@tcp(192.168.2.169)/go_zero_douyin" -table="follow_count"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
 
 mock:
 	mockgen -source=./rpc/internal/model/commentCountModel_gen.go -destination=./rpc/mock/commentCountModel_mock.go -package=mock

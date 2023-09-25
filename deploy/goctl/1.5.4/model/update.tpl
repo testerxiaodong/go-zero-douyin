@@ -64,7 +64,7 @@ func (m *default{{.upperStartCamelObject}}Model) UpdateWithVersion(ctx context.C
 }
 
 func (m *default{{.upperStartCamelObject}}Model) DeleteSoft(ctx context.Context,session sqlx.Session,data *{{.upperStartCamelObject}}) error {
-	data.IsDelete = xconst.DelStateYes
+	data.IsDelete = data.Id
 	data.DeleteTime = time.Now()
 	if err:= m.UpdateWithVersion(ctx,session, data);err!= nil{
 		return errors.Wrapf(errors.New("delete soft failed "),"{{.upperStartCamelObject}}Model delete err : %+v",err)

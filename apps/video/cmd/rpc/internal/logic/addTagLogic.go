@@ -6,6 +6,7 @@ import (
 	"go-zero-douyin/apps/video/cmd/rpc/internal/model"
 	"go-zero-douyin/apps/video/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
+	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -38,7 +39,7 @@ func (l *AddTagLogic) AddTag(in *pb.AddTagReq) (*pb.AddTagResp, error) {
 	}
 
 	// 查询标签名是否已存在
-	tag, err := l.svcCtx.TagModel.FindOneByName(l.ctx, in.GetName())
+	tag, err := l.svcCtx.TagModel.FindOneByNameIsDelete(l.ctx, in.GetName(), xconst.DelStateNo)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "数据库根据名称查询标签失败, err: %v, name: %s", err, in.GetName())
 	}

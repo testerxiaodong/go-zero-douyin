@@ -23,18 +23,18 @@ func TestAddTagLogic_AddTag(t *testing.T) {
 
 	// 查询标签失败的mock
 	dbSearchError := errors.New("TagDo.GetTagByName error")
-	mockTagDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
+	mockTagDo.EXPECT().FindOneByNameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
 
 	// 标签已存在mock
-	mockTagDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(&model.Tag{Id: 1, Name: "test"}, nil)
+	mockTagDo.EXPECT().FindOneByNameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).Return(&model.Tag{Id: 1, Name: "test"}, nil)
 
 	// 插入失败的mock
 	dbInsertError := errors.New("TagDo.InsertTag error")
-	mockTagDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockTagDo.EXPECT().FindOneByNameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
 	mockTagDo.EXPECT().Insert(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, dbInsertError)
 
 	// 插入成功的mock
-	mockTagDo.EXPECT().FindOneByName(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockTagDo.EXPECT().FindOneByNameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
 	mockTagDo.EXPECT().Insert(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 
 	// 表格驱动测试

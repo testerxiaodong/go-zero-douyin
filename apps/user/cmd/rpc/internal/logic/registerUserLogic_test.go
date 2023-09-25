@@ -31,19 +31,23 @@ func TestRegisterUserLogic_RegisterUser(t *testing.T) {
 
 	// 查询用户是否存在时失败mock
 	dbSearchError := errors.New("search database error")
-	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
+	mockUserModel.EXPECT().FindOneByUsernameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, dbSearchError)
 
 	// 用户已存在mock
-	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(&model.User{Username: "test", Password: "test", Id: 1}, nil)
+	mockUserModel.EXPECT().FindOneByUsernameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(&model.User{Username: "test", Password: "test", Id: 1}, nil)
 
 	// 插入用户失败mock
 	dbInsertError := errors.New("insert database error")
-	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockUserModel.EXPECT().FindOneByUsernameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, model.ErrNotFound)
 	mockUserModel.EXPECT().Insert(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, dbInsertError)
 
 	mockResult := globalMock.NewMockResult(ctl)
 	// 成功mock
-	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockUserModel.EXPECT().FindOneByUsernameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, model.ErrNotFound)
 	mockUserModel.EXPECT().Insert(gomock.Any(), gomock.Any(), gomock.Any()).Return(mockResult, nil)
 	mockResult.EXPECT().LastInsertId().Return(int64(10), nil)
 	// 表格驱动测试

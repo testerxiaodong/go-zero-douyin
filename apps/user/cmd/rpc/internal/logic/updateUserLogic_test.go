@@ -31,25 +31,27 @@ func TestUpdateUserLogic_UpdateUser(t *testing.T) {
 	// 查询用户信息失败mock
 	mockUserModel.EXPECT().FindOne(gomock.Any(), gomock.Any()).
 		Return(&model.User{Id: 1, Username: "test", Password: "test"}, nil)
-	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(nil, dbError)
+	mockUserModel.EXPECT().FindOneByUsernameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, dbError)
 
 	// 用户名已存在mock
 	mockUserModel.EXPECT().FindOne(gomock.Any(), gomock.Any()).
 		Return(&model.User{Id: 1, Username: "test", Password: "test"}, nil)
-	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).Return(&model.User{Id: 2}, nil)
+	mockUserModel.EXPECT().FindOneByUsernameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(&model.User{Id: 2}, nil)
 
 	// 更新用户失败mock
 	dbUpdateError := errors.New("update database error")
 	mockUserModel.EXPECT().FindOne(gomock.Any(), gomock.Any()).
 		Return(&model.User{Id: 1, Username: "test", Password: "test"}, nil)
-	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).
+	mockUserModel.EXPECT().FindOneByUsernameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.User{Username: "test", Password: "test", Id: 1}, nil)
 	mockUserModel.EXPECT().UpdateWithVersion(gomock.Any(), gomock.Any(), gomock.Any()).Return(dbUpdateError)
 
 	// 更新用户成功的mock
 	mockUserModel.EXPECT().FindOne(gomock.Any(), gomock.Any()).
 		Return(&model.User{Id: 1, Username: "test", Password: "test"}, nil)
-	mockUserModel.EXPECT().FindOneByUsername(gomock.Any(), gomock.Any()).
+	mockUserModel.EXPECT().FindOneByUsernameIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.User{Username: "test", Password: "test", Id: 1}, nil)
 	mockUserModel.EXPECT().UpdateWithVersion(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
