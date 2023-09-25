@@ -87,7 +87,7 @@ taskmanager.memory.jvm-metaspace.size: 512m
 
 # The number of task slots that each TaskManager offers. Each slot runs one parallel pipeline.
 
-taskmanager.numberOfTaskSlots: 1
+taskmanager.numberOfTaskSlots: 10
 
 # The parallelism used for programs that did not specify and other parallelism.
 

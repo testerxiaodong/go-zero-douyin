@@ -57,6 +57,17 @@ func NewZhValidator() *ZhValidator {
 		t, _ := ut.T("zh_cn_phone", fe.Field())
 		return t
 	})
+	err = v.Validator.RegisterValidation("json_array", jsonArrayValidation)
+	if err != nil {
+		panic(fmt.Sprintf("校验器注册错误：%v", err))
+	}
+	// 自定义翻译消息
+	_ = v.Validator.RegisterTranslation("json_array", zhTrans, func(ut ut.Translator) error {
+		return ut.Add("json_array", "{0}请填写json数组", true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("json_array", fe.Field())
+		return t
+	})
 	err = zhTranslations.RegisterDefaultTranslations(v.Validator, zhTrans)
 	if err != nil {
 		return nil
@@ -118,5 +129,16 @@ func chinesePhoneValidation(fl validator.FieldLevel) bool {
 	// 中国手机号格式为11位数字，以1开头
 	pattern := `^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$`
 	match, _ := regexp.MatchString(pattern, phone)
+	return match
+}
+
+// jsonArrayValidation
+// @Description: json数组校验
+// @param fl
+// @return bool
+func jsonArrayValidation(fl validator.FieldLevel) bool {
+	jsonArray := fl.Field().String()
+	pattern := `^\s*\[\s*(?:"\d+"\s*,\s*)*"\d+"\s*\]\s*$`
+	match, _ := regexp.MatchString(pattern, jsonArray)
 	return match
 }

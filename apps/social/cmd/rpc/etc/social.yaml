@@ -3,10 +3,10 @@ ListenOn: 0.0.0.0:1104
 
 # 修改下面数据源
 DB:
-  DataSource: root:my-secret-pw@tcp(192.168.2.169:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local
+  DataSource: root:my-secret-pw@tcp(192.168.2.248:3306)/go_zero_douyin?charset=utf8mb4&parseTime=True&loc=Local
 
 Cache:
-  - Host: 192.168.2.169:6379
+  - Host: 192.168.2.248:6379
 
 Log:
   ServiceName: social-rpc
@@ -21,7 +21,7 @@ Prometheus:
 #链路追踪
 Telemetry:
   Name: social-rpc
-  Endpoint:  http://192.168.2.169:14268/api/traces
+  Endpoint:  http://192.168.2.248:14268/api/traces
   Sampler: 1.0
   Batcher: jaeger
 

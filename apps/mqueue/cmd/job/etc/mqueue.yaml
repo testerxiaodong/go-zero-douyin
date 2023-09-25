@@ -26,7 +26,7 @@ Telemetry:
   Batcher: jaeger
 
 Redis:
-  Host: 192.168.2.169:6379
+  Host: 192.168.2.248:6379
   Type: node
 
 VideoRpcConf:

@@ -2,9 +2,12 @@ package video
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/pkg/errors"
+	"github.com/spf13/cast"
+	"github.com/zeromicro/go-zero/core/logx"
 	userPb "go-zero-douyin/apps/user/cmd/rpc/pb"
 	"go-zero-douyin/apps/video/cmd/api/internal/svc"
 	"go-zero-douyin/apps/video/cmd/api/internal/types"
@@ -17,9 +20,6 @@ import (
 	"mime/multipart"
 	"path"
 	"strconv"
-	"strings"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type PublishLogic struct {
@@ -54,16 +54,15 @@ func (l *PublishLogic) Publish(req *types.PublishVideoReq) (err error) {
 	uid := ctxdata.GetUidFromCtx(l.ctx)
 	// 参数校验
 	validateErrorGroup, _ := errgroup.WithContext(l.ctx)
-	tagIdList := strings.Split(req.TagIds, ",")
-
+	var stringSlice []string
+	err = json.Unmarshal([]byte(req.TagIds), &stringSlice)
+	if err != nil {
+		return xerr.NewErrMsg("标签参数格式不正确")
+	}
 	// 判断标签是否存在
-	for _, tag := range tagIdList {
-		id, err := strconv.ParseInt(tag, 10, 64)
-		if err != nil {
-			return errors.Wrapf(xerr.NewErrMsg("标签id不正确"), "req: %v", req)
-		}
+	for _, idStr := range stringSlice {
 		validateErrorGroup.Go(func() error {
-			_, err := l.svcCtx.VideoRpc.GetTagById(l.ctx, &pb.GetTagByIdReq{Id: id})
+			_, err := l.svcCtx.VideoRpc.GetTagById(l.ctx, &pb.GetTagByIdReq{Id: cast.ToInt64(idStr)})
 			return err
 		})
 	}

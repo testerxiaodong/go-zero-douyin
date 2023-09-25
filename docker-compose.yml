@@ -239,7 +239,6 @@ services:
       - TZ=Asia/Shanghai
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
     volumes:
-      - ./data/flink/job-artifacts:/opt/flink/usrlib
       - ./deploy/flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     restart: always
     networks:
@@ -258,6 +257,7 @@ services:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
       - TZ=Asia/Shanghai
     volumes:
+      - ./data/flink/job-artifacts:/opt/flink/usrlib
       - ./deploy/flink/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     restart: always
     networks:

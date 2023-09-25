@@ -10,9 +10,9 @@ Prometheus:
 #链路追踪
 Telemetry:
   Name: search-rpc
-  Endpoint:  http://192.168.2.169:14268/api/traces
+  Endpoint:  http://192.168.2.248:14268/api/traces
   Sampler: 1.0
   Batcher: jaeger
 
 ElasticsearchConf:
-    - http://192.168.2.169:9200
+    - http://192.168.2.248:9200

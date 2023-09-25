@@ -22,7 +22,7 @@ Prometheus:
 #链路追踪
 Telemetry:
   Name: video-api
-  Endpoint: http://192.168.2.169:14268/api/traces
+  Endpoint: http://192.168.2.248:14268/api/traces
   Sampler: 1.0
   Batcher: jaeger
 
@@ -31,8 +31,8 @@ JwtAuth:
   AccessSecret: go-zero-douyin
 
 AliCloud:
-  AccessKeyId: yourId
-  AccessKeySecret: yourSecret
+  AccessKeyId: LTAI5tDLjx2vQ2BAJhHKDGjP
+  AccessKeySecret: 5b0nh186iHrzTfU2LlDt66VyMt1n3o
   BucketName: go-zero-douyin
   EndPoint: oss-cn-hangzhou.aliyuncs.com
   CommonPath: video

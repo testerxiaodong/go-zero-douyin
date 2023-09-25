@@ -19,7 +19,7 @@ type VideoInfo struct {
 type PublishVideoReq struct {
 	Title       string `form:"title" validate:"required"`
 	SectionId   int64  `form:"section_id" validate:"required"`
-	TagIds      string `form:"tag_ids" validate:"required"`
+	TagIds      string `form:"tag_ids" validate:"required,json_array"`
 	PublishTime int64  `form:"publish_time,optional"`
 }
 
