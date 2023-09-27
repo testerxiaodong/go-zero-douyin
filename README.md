@@ -17,12 +17,12 @@
 
 ### 项目预计用到技术
 - go-zero
-- gorm/gen
 - mysql
 - redis
 - asynq
 - flink-cdc
 - elasticsearch
+- gorse
 - go-stash
 - kafka
 - filebeat
@@ -64,10 +64,12 @@
     - 搜索用户
     - 搜索视频
     - 视频搜索自动补全
+- 个性化推荐
+    - 视频个性化推荐
 
 ### 单元测试
 ![](./docs/unittest.png)
 
 ### TodoList
-- 基于`gorse`的推荐系统
+- 集成IM系统
 
