@@ -5,6 +5,7 @@
 之前`gorm`用的多一点，采用`gorm`作为持久层框架。
 `feature/sqlx+sqlc`分支采用了`sqlx+sqlc`的方式，没有兜底缓存删除失败的情况(后续canal更新1.17之后会考虑)。
 弃用了`rabbitmq`，因为电脑容器太多，而且日志系统已经有`kafka`，后续有消息队列需求再使用`kafka`。
+项目部署文档：[https://github.com/testerxiaodong/go-zero-douyin/blob/main/docs/项目部署文档.md](https://github.com/testerxiaodong/go-zero-douyin/blob/main/docs/%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3.md)
 
 ### 项目目录介绍
 - apps: 微服务集合(api+rpc)
