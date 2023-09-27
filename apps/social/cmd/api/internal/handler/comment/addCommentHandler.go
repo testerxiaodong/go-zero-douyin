@@ -1,7 +1,7 @@
 package comment
 
 import (
-	"go-zero-douyin/common/httpResponse"
+	"go-zero-douyin/common/response"
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
@@ -14,12 +14,12 @@ func AddCommentHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AddCommentReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpResponse.ParamErrorResult(r, w, err)
+			response.ParamErrorResult(r, w, err)
 			return
 		}
 
 		l := comment.NewAddCommentLogic(r.Context(), svcCtx)
 		err := l.AddComment(&req)
-		httpResponse.ApiResult(r, w, nil, err)
+		response.ApiResult(r, w, nil, err)
 	}
 }

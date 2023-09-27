@@ -2,10 +2,11 @@ package like
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/pkg/errors"
-	"go-zero-douyin/apps/social/cmd/rpc/pb"
 	pbVideo "go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/ctxdata"
+	"go-zero-douyin/common/message"
 	"go-zero-douyin/common/xerr"
 
 	"go-zero-douyin/apps/social/cmd/api/internal/svc"
@@ -41,9 +42,9 @@ func (l *AddLikeLogic) AddLike(req *types.VideoLikeReq) error {
 	}
 	// 获取当前用户id
 	uid := ctxdata.GetUidFromCtx(l.ctx)
-
-	// 调用likerpc
-	_, err = l.svcCtx.SocialRpc.VideoLike(l.ctx, &pb.VideoLikeReq{VideoId: req.VideoId, UserId: uid})
+	// 发布消息到kafka
+	data, _ := json.Marshal(message.VideoLikeMessage{UserId: uid, VideoId: req.VideoId})
+	err = l.svcCtx.KqueueVideoLikeClient.Push(string(data))
 	if err != nil {
 		return errors.Wrapf(err, "req: %v", req)
 	}

@@ -51,30 +51,44 @@ scrape_configs:
           job: user-rpc
           app: user-rpc
           env: dev
-  - job_name: 'mqueue'
-    static_configs:
-      - targets: [ '192.168.2.248:4007' ]
-        labels:
-          job: mqueue
-          app: mqueue
-          env: dev
   - job_name: 'search-api'
     static_configs:
-      - targets: [ '192.168.2.248:4008' ]
+      - targets: [ '192.168.2.248:4007' ]
         labels:
           job: search-api
           app: search-api
           env: dev
   - job_name: 'search-rpc'
     static_configs:
-      - targets: [ '192.168.2.248:4009' ]
+      - targets: [ '192.168.2.248:4008' ]
         labels:
           job: search-rpc
           app: search-rpc
           env: dev
-  - job_name: 'mqueue-job'
+  - job_name: 'recommend-api'
+    static_configs:
+      - targets: [ '192.168.2.248:4009' ]
+        labels:
+          job: search-api
+          app: search-api
+          env: dev
+  - job_name: 'recommend-rpc'
     static_configs:
       - targets: [ '192.168.2.248:4010' ]
+        labels:
+          job: search-rpc
+          app: search-rpc
+          env: dev
+  - job_name: 'like-mq'
+    static_configs:
+      - targets: [ '192.168.2.248:4011' ]
+        labels:
+          job: like-mq
+          app: like-mq
+          env: dev
+  - job_name: 'mqueue-job'
+    static_configs:
+      - targets: [ '192.168.2.248:4012' ]
         labels:
           job: mqueue-job
           app: mqueue-job

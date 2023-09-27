@@ -1,7 +1,7 @@
 package follow
 
 import (
-	"go-zero-douyin/common/httpResponse"
+	"go-zero-douyin/common/response"
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
@@ -14,12 +14,12 @@ func DelFollowHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.UserUnfollowReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpResponse.ParamErrorResult(r, w, err)
+			response.ParamErrorResult(r, w, err)
 			return
 		}
 
 		l := follow.NewDelFollowLogic(r.Context(), svcCtx)
 		err := l.DelFollow(&req)
-		httpResponse.ApiResult(r, w, nil, err)
+		response.ApiResult(r, w, nil, err)
 	}
 }

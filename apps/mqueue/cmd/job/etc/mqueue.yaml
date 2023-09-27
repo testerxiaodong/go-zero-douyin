@@ -15,13 +15,13 @@ Log:
 #监控
 Prometheus:
   Host: 0.0.0.0
-  Port: 4010
+  Port: 4012
   Path: /metrics
 
 #Link Tracking
 Telemetry:
   Name: mqueue-job
-  Endpoint: http://jaeger:14268/api/traces
+  Endpoint: http://192.168.2.248:14268/api/traces
   Sampler: 1.0
   Batcher: jaeger
 

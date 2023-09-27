@@ -1,7 +1,7 @@
 package search
 
 import (
-	"go-zero-douyin/common/httpResponse"
+	"go-zero-douyin/common/response"
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
@@ -14,12 +14,12 @@ func VideoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.SearchVideoReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpResponse.ParamErrorResult(r, w, err)
+			response.ParamErrorResult(r, w, err)
 			return
 		}
 
 		l := search.NewVideoLogic(r.Context(), svcCtx)
 		resp, err := l.Video(&req)
-		httpResponse.ApiResult(r, w, resp, err)
+		response.ApiResult(r, w, resp, err)
 	}
 }

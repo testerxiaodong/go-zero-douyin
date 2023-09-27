@@ -1,7 +1,7 @@
 package user
 
 import (
-	"go-zero-douyin/common/httpResponse"
+	"go-zero-douyin/common/response"
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
@@ -14,12 +14,12 @@ func UpdateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.UpdateUserReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpResponse.ParamErrorResult(r, w, err)
+			response.ParamErrorResult(r, w, err)
 			return
 		}
 
 		l := user.NewUpdateLogic(r.Context(), svcCtx)
 		err := l.Update(&req)
-		httpResponse.ApiResult(r, w, nil, err)
+		response.ApiResult(r, w, nil, err)
 	}
 }

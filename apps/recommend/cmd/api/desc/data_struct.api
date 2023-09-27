@@ -1,0 +1,32 @@
+syntax = "v1"
+
+info(
+    title: "推荐功能相关实体信息"
+    desc: "推荐相关结构体"
+    author: "cengdong"
+    email: "happy_game_dong@163.com"
+    version: "v0.1"
+)
+
+type Video {
+    Id int64 `json:"id"`
+    OwnerId int64 `json:"owner_id"`
+    OwnerName string `json:"owner_name"`
+    SectionId int64 `json:"section_id"`
+    TagIds  string  `json:"tag_ids"`
+    Title string `json:"title"`
+    PlayUrl string `json:"play_url"`
+    CoverUrl string `json:"cover_url"`
+    CommentCount int64 `json:"comment_count"`
+    LikeCount int64 `json:"like_count"`
+}
+
+type (
+    VideoRecommendReq {
+        SectionId int64 `json:"section_id" validate:"required"`
+        Count int64 `json:"count" validate:"required"`
+    }
+    VideoRecommendResp {
+        Videos []*Video `json:"videos"`
+    }
+)

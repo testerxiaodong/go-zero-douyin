@@ -1,0 +1,23 @@
+syntax = "v1"
+
+info(
+	title: "推荐中心"
+	desc: "推荐基本数据与接口定义"
+	author: "cengdong"
+	email: "happy_game_dong@163.com"
+	version: "v0.1"
+)
+
+import "data_struct.api"
+
+@server(
+	group: recommend
+	prefix: recommend/v1
+	jwt: JwtAuth
+)
+
+service recommend {
+	@doc "用户视频分区个性化推荐"
+	@handler Video
+	get /video (VideoRecommendReq) returns (VideoRecommendResp)
+}

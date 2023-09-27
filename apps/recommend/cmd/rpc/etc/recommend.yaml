@@ -1,0 +1,22 @@
+Name: recommend-rpc
+ListenOn: 0.0.0.0:1106
+
+Log:
+  ServiceName: recommend-rpc
+  Level: error
+
+#监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4010
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: recommend-rpc
+  Endpoint:  http://192.168.2.248:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
+GorseConf: http://192.168.2.248:8088
+

@@ -1,0 +1,49 @@
+Name: recommend-api
+Host: 0.0.0.0
+Port: 1006
+MaxBytes: 104857600
+
+Log:
+  ServiceName: recommend-api
+  Mode: console
+  Encoding: plain
+  Path: logs
+  TimeFormat: 2006-01-02T15:04:05.000Z07:00
+  Level: debug
+  KeepDays: 30
+  StackCooldownMillis: 100
+
+JwtAuth:
+  AccessSecret: go-zero-douyin
+
+#监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4009
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: recommend-api
+  Endpoint: http://192.168.2.248:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
+
+VideoRpcConf:
+  Endpoints:
+    - 127.0.0.1:1103
+  #  Target: k8s://go-zero-douyin/video-rpc-svc:1104
+  NonBlock: true
+
+SocialRpcConf:
+  Endpoints:
+    - 127.0.0.1:1104
+  #  Target: k8s://go-zero-douyin/social-rpc-svc:1104
+  NonBlock: true
+
+RecommendRpcConf:
+  Endpoints:
+    - 127.0.0.1:1106
+  #  Target: k8s://go-zero-douyin/recommend-rpc-svc:1104
+  NonBlock: true

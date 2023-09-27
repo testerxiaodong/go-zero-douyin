@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+package pb;
+
+message VideoRecommendSectionReq {
+  int64 user_id = 1;
+  int64 section_id = 2;
+  int64 count = 3;
+}
+
+message VideoRecommendSectionResp {
+  repeated int64 video_ids = 1;
+}
+
+service recommend {
+  rpc VideoRecommendSection (VideoRecommendSectionReq) returns (VideoRecommendSectionResp);
+}

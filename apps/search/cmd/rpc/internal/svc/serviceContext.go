@@ -3,18 +3,18 @@ package svc
 import (
 	"github.com/olivere/elastic/v7"
 	"go-zero-douyin/apps/search/cmd/rpc/internal/config"
-	"go-zero-douyin/common/elasticService"
+	"go-zero-douyin/common/elasticsearch"
 )
 
 type ServiceContext struct {
 	Config        config.Config
-	ElasticSearch elasticService.ElasticService
+	ElasticSearch elasticsearch.ElasticService
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:        c,
-		ElasticSearch: elasticService.NewElastic(NewElasticsearchClient(c.ElasticsearchConf)),
+		ElasticSearch: elasticsearch.NewElastic(NewElasticsearchClient(c.ElasticsearchConf)),
 	}
 }
 

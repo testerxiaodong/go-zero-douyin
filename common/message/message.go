@@ -1,43 +1,7 @@
 package message
 
-type VideoCommentMessage struct {
-	VideoId int64 `json:"video_id"`
-}
-
-type UserLikeVideoMessage struct {
-	UserId int64 `json:"user_id"`
-}
-
-type VideoLikedByUserMessage struct {
-	VideoId int64 `json:"video_id"`
-}
-
-type UserFollowUserMessage struct {
-	FollowerId int64 `json:"follower_id"`
-}
-
-type UserFollowedByUserMessage struct {
-	UserId int64 `json:"user_id"`
-}
-
-type VideoSectionMessage struct {
-}
-
-type VideoTagMessage struct {
-}
-
-type MysqlVideoUpdateMessage struct {
-	VideoId int64 `json:"video_id"`
-}
-
-type MysqlVideoDeleteMessage struct {
-	VideoId int64 `json:"video_id"`
-}
-
-type MysqlUserUpdateMessage struct {
-	UserId int64 `json:"user_id"`
-}
-
-type MysqlUserDeleteMessage struct {
-	UserId int64 `json:"user_id"`
+// VideoLikeMessage 视频点赞消息
+type VideoLikeMessage struct {
+	UserId  int64
+	VideoId int64
 }

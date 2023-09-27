@@ -29,6 +29,12 @@ Telemetry:
 JwtAuth:
   AccessSecret: go-zero-douyin
 
+# video-like-mq for kq(kafka pub sub)
+VideoLikeConf:
+  Brokers:
+    - 192.168.2.248:9092
+  Topic: video-like-topic
+
 VideoRpcConf:
   Endpoints:
     - 127.0.0.1:1103

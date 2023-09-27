@@ -10,6 +10,7 @@ type Config struct {
 	JwtAuth struct {
 		AccessSecret string
 	}
+	VideoLikeConf KqConfig
 	VideoRpcConf  zrpc.RpcClientConf
 	SocialRpcConf zrpc.RpcClientConf
 }

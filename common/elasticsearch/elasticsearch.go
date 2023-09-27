@@ -1,4 +1,4 @@
-package elasticService
+package elasticsearch
 
 import (
 	"context"
