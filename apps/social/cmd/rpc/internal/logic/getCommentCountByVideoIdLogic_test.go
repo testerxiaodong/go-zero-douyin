@@ -23,13 +23,15 @@ func TestGetCommentCountByVideoIdLogic_GetCommentCountByVideoId(t *testing.T) {
 
 	// 查询数据库失败的mock
 	dbError := errors.New("CommentDo GetCommentCountByVideoId error")
-	mockCommentDo.EXPECT().FindOneByVideoId(gomock.Any(), gomock.Any()).Return(nil, dbError)
+	mockCommentDo.EXPECT().FindOneByVideoIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, dbError)
 
 	// 查询数据库成功，但是记录不存在的mock
-	mockCommentDo.EXPECT().FindOneByVideoId(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockCommentDo.EXPECT().FindOneByVideoIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, model.ErrNotFound)
 
 	// 查询数据库成功，且记录存在的mock
-	mockCommentDo.EXPECT().FindOneByVideoId(gomock.Any(), gomock.Any()).
+	mockCommentDo.EXPECT().FindOneByVideoIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.CommentCount{CommentCount: 1}, nil)
 	// 表格驱动测试
 	testCases := []struct {

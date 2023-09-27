@@ -6,6 +6,7 @@ import (
 	"go-zero-douyin/apps/social/cmd/rpc/internal/model"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/social/cmd/rpc/pb"
+	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -35,7 +36,7 @@ func (l *GetCommentCountByVideoIdLogic) GetCommentCountByVideoId(in *pb.GetComme
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "get video comment count with empty video_id")
 	}
 	// 查询数据
-	commentCount, err := l.svcCtx.CommentCountModel.FindOneByVideoId(l.ctx, in.GetVideoId())
+	commentCount, err := l.svcCtx.CommentCountModel.FindOneByVideoIdIsDelete(l.ctx, in.GetVideoId(), xconst.DelStateNo)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR), "查询视频评论数失败, err: %v, video_id: %d", err, in.GetVideoId())
 	}

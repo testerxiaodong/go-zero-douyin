@@ -23,13 +23,15 @@ func TestGetVideoLikedCountByVideoIdLogic_GetVideoLikedCountByVideoId(t *testing
 
 	// 查询数据库失败的mock
 	dbError := errors.New("LikeDo GetVideoLikedCount error")
-	mockLikeDo.EXPECT().FindOneByVideoId(gomock.Any(), gomock.Any()).Return(nil, dbError)
+	mockLikeDo.EXPECT().FindOneByVideoIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, dbError)
 
 	// 查询数据库成功，但没有数据的mock
-	mockLikeDo.EXPECT().FindOneByVideoId(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockLikeDo.EXPECT().FindOneByVideoIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, model.ErrNotFound)
 
 	// 查询数据库成功，有数据的mock
-	mockLikeDo.EXPECT().FindOneByVideoId(gomock.Any(), gomock.Any()).Return(&model.LikeCount{LikeCount: 1}, nil)
+	mockLikeDo.EXPECT().FindOneByVideoIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(&model.LikeCount{LikeCount: 1}, nil)
 
 	// 表格驱动测试
 	testCases := []struct {

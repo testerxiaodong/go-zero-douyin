@@ -38,7 +38,7 @@ func (l *VideoLikeLogic) VideoLike(in *pb.VideoLikeReq) (*pb.VideoLikeResp, erro
 			"like video with empty user_id or video_id")
 	}
 	// 查询记录是否存在
-	like, err := l.svcCtx.LikeModel.FindOneByVideoIdUserId(l.ctx, in.GetVideoId(), in.GetUserId())
+	like, err := l.svcCtx.LikeModel.FindOneByVideoIdUserIdIsDelete(l.ctx, in.GetVideoId(), in.GetUserId(), xconst.DelStateNo)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR),
 			"find video is already liked by user failed, err: %v", err)
@@ -57,7 +57,7 @@ func (l *VideoLikeLogic) VideoLike(in *pb.VideoLikeReq) (*pb.VideoLikeResp, erro
 				return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR), "更新")
 			}
 			// 更新视频点赞数
-			likeCount, err := l.svcCtx.LikeCountModel.FindOneByVideoId(l.ctx, in.GetVideoId())
+			likeCount, err := l.svcCtx.LikeCountModel.FindOneByVideoIdIsDelete(l.ctx, in.GetVideoId(), xconst.DelStateNo)
 			if err != nil && !errors.Is(err, model.ErrNotFound) {
 				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 					"查询视频点赞数失败, err: %v, video_id: %d", err, in.GetVideoId())
@@ -87,7 +87,7 @@ func (l *VideoLikeLogic) VideoLike(in *pb.VideoLikeReq) (*pb.VideoLikeResp, erro
 					"插入点赞记录失败, err: %v, user_id: %d, video_id: %d", err, in.GetUserId(), in.GetVideoId())
 			}
 			// 更新点赞数
-			likeCount, err := l.svcCtx.LikeCountModel.FindOneByVideoId(l.ctx, in.GetVideoId())
+			likeCount, err := l.svcCtx.LikeCountModel.FindOneByVideoIdIsDelete(l.ctx, in.GetVideoId(), xconst.DelStateNo)
 			if err != nil && !errors.Is(err, model.ErrNotFound) {
 				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 					"查询视频点赞数失败, err: %v, video_id: %d", err, in.GetVideoId())

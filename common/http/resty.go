@@ -2,11 +2,13 @@ package http
 
 import "github.com/go-resty/resty/v2"
 
+// RestClient 项目依赖的http客户端抽象
 type RestClient interface {
 	Get(queryParams map[string]string, url string, response interface{}) error
 	Post(body interface{}, url string, response interface{}) error
 }
 
+// RestyClient 项目实际依赖的http客户端
 type RestyClient struct {
 	c *resty.Client
 }

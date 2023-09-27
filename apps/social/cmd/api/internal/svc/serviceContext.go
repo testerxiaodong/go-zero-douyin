@@ -6,6 +6,7 @@ import (
 	"go-zero-douyin/apps/social/cmd/api/internal/config"
 	"go-zero-douyin/apps/social/cmd/rpc/social"
 	"go-zero-douyin/apps/video/cmd/rpc/video"
+	"go-zero-douyin/common/queue"
 	"go-zero-douyin/common/utils"
 )
 
@@ -13,7 +14,7 @@ type ServiceContext struct {
 	Config                config.Config
 	SocialRpc             social.Social
 	VideoRpc              video.Video
-	KqueueVideoLikeClient *kq.Pusher
+	KqueueVideoLikeClient queue.Pusher
 	Validator             utils.Validator
 }
 

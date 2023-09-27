@@ -111,19 +111,19 @@ func (mr *MockfollowModelMockRecorder) FindOne(ctx, id interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOne", reflect.TypeOf((*MockfollowModel)(nil).FindOne), ctx, id)
 }
 
-// FindOneByUserIdFollowerId mocks base method.
-func (m *MockfollowModel) FindOneByUserIdFollowerId(ctx context.Context, userId, followerId int64) (*model.Follow, error) {
+// FindOneByUserIdFollowerIdIsDelete mocks base method.
+func (m *MockfollowModel) FindOneByUserIdFollowerIdIsDelete(ctx context.Context, userId, followerId, isDelete int64) (*model.Follow, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindOneByUserIdFollowerId", ctx, userId, followerId)
+	ret := m.ctrl.Call(m, "FindOneByUserIdFollowerIdIsDelete", ctx, userId, followerId, isDelete)
 	ret0, _ := ret[0].(*model.Follow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindOneByUserIdFollowerId indicates an expected call of FindOneByUserIdFollowerId.
-func (mr *MockfollowModelMockRecorder) FindOneByUserIdFollowerId(ctx, userId, followerId interface{}) *gomock.Call {
+// FindOneByUserIdFollowerIdIsDelete indicates an expected call of FindOneByUserIdFollowerIdIsDelete.
+func (mr *MockfollowModelMockRecorder) FindOneByUserIdFollowerIdIsDelete(ctx, userId, followerId, isDelete interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOneByUserIdFollowerId", reflect.TypeOf((*MockfollowModel)(nil).FindOneByUserIdFollowerId), ctx, userId, followerId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOneByUserIdFollowerIdIsDelete", reflect.TypeOf((*MockfollowModel)(nil).FindOneByUserIdFollowerIdIsDelete), ctx, userId, followerId, isDelete)
 }
 
 // FindPageListByIdASC mocks base method.

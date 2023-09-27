@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/pkg/errors"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/model"
+	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
 
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
@@ -36,7 +37,7 @@ func (l *GetUserFollowerCountLogic) GetUserFollowerCount(in *pb.GetUserFollowerC
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "get user follower count with empty user_id")
 	}
 	// 查询数据库
-	followCount, err := l.svcCtx.FollowCountModel.FindOneByUserId(l.ctx, in.GetUserId())
+	followCount, err := l.svcCtx.FollowCountModel.FindOneByUserIdIsDelete(l.ctx, in.GetUserId(), xconst.DelStateNo)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 			"查询用户粉丝数关注数失败, err: %v, user_id: %d", err, in.GetUserId())

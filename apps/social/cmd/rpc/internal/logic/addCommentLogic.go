@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/model"
+	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
 
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
@@ -49,7 +50,7 @@ func (l *AddCommentLogic) AddComment(in *pb.AddCommentReq) (*pb.AddCommentResp, 
 		if err != nil {
 			return errors.Wrapf(xerr.NewErrCode(xerr.DB_INSERT_ERR), "insert comment failed: %v", err)
 		}
-		commentCountRecord, err := l.svcCtx.CommentCountModel.FindOneByVideoId(l.ctx, in.GetVideoId())
+		commentCountRecord, err := l.svcCtx.CommentCountModel.FindOneByVideoIdIsDelete(l.ctx, in.GetVideoId(), xconst.DelStateNo)
 		// 查询失败
 		if err != nil && !errors.Is(err, model.ErrNotFound) {
 			return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),

@@ -26,15 +26,15 @@ var (
 	followCountRowsExpectAutoSet   = strings.Join(stringx.Remove(followCountFieldNames, "`id`", "`create_time`", "`update_time`"), ",")
 	followCountRowsWithPlaceHolder = strings.Join(stringx.Remove(followCountFieldNames, "`id`", "`create_time`", "`update_time`"), "=?,") + "=?"
 
-	cacheGoZeroDouyinFollowCountIdPrefix     = "cache:goZeroDouyin:followCount:id:"
-	cacheGoZeroDouyinFollowCountUserIdPrefix = "cache:goZeroDouyin:followCount:userId:"
+	cacheGoZeroDouyinFollowCountIdPrefix             = "cache:goZeroDouyin:followCount:id:"
+	cacheGoZeroDouyinFollowCountUserIdIsDeletePrefix = "cache:goZeroDouyin:followCount:userId:isDelete:"
 )
 
 type (
 	followCountModel interface {
 		Insert(ctx context.Context, session sqlx.Session, data *FollowCount) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*FollowCount, error)
-		FindOneByUserId(ctx context.Context, userId int64) (*FollowCount, error)
+		FindOneByUserIdIsDelete(ctx context.Context, userId int64, isDelete int64) (*FollowCount, error)
 		Update(ctx context.Context, session sqlx.Session, data *FollowCount) (sql.Result, error)
 		UpdateWithVersion(ctx context.Context, session sqlx.Session, data *FollowCount) error
 		Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
@@ -79,14 +79,14 @@ func (m *defaultFollowCountModel) Insert(ctx context.Context, session sqlx.Sessi
 	data.DeleteTime = time.Unix(0, 0)
 	data.IsDelete = xconst.DelStateNo
 	goZeroDouyinFollowCountIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinFollowCountIdPrefix, data.Id)
-	goZeroDouyinFollowCountUserIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinFollowCountUserIdPrefix, data.UserId)
+	goZeroDouyinFollowCountUserIdIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinFollowCountUserIdIsDeletePrefix, data.UserId, data.IsDelete)
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, followCountRowsExpectAutoSet)
 		if session != nil {
 			return session.ExecCtx(ctx, query, data.UserId, data.FollowCount, data.FollowerCount, data.DeleteTime, data.IsDelete, data.Version)
 		}
 		return conn.ExecCtx(ctx, query, data.UserId, data.FollowCount, data.FollowerCount, data.DeleteTime, data.IsDelete, data.Version)
-	}, goZeroDouyinFollowCountIdKey, goZeroDouyinFollowCountUserIdKey)
+	}, goZeroDouyinFollowCountIdKey, goZeroDouyinFollowCountUserIdIsDeleteKey)
 }
 
 func (m *defaultFollowCountModel) FindOne(ctx context.Context, id int64) (*FollowCount, error) {
@@ -106,12 +106,12 @@ func (m *defaultFollowCountModel) FindOne(ctx context.Context, id int64) (*Follo
 	}
 }
 
-func (m *defaultFollowCountModel) FindOneByUserId(ctx context.Context, userId int64) (*FollowCount, error) {
-	goZeroDouyinFollowCountUserIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinFollowCountUserIdPrefix, userId)
+func (m *defaultFollowCountModel) FindOneByUserIdIsDelete(ctx context.Context, userId int64, isDelete int64) (*FollowCount, error) {
+	goZeroDouyinFollowCountUserIdIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinFollowCountUserIdIsDeletePrefix, userId, isDelete)
 	var resp FollowCount
-	err := m.QueryRowIndexCtx(ctx, &resp, goZeroDouyinFollowCountUserIdKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
-		query := fmt.Sprintf("select %s from %s where `user_id` = ? and is_delete = ? limit 1", followCountRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, userId, xconst.DelStateNo); err != nil {
+	err := m.QueryRowIndexCtx(ctx, &resp, goZeroDouyinFollowCountUserIdIsDeleteKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
+		query := fmt.Sprintf("select %s from %s where `user_id` = ? and `is_delete` = ? and is_delete = ? limit 1", followCountRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, userId, isDelete, xconst.DelStateNo); err != nil {
 			return nil, err
 		}
 		return resp.Id, nil
@@ -132,14 +132,14 @@ func (m *defaultFollowCountModel) Update(ctx context.Context, session sqlx.Sessi
 		return nil, err
 	}
 	goZeroDouyinFollowCountIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinFollowCountIdPrefix, data.Id)
-	goZeroDouyinFollowCountUserIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinFollowCountUserIdPrefix, data.UserId)
+	goZeroDouyinFollowCountUserIdIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinFollowCountUserIdIsDeletePrefix, data.UserId, data.IsDelete)
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, followCountRowsWithPlaceHolder)
 		if session != nil {
 			return session.ExecCtx(ctx, query, newData.UserId, newData.FollowCount, newData.FollowerCount, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id)
 		}
 		return conn.ExecCtx(ctx, query, newData.UserId, newData.FollowCount, newData.FollowerCount, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id)
-	}, goZeroDouyinFollowCountIdKey, goZeroDouyinFollowCountUserIdKey)
+	}, goZeroDouyinFollowCountIdKey, goZeroDouyinFollowCountUserIdIsDeleteKey)
 }
 
 func (m *defaultFollowCountModel) UpdateWithVersion(ctx context.Context, session sqlx.Session, newData *FollowCount) error {
@@ -155,14 +155,14 @@ func (m *defaultFollowCountModel) UpdateWithVersion(ctx context.Context, session
 		return err
 	}
 	goZeroDouyinFollowCountIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinFollowCountIdPrefix, data.Id)
-	goZeroDouyinFollowCountUserIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinFollowCountUserIdPrefix, data.UserId)
+	goZeroDouyinFollowCountUserIdIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinFollowCountUserIdIsDeletePrefix, data.UserId, data.IsDelete)
 	sqlResult, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ? and version = ? ", m.table, followCountRowsWithPlaceHolder)
 		if session != nil {
 			return session.ExecCtx(ctx, query, newData.UserId, newData.FollowCount, newData.FollowerCount, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id, oldVersion)
 		}
 		return conn.ExecCtx(ctx, query, newData.UserId, newData.FollowCount, newData.FollowerCount, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id, oldVersion)
-	}, goZeroDouyinFollowCountIdKey, goZeroDouyinFollowCountUserIdKey)
+	}, goZeroDouyinFollowCountIdKey, goZeroDouyinFollowCountUserIdIsDeleteKey)
 	if err != nil {
 		return err
 	}
@@ -178,7 +178,7 @@ func (m *defaultFollowCountModel) UpdateWithVersion(ctx context.Context, session
 }
 
 func (m *defaultFollowCountModel) DeleteSoft(ctx context.Context, session sqlx.Session, data *FollowCount) error {
-	data.IsDelete = xconst.DelStateYes
+	data.IsDelete = data.Id
 	data.DeleteTime = time.Now()
 	if err := m.UpdateWithVersion(ctx, session, data); err != nil {
 		return errors.Wrapf(errors.New("delete soft failed "), "FollowCountModel delete err : %+v", err)
@@ -386,14 +386,14 @@ func (m *defaultFollowCountModel) Delete(ctx context.Context, session sqlx.Sessi
 	}
 
 	goZeroDouyinFollowCountIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinFollowCountIdPrefix, id)
-	goZeroDouyinFollowCountUserIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinFollowCountUserIdPrefix, data.UserId)
+	goZeroDouyinFollowCountUserIdIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinFollowCountUserIdIsDeletePrefix, data.UserId, data.IsDelete)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		if session != nil {
 			return session.ExecCtx(ctx, query, id)
 		}
 		return conn.ExecCtx(ctx, query, id)
-	}, goZeroDouyinFollowCountIdKey, goZeroDouyinFollowCountUserIdKey)
+	}, goZeroDouyinFollowCountIdKey, goZeroDouyinFollowCountUserIdIsDeleteKey)
 	return err
 }
 func (m *defaultFollowCountModel) formatPrimary(primary interface{}) string {

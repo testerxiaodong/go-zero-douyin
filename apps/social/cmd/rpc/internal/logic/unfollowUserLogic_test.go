@@ -24,25 +24,25 @@ func TestUnfollowUserLogic_UnfollowUser(t *testing.T) {
 
 	// 查询数据库失败mock
 	dbSearchError := errors.New("FollowDo.GetFollowByFollowerIdAndUserId error")
-	mockFollowDo.EXPECT().FindOneByUserIdFollowerId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockFollowDo.EXPECT().FindOneByUserIdFollowerIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, dbSearchError)
 
 	// 查询数据库成功，数据不存在的mock
-	mockFollowDo.EXPECT().FindOneByUserIdFollowerId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockFollowDo.EXPECT().FindOneByUserIdFollowerIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, model.ErrNotFound)
 
 	// 查询数据库成功，有记录，且为未关注
-	mockFollowDo.EXPECT().FindOneByUserIdFollowerId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockFollowDo.EXPECT().FindOneByUserIdFollowerIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.Follow{Status: xconst.FollowStateNo}, nil)
 
 	// 查询数据库成功，有记录，且为已关注，事务失败的mock
 	transError := errors.New("FollowModel.Trans error")
-	mockFollowDo.EXPECT().FindOneByUserIdFollowerId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockFollowDo.EXPECT().FindOneByUserIdFollowerIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.Follow{Status: xconst.FollowStateYes}, nil)
 	mockFollowDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(transError)
 
 	// 查询数据库成功，有记录，且为已关注，事务成功的mock
-	mockFollowDo.EXPECT().FindOneByUserIdFollowerId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockFollowDo.EXPECT().FindOneByUserIdFollowerIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.Follow{Status: xconst.FollowStateYes}, nil)
 	mockFollowDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(nil)
 

@@ -11,7 +11,7 @@
  Target Server Version : 80100
  File Encoding         : 65001
 
- Date: 24/09/2023 00:41:34
+ Date: 27/09/2023 18:10:42
 */
 
 SET NAMES utf8mb4;
@@ -33,7 +33,7 @@ CREATE TABLE `comment` (
   `version` bigint unsigned NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`),
   KEY `idx_videoid_userid` (`video_id`,`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='视频评论记录';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='视频评论记录';
 
 -- ----------------------------
 -- Table structure for comment_count
@@ -49,8 +49,8 @@ CREATE TABLE `comment_count` (
   `is_delete` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否被删除',
   `version` bigint unsigned NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_videoid` (`video_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='视频评论数记录';
+  UNIQUE KEY `idx_videoid` (`video_id`,`is_delete`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='视频评论数记录';
 
 -- ----------------------------
 -- Table structure for follow
@@ -67,8 +67,8 @@ CREATE TABLE `follow` (
   `is_delete` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否被删除',
   `version` bigint unsigned NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_userid_followerid` (`user_id`,`follower_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户关注/被关注记录表';
+  UNIQUE KEY `idx_userid_followerid` (`user_id`,`follower_id`,`is_delete`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户关注/被关注记录表';
 
 -- ----------------------------
 -- Table structure for follow_count
@@ -85,8 +85,8 @@ CREATE TABLE `follow_count` (
   `is_delete` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否被删除',
   `version` bigint unsigned NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_userid` (`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户关注/粉丝数记录';
+  UNIQUE KEY `idx_userid` (`user_id`,`is_delete`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户关注/粉丝数记录';
 
 -- ----------------------------
 -- Table structure for like
@@ -103,8 +103,8 @@ CREATE TABLE `like` (
   `is_delete` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否被删除',
   `version` bigint unsigned NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_videoid_userid` (`video_id`,`user_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='视频点赞记录';
+  UNIQUE KEY `idx_videoid_userid` (`video_id`,`user_id`,`is_delete`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='视频点赞记录';
 
 -- ----------------------------
 -- Table structure for like_count
@@ -120,8 +120,8 @@ CREATE TABLE `like_count` (
   `is_delete` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否被删除',
   `version` bigint unsigned NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_videoid` (`video_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='视频点赞数记录';
+  UNIQUE KEY `idx_videoid` (`video_id`,`is_delete`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='视频点赞数记录';
 
 -- ----------------------------
 -- Table structure for section
@@ -136,8 +136,8 @@ CREATE TABLE `section` (
   `is_delete` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否被删除',
   `version` bigint unsigned NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_name` (`name`,`is_delete`,`delete_time`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='视频分区记录';
+  UNIQUE KEY `idx_name` (`name`,`is_delete`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='视频分区记录';
 
 -- ----------------------------
 -- Table structure for tag
@@ -152,8 +152,8 @@ CREATE TABLE `tag` (
   `is_delete` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否被删除',
   `version` bigint unsigned NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_name` (`name`,`is_delete`,`delete_time`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='视频标签记录';
+  UNIQUE KEY `idx_name` (`name`,`is_delete`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='视频标签记录';
 
 -- ----------------------------
 -- Table structure for user
@@ -169,8 +169,8 @@ CREATE TABLE `user` (
   `is_delete` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否被删除',
   `version` bigint unsigned NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_username` (`username`,`is_delete`,`delete_time`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户记录';
+  UNIQUE KEY `idx_username` (`username`,`is_delete`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户记录';
 
 -- ----------------------------
 -- Table structure for video
@@ -180,7 +180,7 @@ CREATE TABLE `video` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '视频id',
   `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '视频标题',
   `section_id` bigint NOT NULL COMMENT '视频分区id',
-  `tag_ids` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '视频标签列表',
+  `tag_ids` json NOT NULL COMMENT '视频标签列表',
   `owner_id` int unsigned NOT NULL COMMENT '视频发布者id',
   `owner_name` varchar(255) NOT NULL COMMENT '视频发布者用户名',
   `play_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '视频下载地址',
@@ -192,6 +192,6 @@ CREATE TABLE `video` (
   `version` bigint unsigned NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`),
   KEY `idx_ownerid` (`owner_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='视频记录';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='视频记录';
 
 SET FOREIGN_KEY_CHECKS = 1;

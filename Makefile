@@ -2,10 +2,11 @@ mock:
 	mockgen -source=./common/cache/redis.go -destination=./mock/redis_mock.go -package=mock
 	mockgen -source=./common/utils/oss.go -destination=./mock/oss_mock.go -package=mock
 	mockgen -source=./common/utils/validator.go -destination=./mock/validator_mock.go -package=mock
-	mockgen -source=./common/rabbitmq/sender.go -destination=./mock/sender_mock.go -package=mock
-	mockgen -source=./common/elasticService/elasticsearch.go -destination=./mock/elasticsearch_mock.go -package=mock
+	mockgen -source=./common/queue/pusher.go -destination=./mock/pusher_mock.go -package=mock
+	mockgen -source=./common/elasticsearch/elasticsearch.go -destination=./mock/elasticsearch_mock.go -package=mock
 	mockgen -source=./common/asynq/asynq.go -destination=./mock/asynq_mock.go -package=mock
 	mockgen -source=./common/sql/result.go -destination=./mock/result_mock.go -package=mock
+	mockgen -source=./common/http/resty.go -destination=./mock/http_mock.go -package=mock
 
 user-api:
 	docker build -t user-api:v1.0 -f ./apps/user/cmd/api/Dockerfile .; \

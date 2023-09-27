@@ -145,7 +145,7 @@ func (m *defaultCommentModel) UpdateWithVersion(ctx context.Context, session sql
 }
 
 func (m *defaultCommentModel) DeleteSoft(ctx context.Context, session sqlx.Session, data *Comment) error {
-	data.IsDelete = xconst.DelStateYes
+	data.IsDelete = data.Id
 	data.DeleteTime = time.Now()
 	if err := m.UpdateWithVersion(ctx, session, data); err != nil {
 		return errors.Wrapf(errors.New("delete soft failed "), "CommentModel delete err : %+v", err)

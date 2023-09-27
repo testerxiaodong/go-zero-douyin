@@ -33,16 +33,22 @@ func (l *VideoRecommendSectionLogic) VideoRecommendSection(in *pb.VideoRecommend
 	if in == nil {
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "获取分区视频推荐时参数为nil")
 	}
-	if in.GetSectionId() == 0 || in.GetUserId() == 0 {
-		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR), "获取分区视频推荐时分区id或者用户id不能为空")
+	if in.GetSectionId() == 0 || in.GetUserId() == 0 || in.GetCount() == 0 {
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.PB_LOGIC_CHECK_ERR),
+			"获取分区视频推荐时分区id或者用户id不能为空")
 	}
 	// 调用GorseApi
 	var videoIds []string
-	queryParams := map[string]string{"n": cast.ToString(in.GetCount()), "write-back-type": "read", "write-back-delay": "10m"}
+	queryParams := map[string]string{
+		"n":                cast.ToString(in.GetCount()),
+		"write-back-type":  "read",
+		"write-back-delay": "10m",
+	}
 	url := fmt.Sprintf("%s/api/recommend/%d/%d", l.svcCtx.GorseConf, in.GetUserId(), in.GetSectionId())
 	err := l.svcCtx.RestClient.Get(queryParams, url, &videoIds)
 	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR), "GorseApi获取推荐失败, err: %v, req: %v", err, in)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.RPC_SEARCH_ERR),
+			"GorseApi获取推荐失败, err: %v, req: %v", err, in)
 	}
 	// 拼接响应
 	fmt.Println(videoIds)

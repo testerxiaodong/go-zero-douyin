@@ -26,15 +26,15 @@ var (
 	likeRowsExpectAutoSet   = strings.Join(stringx.Remove(likeFieldNames, "`id`", "`create_time`", "`update_time`"), ",")
 	likeRowsWithPlaceHolder = strings.Join(stringx.Remove(likeFieldNames, "`id`", "`create_time`", "`update_time`"), "=?,") + "=?"
 
-	cacheGoZeroDouyinLikeIdPrefix            = "cache:goZeroDouyin:like:id:"
-	cacheGoZeroDouyinLikeVideoIdUserIdPrefix = "cache:goZeroDouyin:like:videoId:userId:"
+	cacheGoZeroDouyinLikeIdPrefix                    = "cache:goZeroDouyin:like:id:"
+	cacheGoZeroDouyinLikeVideoIdUserIdIsDeletePrefix = "cache:goZeroDouyin:like:videoId:userId:isDelete:"
 )
 
 type (
 	likeModel interface {
 		Insert(ctx context.Context, session sqlx.Session, data *Like) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*Like, error)
-		FindOneByVideoIdUserId(ctx context.Context, videoId int64, userId int64) (*Like, error)
+		FindOneByVideoIdUserIdIsDelete(ctx context.Context, videoId int64, userId int64, isDelete int64) (*Like, error)
 		Update(ctx context.Context, session sqlx.Session, data *Like) (sql.Result, error)
 		UpdateWithVersion(ctx context.Context, session sqlx.Session, data *Like) error
 		Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
@@ -79,14 +79,14 @@ func (m *defaultLikeModel) Insert(ctx context.Context, session sqlx.Session, dat
 	data.DeleteTime = time.Unix(0, 0)
 	data.IsDelete = xconst.DelStateNo
 	goZeroDouyinLikeIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinLikeIdPrefix, data.Id)
-	goZeroDouyinLikeVideoIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinLikeVideoIdUserIdPrefix, data.VideoId, data.UserId)
+	goZeroDouyinLikeVideoIdUserIdIsDeleteKey := fmt.Sprintf("%s%v:%v:%v", cacheGoZeroDouyinLikeVideoIdUserIdIsDeletePrefix, data.VideoId, data.UserId, data.IsDelete)
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, likeRowsExpectAutoSet)
 		if session != nil {
 			return session.ExecCtx(ctx, query, data.VideoId, data.UserId, data.Status, data.DeleteTime, data.IsDelete, data.Version)
 		}
 		return conn.ExecCtx(ctx, query, data.VideoId, data.UserId, data.Status, data.DeleteTime, data.IsDelete, data.Version)
-	}, goZeroDouyinLikeIdKey, goZeroDouyinLikeVideoIdUserIdKey)
+	}, goZeroDouyinLikeIdKey, goZeroDouyinLikeVideoIdUserIdIsDeleteKey)
 }
 
 func (m *defaultLikeModel) FindOne(ctx context.Context, id int64) (*Like, error) {
@@ -106,12 +106,12 @@ func (m *defaultLikeModel) FindOne(ctx context.Context, id int64) (*Like, error)
 	}
 }
 
-func (m *defaultLikeModel) FindOneByVideoIdUserId(ctx context.Context, videoId int64, userId int64) (*Like, error) {
-	goZeroDouyinLikeVideoIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinLikeVideoIdUserIdPrefix, videoId, userId)
+func (m *defaultLikeModel) FindOneByVideoIdUserIdIsDelete(ctx context.Context, videoId int64, userId int64, isDelete int64) (*Like, error) {
+	goZeroDouyinLikeVideoIdUserIdIsDeleteKey := fmt.Sprintf("%s%v:%v:%v", cacheGoZeroDouyinLikeVideoIdUserIdIsDeletePrefix, videoId, userId, isDelete)
 	var resp Like
-	err := m.QueryRowIndexCtx(ctx, &resp, goZeroDouyinLikeVideoIdUserIdKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
-		query := fmt.Sprintf("select %s from %s where `video_id` = ? and `user_id` = ? and is_delete = ? limit 1", likeRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, videoId, userId, xconst.DelStateNo); err != nil {
+	err := m.QueryRowIndexCtx(ctx, &resp, goZeroDouyinLikeVideoIdUserIdIsDeleteKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
+		query := fmt.Sprintf("select %s from %s where `video_id` = ? and `user_id` = ? and `is_delete` = ? and is_delete = ? limit 1", likeRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, videoId, userId, isDelete, xconst.DelStateNo); err != nil {
 			return nil, err
 		}
 		return resp.Id, nil
@@ -132,14 +132,14 @@ func (m *defaultLikeModel) Update(ctx context.Context, session sqlx.Session, new
 		return nil, err
 	}
 	goZeroDouyinLikeIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinLikeIdPrefix, data.Id)
-	goZeroDouyinLikeVideoIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinLikeVideoIdUserIdPrefix, data.VideoId, data.UserId)
+	goZeroDouyinLikeVideoIdUserIdIsDeleteKey := fmt.Sprintf("%s%v:%v:%v", cacheGoZeroDouyinLikeVideoIdUserIdIsDeletePrefix, data.VideoId, data.UserId, data.IsDelete)
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, likeRowsWithPlaceHolder)
 		if session != nil {
 			return session.ExecCtx(ctx, query, newData.VideoId, newData.UserId, newData.Status, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id)
 		}
 		return conn.ExecCtx(ctx, query, newData.VideoId, newData.UserId, newData.Status, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id)
-	}, goZeroDouyinLikeIdKey, goZeroDouyinLikeVideoIdUserIdKey)
+	}, goZeroDouyinLikeIdKey, goZeroDouyinLikeVideoIdUserIdIsDeleteKey)
 }
 
 func (m *defaultLikeModel) UpdateWithVersion(ctx context.Context, session sqlx.Session, newData *Like) error {
@@ -155,14 +155,14 @@ func (m *defaultLikeModel) UpdateWithVersion(ctx context.Context, session sqlx.S
 		return err
 	}
 	goZeroDouyinLikeIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinLikeIdPrefix, data.Id)
-	goZeroDouyinLikeVideoIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinLikeVideoIdUserIdPrefix, data.VideoId, data.UserId)
+	goZeroDouyinLikeVideoIdUserIdIsDeleteKey := fmt.Sprintf("%s%v:%v:%v", cacheGoZeroDouyinLikeVideoIdUserIdIsDeletePrefix, data.VideoId, data.UserId, data.IsDelete)
 	sqlResult, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ? and version = ? ", m.table, likeRowsWithPlaceHolder)
 		if session != nil {
 			return session.ExecCtx(ctx, query, newData.VideoId, newData.UserId, newData.Status, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id, oldVersion)
 		}
 		return conn.ExecCtx(ctx, query, newData.VideoId, newData.UserId, newData.Status, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id, oldVersion)
-	}, goZeroDouyinLikeIdKey, goZeroDouyinLikeVideoIdUserIdKey)
+	}, goZeroDouyinLikeIdKey, goZeroDouyinLikeVideoIdUserIdIsDeleteKey)
 	if err != nil {
 		return err
 	}
@@ -178,7 +178,7 @@ func (m *defaultLikeModel) UpdateWithVersion(ctx context.Context, session sqlx.S
 }
 
 func (m *defaultLikeModel) DeleteSoft(ctx context.Context, session sqlx.Session, data *Like) error {
-	data.IsDelete = xconst.DelStateYes
+	data.IsDelete = data.Id
 	data.DeleteTime = time.Now()
 	if err := m.UpdateWithVersion(ctx, session, data); err != nil {
 		return errors.Wrapf(errors.New("delete soft failed "), "LikeModel delete err : %+v", err)
@@ -386,14 +386,14 @@ func (m *defaultLikeModel) Delete(ctx context.Context, session sqlx.Session, id 
 	}
 
 	goZeroDouyinLikeIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinLikeIdPrefix, id)
-	goZeroDouyinLikeVideoIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinLikeVideoIdUserIdPrefix, data.VideoId, data.UserId)
+	goZeroDouyinLikeVideoIdUserIdIsDeleteKey := fmt.Sprintf("%s%v:%v:%v", cacheGoZeroDouyinLikeVideoIdUserIdIsDeletePrefix, data.VideoId, data.UserId, data.IsDelete)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		if session != nil {
 			return session.ExecCtx(ctx, query, id)
 		}
 		return conn.ExecCtx(ctx, query, id)
-	}, goZeroDouyinLikeIdKey, goZeroDouyinLikeVideoIdUserIdKey)
+	}, goZeroDouyinLikeIdKey, goZeroDouyinLikeVideoIdUserIdIsDeleteKey)
 	return err
 }
 func (m *defaultLikeModel) formatPrimary(primary interface{}) string {

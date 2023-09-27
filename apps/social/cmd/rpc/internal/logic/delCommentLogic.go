@@ -7,6 +7,7 @@ import (
 	"go-zero-douyin/apps/social/cmd/rpc/internal/model"
 	"go-zero-douyin/apps/social/cmd/rpc/internal/svc"
 	"go-zero-douyin/apps/social/cmd/rpc/pb"
+	"go-zero-douyin/common/xconst"
 	"go-zero-douyin/common/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -60,7 +61,7 @@ func (l *DelCommentLogic) DelComment(in *pb.DelCommentReq) (*pb.DelCommentResp, 
 			return errors.Wrapf(xerr.NewErrCode(xerr.DB_DELETE_ERR), "del comment failed, err: %v", err)
 		}
 		// 更新评论数：-1
-		commentCount, err := l.svcCtx.CommentCountModel.FindOneByVideoId(l.ctx, comment.VideoId)
+		commentCount, err := l.svcCtx.CommentCountModel.FindOneByVideoIdIsDelete(l.ctx, comment.VideoId, xconst.DelStateNo)
 		if err != nil && !errors.Is(err, model.ErrNotFound) {
 			return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 				"查询视频评论数记录失败, err: %v, video_id: %d", err, comment.VideoId)

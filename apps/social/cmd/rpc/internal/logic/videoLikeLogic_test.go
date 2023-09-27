@@ -24,31 +24,31 @@ func TestVideoLikeLogic_VideoLike(t *testing.T) {
 
 	// 查询数据库失败mock
 	dbSearchError := errors.New("LikeDo.GetLikeByVideoIdAndUserId error")
-	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockLikeDo.EXPECT().FindOneByVideoIdUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, dbSearchError)
 
 	// 查询数据库成功，数据存在且状态为已点赞的mock
-	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockLikeDo.EXPECT().FindOneByVideoIdUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.Like{Status: xconst.LikeStateYes}, nil)
 
 	// 查询数据库成功，数据存在且状态为未点赞，事务失败的mock
 	transError := errors.New("LikeModel.Trans error")
-	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockLikeDo.EXPECT().FindOneByVideoIdUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.Like{Status: xconst.LikeStateNo}, nil)
 	mockLikeDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(transError)
 
 	// 查询数据库成功，数据存在且状态为未点赞，事务成功的mock
-	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockLikeDo.EXPECT().FindOneByVideoIdUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.Like{Status: xconst.LikeStateNo}, nil)
 	mockLikeDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(nil)
 
 	// 查询数据库成功，数据不存在，事务失败的mock
-	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockLikeDo.EXPECT().FindOneByVideoIdUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, model.ErrNotFound)
 	mockLikeDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(transError)
 
 	// 查询数据库成功，数据不存在，事务成功的mock
-	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockLikeDo.EXPECT().FindOneByVideoIdUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, model.ErrNotFound)
 	mockLikeDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(nil)
 

@@ -36,22 +36,22 @@ func (m *MockRecommend) EXPECT() *MockRecommendMockRecorder {
 	return m.recorder
 }
 
-// VideoRecommend mocks base method.
-func (m *MockRecommend) VideoRecommend(ctx context.Context, in *recommend.VideoRecommendReq, opts ...grpc.CallOption) (*recommend.VideoRecommendResp, error) {
+// VideoRecommendSection mocks base method.
+func (m *MockRecommend) VideoRecommendSection(ctx context.Context, in *recommend.VideoRecommendSectionReq, opts ...grpc.CallOption) (*recommend.VideoRecommendSectionResp, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "VideoRecommend", varargs...)
-	ret0, _ := ret[0].(*recommend.VideoRecommendResp)
+	ret := m.ctrl.Call(m, "VideoRecommendSection", varargs...)
+	ret0, _ := ret[0].(*recommend.VideoRecommendSectionResp)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// VideoRecommend indicates an expected call of VideoRecommend.
-func (mr *MockRecommendMockRecorder) VideoRecommend(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+// VideoRecommendSection indicates an expected call of VideoRecommendSection.
+func (mr *MockRecommendMockRecorder) VideoRecommendSection(ctx, in interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VideoRecommend", reflect.TypeOf((*MockRecommend)(nil).VideoRecommend), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VideoRecommendSection", reflect.TypeOf((*MockRecommend)(nil).VideoRecommendSection), varargs...)
 }

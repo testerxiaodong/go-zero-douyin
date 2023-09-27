@@ -9,7 +9,7 @@ doc:
 	goctl api doc --dir=./api/desc --o=../../../docs/user
 
 gen:
-	goctl model mysql datasource -url="root:my-secret-pw@tcp(192.168.2.169:3306)/go_zero_douyin" -table="user"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
+	goctl model mysql datasource -url="root:my-secret-pw@tcp(192.168.2.248:3306)/go_zero_douyin" -table="user"  -dir="./rpc/internal/model" -cache=true --style=goZero --home=../../../deploy/goctl
 
 mock:
 	mockgen -source=./rpc/internal/model/userModel_gen.go -destination=./rpc/mock/userModel_mock.go -package=mock

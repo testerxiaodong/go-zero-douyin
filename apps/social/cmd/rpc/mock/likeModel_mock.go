@@ -111,19 +111,19 @@ func (mr *MocklikeModelMockRecorder) FindOne(ctx, id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOne", reflect.TypeOf((*MocklikeModel)(nil).FindOne), ctx, id)
 }
 
-// FindOneByVideoIdUserId mocks base method.
-func (m *MocklikeModel) FindOneByVideoIdUserId(ctx context.Context, videoId, userId int64) (*model.Like, error) {
+// FindOneByVideoIdUserIdIsDelete mocks base method.
+func (m *MocklikeModel) FindOneByVideoIdUserIdIsDelete(ctx context.Context, videoId, userId, isDelete int64) (*model.Like, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindOneByVideoIdUserId", ctx, videoId, userId)
+	ret := m.ctrl.Call(m, "FindOneByVideoIdUserIdIsDelete", ctx, videoId, userId, isDelete)
 	ret0, _ := ret[0].(*model.Like)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindOneByVideoIdUserId indicates an expected call of FindOneByVideoIdUserId.
-func (mr *MocklikeModelMockRecorder) FindOneByVideoIdUserId(ctx, videoId, userId interface{}) *gomock.Call {
+// FindOneByVideoIdUserIdIsDelete indicates an expected call of FindOneByVideoIdUserIdIsDelete.
+func (mr *MocklikeModelMockRecorder) FindOneByVideoIdUserIdIsDelete(ctx, videoId, userId, isDelete interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOneByVideoIdUserId", reflect.TypeOf((*MocklikeModel)(nil).FindOneByVideoIdUserId), ctx, videoId, userId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOneByVideoIdUserIdIsDelete", reflect.TypeOf((*MocklikeModel)(nil).FindOneByVideoIdUserIdIsDelete), ctx, videoId, userId, isDelete)
 }
 
 // FindPageListByIdASC mocks base method.

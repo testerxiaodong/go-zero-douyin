@@ -82,44 +82,6 @@ func ApiResult(r *http.Request, w http.ResponseWriter, resp interface{}, err err
 	}
 }
 
-// AuthApiResult 授权的http方法
-func AuthApiResult(r *http.Request, w http.ResponseWriter, resp interface{}, err error) {
-
-	if err == nil {
-		// 成功返回
-		r := Success(resp)
-		httpx.WriteJson(w, http.StatusOK, r)
-	} else {
-		// 错误返回 基础错误信息
-		errCode := xerr.SERVER_ERROR
-		errMsg := xerr.GetErrMsg(errCode)
-
-		// err类型
-		causeErr := errors.Cause(err)
-		// 自定义错误类型
-		if e, ok := causeErr.(*xerr.BisErr); ok {
-			// 自定义CodeError
-			errCode = e.GetErrCode()
-			errMsg = e.GetErrMsg()
-		} else {
-			// grpc err错误
-			if grpcErr, ok := status.FromError(causeErr); ok {
-				grpcCode := uint32(grpcErr.Code())
-				// 是否是自定义错误，不是则是系统错误，不进行返回
-				if xerr.IsBisCodeErr(grpcCode) {
-					errCode = grpcCode
-					// 获取错误消息
-					errMsg = grpcErr.Message()
-				}
-			}
-		}
-
-		logx.WithContext(r.Context()).Errorf("【服务内部错误】 : %+v ", err)
-
-		httpx.WriteJson(w, http.StatusUnauthorized, Error(errCode, errMsg))
-	}
-}
-
 // ParamErrorResult http 参数校验错误返回
 func ParamErrorResult(r *http.Request, w http.ResponseWriter, err error) {
 	errMsg := fmt.Sprintf("%s ,%s", xerr.GetErrMsg(xerr.REQUEST_PARAM_ERROR), err.Error())

@@ -24,25 +24,25 @@ func TestVideoUnlikeLogic_VideoUnlike(t *testing.T) {
 
 	// 查询数据库失败mock
 	dbSearchError := errors.New("LikeDo.GetLikeByVideoIdAndUserId error")
-	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockLikeDo.EXPECT().FindOneByVideoIdUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, dbSearchError)
 
 	// 查询数据库成功，数据不存在的mock
-	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockLikeDo.EXPECT().FindOneByVideoIdUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, model.ErrNotFound)
 
 	// 查询数据库成功，数据存在，且状态为已取消点赞的mock
-	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockLikeDo.EXPECT().FindOneByVideoIdUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.Like{Status: xconst.LikeStateNo}, nil)
 
 	// 查询数据库成功，数据存在，且状态为已点赞，事务失败的mock
 	transError := errors.New("LikeModel.Trans error")
-	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockLikeDo.EXPECT().FindOneByVideoIdUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.Like{Status: xconst.LikeStateYes}, nil)
 	mockLikeDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(transError)
 
 	// 查询数据库成功，数据存在，且状态为已点赞，事务成功的mock
-	mockLikeDo.EXPECT().FindOneByVideoIdUserId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockLikeDo.EXPECT().FindOneByVideoIdUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.Like{Status: xconst.LikeStateYes}, nil)
 	mockLikeDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(nil)
 

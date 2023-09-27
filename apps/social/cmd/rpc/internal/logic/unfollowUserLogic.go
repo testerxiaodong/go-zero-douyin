@@ -41,7 +41,7 @@ func (l *UnfollowUserLogic) UnfollowUser(in *pb.UnfollowUserReq) (*pb.UnfollowUs
 		return nil, errors.Wrapf(xerr.NewErrMsg("不能对自己操作"), "req: %v", in)
 	}
 	// 查询关注记录
-	record, err := l.svcCtx.FollowModel.FindOneByUserIdFollowerId(l.ctx, in.GetUserId(), in.GetFollowerId())
+	record, err := l.svcCtx.FollowModel.FindOneByUserIdFollowerIdIsDelete(l.ctx, in.GetUserId(), in.GetFollowerId(), xconst.DelStateNo)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 			"查询关注记录失败, err: %v, user_id: %v, follower_id: %d", err, in.GetUserId(), in.GetFollowerId())
@@ -66,7 +66,7 @@ func (l *UnfollowUserLogic) UnfollowUser(in *pb.UnfollowUserReq) (*pb.UnfollowUs
 					"更新关注状态失败, err: %v, user_id: %d, follower_id: %d", err, in.GetUserId(), in.GetFollowerId())
 			}
 			// 更新粉丝数：-1
-			followerCount, err := l.svcCtx.FollowCountModel.FindOneByUserId(l.ctx, in.GetUserId())
+			followerCount, err := l.svcCtx.FollowCountModel.FindOneByUserIdIsDelete(l.ctx, in.GetUserId(), xconst.DelStateNo)
 			if err != nil && !errors.Is(err, model.ErrNotFound) {
 				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 					"查询用户粉丝/关注数失败, err: %v, user_id: %d", err, in.GetUserId())
@@ -78,7 +78,7 @@ func (l *UnfollowUserLogic) UnfollowUser(in *pb.UnfollowUserReq) (*pb.UnfollowUs
 					"更新用户粉丝数失败, err: %v, user_id: %d", err, in.GetUserId())
 			}
 			// 更新关注数：-1
-			followCount, err := l.svcCtx.FollowCountModel.FindOneByUserId(l.ctx, in.GetFollowerId())
+			followCount, err := l.svcCtx.FollowCountModel.FindOneByUserIdIsDelete(l.ctx, in.GetFollowerId(), xconst.DelStateNo)
 			if err != nil && !errors.Is(err, model.ErrNotFound) {
 				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 					"查询用户粉丝/关注数失败, err: %v, user_id: %d", err, in.GetFollowerId())

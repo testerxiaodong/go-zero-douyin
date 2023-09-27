@@ -107,7 +107,7 @@ func TestPublishLogic_Publish(t *testing.T) {
 	param := &types.PublishVideoReq{
 		Title:     utils.NewRandomString(10),
 		SectionId: utils.NewRandomInt64(1, 10),
-		TagIds:    "1,2",
+		TagIds:    `["1", "2"]`,
 	}
 	testCases := []struct {
 		name string

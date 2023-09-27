@@ -8,8 +8,6 @@ import (
 	"go-zero-douyin/apps/social/cmd/api/internal/logic/like"
 	"go-zero-douyin/apps/social/cmd/api/internal/svc"
 	"go-zero-douyin/apps/social/cmd/api/internal/types"
-	socialMock "go-zero-douyin/apps/social/cmd/rpc/mock"
-	socialPb "go-zero-douyin/apps/social/cmd/rpc/pb"
 	videoMock "go-zero-douyin/apps/video/cmd/rpc/mock"
 	"go-zero-douyin/apps/video/cmd/rpc/pb"
 	"go-zero-douyin/common/utils"
@@ -20,15 +18,11 @@ import (
 
 func TestAddLikeLogic_AddLike(t *testing.T) {
 	ctl := gomock.NewController(t)
-
+	defer ctl.Finish()
 	mockValidator := mock.NewMockValidator(ctl)
-
+	mockPusher := mock.NewMockPusher(ctl)
 	mockVideoRpc := videoMock.NewMockVideo(ctl)
-
-	mockSocialRpc := socialMock.NewMockSocial(ctl)
-
-	serviceContext := &svc.ServiceContext{Validator: mockValidator, VideoRpc: mockVideoRpc, SocialRpc: mockSocialRpc}
-
+	serviceContext := &svc.ServiceContext{Validator: mockValidator, VideoRpc: mockVideoRpc, KqueueVideoLikeClient: mockPusher}
 	addLikeLogic := like.NewAddLikeLogic(context.Background(), serviceContext)
 
 	// 参数校验失败mock
@@ -40,16 +34,16 @@ func TestAddLikeLogic_AddLike(t *testing.T) {
 	videoRpcError := errors.New("VideoRpc.GetVideoById error")
 	mockVideoRpc.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(nil, videoRpcError)
 
-	// 参数校验成功，且VideoRpc.GetVideoById调用成功，SocialRpc.VideoLike失败的mock
+	// 参数校验成功，且VideoRpc.GetVideoById调用成功，Pusher失败的mock
 	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
 	mockVideoRpc.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(&pb.GetVideoByIdResp{}, nil)
-	socialRpcError := errors.New("SocialRpc.VideoLike error")
-	mockSocialRpc.EXPECT().VideoLike(gomock.Any(), gomock.Any()).Return(nil, socialRpcError)
+	pusherError := errors.New("SocialRpc.VideoLike error")
+	mockPusher.EXPECT().Push(gomock.Any()).Return(pusherError)
 
-	// 参数校验成功，且VideoRpc.GetVideoById调用成功，SocialRpc.VideoLike成功的mock
+	// 参数校验成功，且VideoRpc.GetVideoById调用成功，Pusher成功的mock
 	mockValidator.EXPECT().Validate(gomock.Any()).Return("")
 	mockVideoRpc.EXPECT().GetVideoById(gomock.Any(), gomock.Any()).Return(&pb.GetVideoByIdResp{}, nil)
-	mockSocialRpc.EXPECT().VideoLike(gomock.Any(), gomock.Any()).Return(&socialPb.VideoLikeResp{}, nil)
+	mockPusher.EXPECT().Push(gomock.Any()).Return(nil)
 
 	testCases := []struct {
 		name string
@@ -69,7 +63,7 @@ func TestAddLikeLogic_AddLike(t *testing.T) {
 		{
 			name: "video_like_with_social_rpc_error",
 			req:  &types.VideoLikeReq{VideoId: 1},
-			err:  errors.Wrapf(socialRpcError, "req: %v", &types.VideoLikeReq{VideoId: 1}),
+			err:  errors.Wrapf(pusherError, "req: %v", &types.VideoLikeReq{VideoId: 1}),
 		},
 		{
 			name: "video_like_success",

@@ -26,15 +26,15 @@ var (
 	commentCountRowsExpectAutoSet   = strings.Join(stringx.Remove(commentCountFieldNames, "`id`", "`create_time`", "`update_time`"), ",")
 	commentCountRowsWithPlaceHolder = strings.Join(stringx.Remove(commentCountFieldNames, "`id`", "`create_time`", "`update_time`"), "=?,") + "=?"
 
-	cacheGoZeroDouyinCommentCountIdPrefix      = "cache:goZeroDouyin:commentCount:id:"
-	cacheGoZeroDouyinCommentCountVideoIdPrefix = "cache:goZeroDouyin:commentCount:videoId:"
+	cacheGoZeroDouyinCommentCountIdPrefix              = "cache:goZeroDouyin:commentCount:id:"
+	cacheGoZeroDouyinCommentCountVideoIdIsDeletePrefix = "cache:goZeroDouyin:commentCount:videoId:isDelete:"
 )
 
 type (
 	commentCountModel interface {
 		Insert(ctx context.Context, session sqlx.Session, data *CommentCount) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*CommentCount, error)
-		FindOneByVideoId(ctx context.Context, videoId int64) (*CommentCount, error)
+		FindOneByVideoIdIsDelete(ctx context.Context, videoId int64, isDelete int64) (*CommentCount, error)
 		Update(ctx context.Context, session sqlx.Session, data *CommentCount) (sql.Result, error)
 		UpdateWithVersion(ctx context.Context, session sqlx.Session, data *CommentCount) error
 		Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
@@ -78,14 +78,14 @@ func (m *defaultCommentCountModel) Insert(ctx context.Context, session sqlx.Sess
 	data.DeleteTime = time.Unix(0, 0)
 	data.IsDelete = xconst.DelStateNo
 	goZeroDouyinCommentCountIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinCommentCountIdPrefix, data.Id)
-	goZeroDouyinCommentCountVideoIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinCommentCountVideoIdPrefix, data.VideoId)
+	goZeroDouyinCommentCountVideoIdIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinCommentCountVideoIdIsDeletePrefix, data.VideoId, data.IsDelete)
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, commentCountRowsExpectAutoSet)
 		if session != nil {
 			return session.ExecCtx(ctx, query, data.VideoId, data.CommentCount, data.DeleteTime, data.IsDelete, data.Version)
 		}
 		return conn.ExecCtx(ctx, query, data.VideoId, data.CommentCount, data.DeleteTime, data.IsDelete, data.Version)
-	}, goZeroDouyinCommentCountIdKey, goZeroDouyinCommentCountVideoIdKey)
+	}, goZeroDouyinCommentCountIdKey, goZeroDouyinCommentCountVideoIdIsDeleteKey)
 }
 
 func (m *defaultCommentCountModel) FindOne(ctx context.Context, id int64) (*CommentCount, error) {
@@ -105,12 +105,12 @@ func (m *defaultCommentCountModel) FindOne(ctx context.Context, id int64) (*Comm
 	}
 }
 
-func (m *defaultCommentCountModel) FindOneByVideoId(ctx context.Context, videoId int64) (*CommentCount, error) {
-	goZeroDouyinCommentCountVideoIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinCommentCountVideoIdPrefix, videoId)
+func (m *defaultCommentCountModel) FindOneByVideoIdIsDelete(ctx context.Context, videoId int64, isDelete int64) (*CommentCount, error) {
+	goZeroDouyinCommentCountVideoIdIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinCommentCountVideoIdIsDeletePrefix, videoId, isDelete)
 	var resp CommentCount
-	err := m.QueryRowIndexCtx(ctx, &resp, goZeroDouyinCommentCountVideoIdKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
-		query := fmt.Sprintf("select %s from %s where `video_id` = ? and is_delete = ? limit 1", commentCountRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, videoId, xconst.DelStateNo); err != nil {
+	err := m.QueryRowIndexCtx(ctx, &resp, goZeroDouyinCommentCountVideoIdIsDeleteKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
+		query := fmt.Sprintf("select %s from %s where `video_id` = ? and `is_delete` = ? and is_delete = ? limit 1", commentCountRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, videoId, isDelete, xconst.DelStateNo); err != nil {
 			return nil, err
 		}
 		return resp.Id, nil
@@ -131,14 +131,14 @@ func (m *defaultCommentCountModel) Update(ctx context.Context, session sqlx.Sess
 		return nil, err
 	}
 	goZeroDouyinCommentCountIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinCommentCountIdPrefix, data.Id)
-	goZeroDouyinCommentCountVideoIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinCommentCountVideoIdPrefix, data.VideoId)
+	goZeroDouyinCommentCountVideoIdIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinCommentCountVideoIdIsDeletePrefix, data.VideoId, data.IsDelete)
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, commentCountRowsWithPlaceHolder)
 		if session != nil {
 			return session.ExecCtx(ctx, query, newData.VideoId, newData.CommentCount, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id)
 		}
 		return conn.ExecCtx(ctx, query, newData.VideoId, newData.CommentCount, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id)
-	}, goZeroDouyinCommentCountIdKey, goZeroDouyinCommentCountVideoIdKey)
+	}, goZeroDouyinCommentCountIdKey, goZeroDouyinCommentCountVideoIdIsDeleteKey)
 }
 
 func (m *defaultCommentCountModel) UpdateWithVersion(ctx context.Context, session sqlx.Session, newData *CommentCount) error {
@@ -154,14 +154,14 @@ func (m *defaultCommentCountModel) UpdateWithVersion(ctx context.Context, sessio
 		return err
 	}
 	goZeroDouyinCommentCountIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinCommentCountIdPrefix, data.Id)
-	goZeroDouyinCommentCountVideoIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinCommentCountVideoIdPrefix, data.VideoId)
+	goZeroDouyinCommentCountVideoIdIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinCommentCountVideoIdIsDeletePrefix, data.VideoId, data.IsDelete)
 	sqlResult, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ? and version = ? ", m.table, commentCountRowsWithPlaceHolder)
 		if session != nil {
 			return session.ExecCtx(ctx, query, newData.VideoId, newData.CommentCount, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id, oldVersion)
 		}
 		return conn.ExecCtx(ctx, query, newData.VideoId, newData.CommentCount, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id, oldVersion)
-	}, goZeroDouyinCommentCountIdKey, goZeroDouyinCommentCountVideoIdKey)
+	}, goZeroDouyinCommentCountIdKey, goZeroDouyinCommentCountVideoIdIsDeleteKey)
 	if err != nil {
 		return err
 	}
@@ -177,7 +177,7 @@ func (m *defaultCommentCountModel) UpdateWithVersion(ctx context.Context, sessio
 }
 
 func (m *defaultCommentCountModel) DeleteSoft(ctx context.Context, session sqlx.Session, data *CommentCount) error {
-	data.IsDelete = xconst.DelStateYes
+	data.IsDelete = data.Id
 	data.DeleteTime = time.Now()
 	if err := m.UpdateWithVersion(ctx, session, data); err != nil {
 		return errors.Wrapf(errors.New("delete soft failed "), "CommentCountModel delete err : %+v", err)
@@ -385,14 +385,14 @@ func (m *defaultCommentCountModel) Delete(ctx context.Context, session sqlx.Sess
 	}
 
 	goZeroDouyinCommentCountIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinCommentCountIdPrefix, id)
-	goZeroDouyinCommentCountVideoIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinCommentCountVideoIdPrefix, data.VideoId)
+	goZeroDouyinCommentCountVideoIdIsDeleteKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinCommentCountVideoIdIsDeletePrefix, data.VideoId, data.IsDelete)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		if session != nil {
 			return session.ExecCtx(ctx, query, id)
 		}
 		return conn.ExecCtx(ctx, query, id)
-	}, goZeroDouyinCommentCountIdKey, goZeroDouyinCommentCountVideoIdKey)
+	}, goZeroDouyinCommentCountIdKey, goZeroDouyinCommentCountVideoIdIsDeleteKey)
 	return err
 }
 func (m *defaultCommentCountModel) formatPrimary(primary interface{}) string {

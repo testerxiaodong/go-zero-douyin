@@ -26,15 +26,15 @@ var (
 	followRowsExpectAutoSet   = strings.Join(stringx.Remove(followFieldNames, "`id`", "`create_time`", "`update_time`"), ",")
 	followRowsWithPlaceHolder = strings.Join(stringx.Remove(followFieldNames, "`id`", "`create_time`", "`update_time`"), "=?,") + "=?"
 
-	cacheGoZeroDouyinFollowIdPrefix               = "cache:goZeroDouyin:follow:id:"
-	cacheGoZeroDouyinFollowUserIdFollowerIdPrefix = "cache:goZeroDouyin:follow:userId:followerId:"
+	cacheGoZeroDouyinFollowIdPrefix                       = "cache:goZeroDouyin:follow:id:"
+	cacheGoZeroDouyinFollowUserIdFollowerIdIsDeletePrefix = "cache:goZeroDouyin:follow:userId:followerId:isDelete:"
 )
 
 type (
 	followModel interface {
 		Insert(ctx context.Context, session sqlx.Session, data *Follow) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*Follow, error)
-		FindOneByUserIdFollowerId(ctx context.Context, userId int64, followerId int64) (*Follow, error)
+		FindOneByUserIdFollowerIdIsDelete(ctx context.Context, userId int64, followerId int64, isDelete int64) (*Follow, error)
 		Update(ctx context.Context, session sqlx.Session, data *Follow) (sql.Result, error)
 		UpdateWithVersion(ctx context.Context, session sqlx.Session, data *Follow) error
 		Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
@@ -79,14 +79,14 @@ func (m *defaultFollowModel) Insert(ctx context.Context, session sqlx.Session, d
 	data.DeleteTime = time.Unix(0, 0)
 	data.IsDelete = xconst.DelStateNo
 	goZeroDouyinFollowIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinFollowIdPrefix, data.Id)
-	goZeroDouyinFollowUserIdFollowerIdKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinFollowUserIdFollowerIdPrefix, data.UserId, data.FollowerId)
+	goZeroDouyinFollowUserIdFollowerIdIsDeleteKey := fmt.Sprintf("%s%v:%v:%v", cacheGoZeroDouyinFollowUserIdFollowerIdIsDeletePrefix, data.UserId, data.FollowerId, data.IsDelete)
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, followRowsExpectAutoSet)
 		if session != nil {
 			return session.ExecCtx(ctx, query, data.UserId, data.FollowerId, data.Status, data.DeleteTime, data.IsDelete, data.Version)
 		}
 		return conn.ExecCtx(ctx, query, data.UserId, data.FollowerId, data.Status, data.DeleteTime, data.IsDelete, data.Version)
-	}, goZeroDouyinFollowIdKey, goZeroDouyinFollowUserIdFollowerIdKey)
+	}, goZeroDouyinFollowIdKey, goZeroDouyinFollowUserIdFollowerIdIsDeleteKey)
 }
 
 func (m *defaultFollowModel) FindOne(ctx context.Context, id int64) (*Follow, error) {
@@ -106,12 +106,12 @@ func (m *defaultFollowModel) FindOne(ctx context.Context, id int64) (*Follow, er
 	}
 }
 
-func (m *defaultFollowModel) FindOneByUserIdFollowerId(ctx context.Context, userId int64, followerId int64) (*Follow, error) {
-	goZeroDouyinFollowUserIdFollowerIdKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinFollowUserIdFollowerIdPrefix, userId, followerId)
+func (m *defaultFollowModel) FindOneByUserIdFollowerIdIsDelete(ctx context.Context, userId int64, followerId int64, isDelete int64) (*Follow, error) {
+	goZeroDouyinFollowUserIdFollowerIdIsDeleteKey := fmt.Sprintf("%s%v:%v:%v", cacheGoZeroDouyinFollowUserIdFollowerIdIsDeletePrefix, userId, followerId, isDelete)
 	var resp Follow
-	err := m.QueryRowIndexCtx(ctx, &resp, goZeroDouyinFollowUserIdFollowerIdKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
-		query := fmt.Sprintf("select %s from %s where `user_id` = ? and `follower_id` = ? and is_delete = ? limit 1", followRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, userId, followerId, xconst.DelStateNo); err != nil {
+	err := m.QueryRowIndexCtx(ctx, &resp, goZeroDouyinFollowUserIdFollowerIdIsDeleteKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
+		query := fmt.Sprintf("select %s from %s where `user_id` = ? and `follower_id` = ? and `is_delete` = ? and is_delete = ? limit 1", followRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, userId, followerId, isDelete, xconst.DelStateNo); err != nil {
 			return nil, err
 		}
 		return resp.Id, nil
@@ -132,14 +132,14 @@ func (m *defaultFollowModel) Update(ctx context.Context, session sqlx.Session, n
 		return nil, err
 	}
 	goZeroDouyinFollowIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinFollowIdPrefix, data.Id)
-	goZeroDouyinFollowUserIdFollowerIdKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinFollowUserIdFollowerIdPrefix, data.UserId, data.FollowerId)
+	goZeroDouyinFollowUserIdFollowerIdIsDeleteKey := fmt.Sprintf("%s%v:%v:%v", cacheGoZeroDouyinFollowUserIdFollowerIdIsDeletePrefix, data.UserId, data.FollowerId, data.IsDelete)
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, followRowsWithPlaceHolder)
 		if session != nil {
 			return session.ExecCtx(ctx, query, newData.UserId, newData.FollowerId, newData.Status, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id)
 		}
 		return conn.ExecCtx(ctx, query, newData.UserId, newData.FollowerId, newData.Status, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id)
-	}, goZeroDouyinFollowIdKey, goZeroDouyinFollowUserIdFollowerIdKey)
+	}, goZeroDouyinFollowIdKey, goZeroDouyinFollowUserIdFollowerIdIsDeleteKey)
 }
 
 func (m *defaultFollowModel) UpdateWithVersion(ctx context.Context, session sqlx.Session, newData *Follow) error {
@@ -155,14 +155,14 @@ func (m *defaultFollowModel) UpdateWithVersion(ctx context.Context, session sqlx
 		return err
 	}
 	goZeroDouyinFollowIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinFollowIdPrefix, data.Id)
-	goZeroDouyinFollowUserIdFollowerIdKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinFollowUserIdFollowerIdPrefix, data.UserId, data.FollowerId)
+	goZeroDouyinFollowUserIdFollowerIdIsDeleteKey := fmt.Sprintf("%s%v:%v:%v", cacheGoZeroDouyinFollowUserIdFollowerIdIsDeletePrefix, data.UserId, data.FollowerId, data.IsDelete)
 	sqlResult, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ? and version = ? ", m.table, followRowsWithPlaceHolder)
 		if session != nil {
 			return session.ExecCtx(ctx, query, newData.UserId, newData.FollowerId, newData.Status, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id, oldVersion)
 		}
 		return conn.ExecCtx(ctx, query, newData.UserId, newData.FollowerId, newData.Status, newData.DeleteTime, newData.IsDelete, newData.Version, newData.Id, oldVersion)
-	}, goZeroDouyinFollowIdKey, goZeroDouyinFollowUserIdFollowerIdKey)
+	}, goZeroDouyinFollowIdKey, goZeroDouyinFollowUserIdFollowerIdIsDeleteKey)
 	if err != nil {
 		return err
 	}
@@ -178,7 +178,7 @@ func (m *defaultFollowModel) UpdateWithVersion(ctx context.Context, session sqlx
 }
 
 func (m *defaultFollowModel) DeleteSoft(ctx context.Context, session sqlx.Session, data *Follow) error {
-	data.IsDelete = xconst.DelStateYes
+	data.IsDelete = data.Id
 	data.DeleteTime = time.Now()
 	if err := m.UpdateWithVersion(ctx, session, data); err != nil {
 		return errors.Wrapf(errors.New("delete soft failed "), "FollowModel delete err : %+v", err)
@@ -386,14 +386,14 @@ func (m *defaultFollowModel) Delete(ctx context.Context, session sqlx.Session, i
 	}
 
 	goZeroDouyinFollowIdKey := fmt.Sprintf("%s%v", cacheGoZeroDouyinFollowIdPrefix, id)
-	goZeroDouyinFollowUserIdFollowerIdKey := fmt.Sprintf("%s%v:%v", cacheGoZeroDouyinFollowUserIdFollowerIdPrefix, data.UserId, data.FollowerId)
+	goZeroDouyinFollowUserIdFollowerIdIsDeleteKey := fmt.Sprintf("%s%v:%v:%v", cacheGoZeroDouyinFollowUserIdFollowerIdIsDeletePrefix, data.UserId, data.FollowerId, data.IsDelete)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		if session != nil {
 			return session.ExecCtx(ctx, query, id)
 		}
 		return conn.ExecCtx(ctx, query, id)
-	}, goZeroDouyinFollowIdKey, goZeroDouyinFollowUserIdFollowerIdKey)
+	}, goZeroDouyinFollowIdKey, goZeroDouyinFollowUserIdFollowerIdIsDeleteKey)
 	return err
 }
 func (m *defaultFollowModel) formatPrimary(primary interface{}) string {

@@ -45,7 +45,7 @@ func (l *FollowUserLogic) FollowUser(in *pb.FollowUserReq) (*pb.FollowUserResp, 
 	}
 
 	// 查询数据库
-	follow, err := l.svcCtx.FollowModel.FindOneByUserIdFollowerId(l.ctx, in.GetUserId(), in.GetFollowerId())
+	follow, err := l.svcCtx.FollowModel.FindOneByUserIdFollowerIdIsDelete(l.ctx, in.GetUserId(), in.GetFollowerId(), xconst.DelStateNo)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 			"search user is alreaddy follow user from db failed, err: %v, follower_id: %d user_id: %d",
@@ -66,7 +66,7 @@ func (l *FollowUserLogic) FollowUser(in *pb.FollowUserReq) (*pb.FollowUserResp, 
 					"更新关注状态失败, err: %v, user_id: %d, follower_id: %d", err, in.GetUserId(), in.GetFollowerId())
 			}
 			// 查询粉丝数与关注数
-			followerCountRecord, err := l.svcCtx.FollowCountModel.FindOneByUserId(l.ctx, in.GetUserId())
+			followerCountRecord, err := l.svcCtx.FollowCountModel.FindOneByUserIdIsDelete(l.ctx, in.GetUserId(), xconst.DelStateNo)
 			if err != nil {
 				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 					"查询用户粉丝数失败, err: %v, user_id: %d", err, in.GetUserId())
@@ -77,7 +77,7 @@ func (l *FollowUserLogic) FollowUser(in *pb.FollowUserReq) (*pb.FollowUserResp, 
 				return errors.Wrapf(xerr.NewErrCode(xerr.DB_UPDATE_ERR),
 					"更新用户粉丝数失败, err: %v, user_id: %v", err, in.GetUserId())
 			}
-			followCountRecord, err := l.svcCtx.FollowCountModel.FindOneByUserId(l.ctx, in.GetFollowerId())
+			followCountRecord, err := l.svcCtx.FollowCountModel.FindOneByUserIdIsDelete(l.ctx, in.GetFollowerId(), xconst.DelStateNo)
 			if err != nil {
 				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 					"查询用户关注数失败, err: %v, user_id: %v", err, in.GetFollowerId())
@@ -107,7 +107,7 @@ func (l *FollowUserLogic) FollowUser(in *pb.FollowUserReq) (*pb.FollowUserResp, 
 					"插入关注记录失败, err: %v, user_id: %d, follower_id: %d", err, in.GetUserId(), in.GetFollowerId())
 			}
 			// 更新被关注用户粉丝数
-			followerCountRecord, err := l.svcCtx.FollowCountModel.FindOneByUserId(l.ctx, in.GetUserId())
+			followerCountRecord, err := l.svcCtx.FollowCountModel.FindOneByUserIdIsDelete(l.ctx, in.GetUserId(), xconst.DelStateNo)
 			if err != nil && !errors.Is(err, model.ErrNotFound) {
 				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 					"根据用户id查询粉丝关注数失败, err: %v, user_id: %v", err, in.GetUserId())
@@ -131,7 +131,7 @@ func (l *FollowUserLogic) FollowUser(in *pb.FollowUserReq) (*pb.FollowUserResp, 
 				}
 			}
 			// 更新关注用户关注数
-			followCountRecord, err := l.svcCtx.FollowCountModel.FindOneByUserId(l.ctx, in.GetFollowerId())
+			followCountRecord, err := l.svcCtx.FollowCountModel.FindOneByUserIdIsDelete(l.ctx, in.GetFollowerId(), xconst.DelStateNo)
 			if err != nil && !errors.Is(err, model.ErrNotFound) {
 				return errors.Wrapf(xerr.NewErrCode(xerr.DB_SEARCH_ERR),
 					"根据用户id查询粉丝关注数失败, err: %v, user_id: %v", err, in.GetFollowerId())

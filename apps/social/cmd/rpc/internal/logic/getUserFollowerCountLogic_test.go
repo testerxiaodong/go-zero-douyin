@@ -23,13 +23,14 @@ func TestGetUserFollowerCountLogic_GetUserFollowerCount(t *testing.T) {
 
 	// 查询数据库失败的mock
 	dbError := errors.New("FollowDo GetUserFollowCount error")
-	mockFollowDo.EXPECT().FindOneByUserId(gomock.Any(), gomock.Any()).Return(nil, dbError)
+	mockFollowDo.EXPECT().FindOneByUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, dbError)
 
 	// 查询数据库成功，但没有数据的mock
-	mockFollowDo.EXPECT().FindOneByUserId(gomock.Any(), gomock.Any()).Return(nil, model.ErrNotFound)
+	mockFollowDo.EXPECT().FindOneByUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, model.ErrNotFound)
 
 	// 查询数据库成功，有数据的mock
-	mockFollowDo.EXPECT().FindOneByUserId(gomock.Any(), gomock.Any()).
+	mockFollowDo.EXPECT().FindOneByUserIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.FollowCount{FollowerCount: 1}, model.ErrNotFound)
 
 	// 表格驱动测试

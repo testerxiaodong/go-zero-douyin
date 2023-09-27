@@ -24,30 +24,31 @@ func TestFollowUserLogic_FollowUser(t *testing.T) {
 
 	// 查询数据库失败mock
 	dbSearchError := errors.New("FollowDo.GetFollowByFollowerIdAndUserId error")
-	mockFollowDo.EXPECT().FindOneByUserIdFollowerId(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, dbSearchError)
+	mockFollowDo.EXPECT().FindOneByUserIdFollowerIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil, dbSearchError)
 
 	// 查询成功，有记录，且关注状态为已关注的mock
-	mockFollowDo.EXPECT().FindOneByUserIdFollowerId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockFollowDo.EXPECT().FindOneByUserIdFollowerIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.Follow{Status: xconst.FollowStateYes}, nil)
 
 	// 查询成功，有记录，且关注状态为未关注，事务失败mock
 	transError := errors.New("FollowDo.Trans error")
-	mockFollowDo.EXPECT().FindOneByUserIdFollowerId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockFollowDo.EXPECT().FindOneByUserIdFollowerIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.Follow{Status: 0}, nil)
 	mockFollowDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(transError)
 
 	// 查询成功，有记录，且关注状态为未关注，事务成功mock
-	mockFollowDo.EXPECT().FindOneByUserIdFollowerId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockFollowDo.EXPECT().FindOneByUserIdFollowerIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&model.Follow{Status: 0}, nil)
 	mockFollowDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(nil)
 
 	// 查询数据库成功，数据不存在，事务失败的mock
-	mockFollowDo.EXPECT().FindOneByUserIdFollowerId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockFollowDo.EXPECT().FindOneByUserIdFollowerIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, model.ErrNotFound)
 	mockFollowDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(transError)
 
 	// 查询数据库成功，数据不存在，事务成功的mock
-	mockFollowDo.EXPECT().FindOneByUserIdFollowerId(gomock.Any(), gomock.Any(), gomock.Any()).
+	mockFollowDo.EXPECT().FindOneByUserIdFollowerIdIsDelete(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, model.ErrNotFound)
 	mockFollowDo.EXPECT().Trans(gomock.Any(), gomock.Any()).Return(nil)
 
